@@ -233,6 +233,24 @@ fun LoginScreen(navController: NavController) {
                             color = Color.Black
                         )
                     }
+                    Button(
+                        onClick = {
+                            navController.navigate("requiredinfo")
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = CustomColor.gray300
+                        ),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        CustomText(
+                            text = "임시 로그인",
+                            type = CustomTextType.body,
+                            color = Color.Black
+                        )
+                    }
 
                     Row(
                         modifier = Modifier
@@ -344,6 +362,7 @@ fun LoginScreen(navController: NavController) {
 
             }
 
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
@@ -367,6 +386,8 @@ fun LoginScreen(navController: NavController) {
                     color = CustomColor.black,
                 )
             }
+
+
         }
     }
 }

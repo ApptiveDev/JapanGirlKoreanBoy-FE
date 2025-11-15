@@ -26,9 +26,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.credentials.CredentialManager
 import com.apptive.japkor.R
-import com.apptive.japkor.data.model.UserData
-import com.apptive.japkor.data.repository.AuthRepository
-import com.apptive.japkor.data.repository.UserRepository
 import com.apptive.japkor.ui.components.CustomToast
 import com.apptive.japkor.ui.theme.CustomColor
 import com.apptive.japkor.utils.auth.GoogleCredentialHelper
@@ -95,7 +92,7 @@ fun GoogleSignUpButton(onSignedIn: () -> Unit) {
                         }
 
                         // 2) Firebase 인증 & UserData 획득
-                        val userData: UserData = AuthRepository.firebaseSignIn(idToken)
+                        // val userData: UserData = AuthRepository.firebaseSignIn(idToken)
 
                         // 3) 서버로 전송 (optional) — 오류 있어도 흐름 유지 가능
 //                        try {
@@ -118,7 +115,7 @@ fun GoogleSignUpButton(onSignedIn: () -> Unit) {
 
                         // 4) Firestore 저장 ->  로그인 할때마다 저장하므로 수정 필요
                         try {
-                            UserRepository.saveUserToFirestore(userData)
+                            // UserRepository.saveUserToFirestore(userData)
                         } catch (e: Exception) {
                             Log.e("GoogleSignInButton", "Firestore 저장 실패 ${e.message}", e)
                         }
