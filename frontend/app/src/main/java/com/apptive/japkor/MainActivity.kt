@@ -10,7 +10,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.navigation.compose.rememberNavController
-import com.apptive.japkor.auth.AuthManager
 import com.apptive.japkor.navigation.AppNavHost
 import com.apptive.japkor.ui.theme.JapKorTheme
 
@@ -18,7 +17,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        AuthManager.init()
         enableEdgeToEdge()
         setContent {
             JapKorTheme {

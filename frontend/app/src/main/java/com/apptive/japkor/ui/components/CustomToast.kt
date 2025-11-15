@@ -12,7 +12,6 @@ import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import com.apptive.japkor.R
-import com.google.firebase.BuildConfig
 import kotlin.math.roundToInt
 
 /**
@@ -44,10 +43,6 @@ object CustomToast {
         duration: Int = Toast.LENGTH_SHORT
     ) {
         logMessage(type, message)
-
-        if (!BuildConfig.DEBUG && type == ToastType.DEBUG) {
-            return
-        }
 
         val appContext = context.applicationContext
         val toastView = LayoutInflater.from(appContext)
@@ -172,12 +167,12 @@ object CustomToast {
     }
 
     private fun logMessage(type: ToastType, message: String) {
-        val prefix = when (type) {
-            ToastType.DEFAULT -> "DEFAULT"
-            ToastType.SUCCESS -> "SUCCESS"
-            ToastType.ERROR -> "ERROR"
-            ToastType.DEBUG -> "DEBUG"
+        if (type == ToastType.ERROR) {
+            Log.e(TAG, message)
+        } else if (type == ToastType.DEBUG) {
+            Log.d(TAG, message)
+        } else {
+            Log.i(TAG, message)
         }
-        Log.d(TAG, "[$prefix] $message")
     }
 }

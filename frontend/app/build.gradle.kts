@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -45,10 +44,6 @@ dependencies {
     implementation(libs.navigation.compose) // navigation
     implementation(libs.androidx.credentials) // credentials
     implementation(libs.googleid) // googleId
-    implementation(libs.firebase.auth) // firebase auth
-    implementation(platform(libs.firebase.bom)) // firebase bom 버전관리 모듈
-
-    implementation("com.google.firebase:firebase-firestore-ktx") // firestore
 
     implementation("com.squareup.retrofit2:retrofit:2.9.0") // retrofit
     implementation("com.squareup.retrofit2:converter-gson:2.9.0") // gson converter
