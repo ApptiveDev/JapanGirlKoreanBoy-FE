@@ -246,7 +246,7 @@ fun OptionChip(
         shadowElevation = 0.dp
     ) {
         Box(
-            modifier = Modifier.padding(horizontal = 24.dp),
+            modifier = Modifier.padding(horizontal = 12.dp),
             contentAlignment = Alignment.Center
         ) {
             CustomText(
