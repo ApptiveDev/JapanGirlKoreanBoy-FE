@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import com.apptive.japkor.ui.components.CustomText
 import com.apptive.japkor.ui.components.CustomTextType
 import com.apptive.japkor.ui.theme.CustomColor
+import com.apptive.japkor.ui.components.OptionChip
 
 private val degreeOptions = listOf("고등학교 졸업", "전문학사(2년제 대학)", "학사(4년제 대학)", "석사", "박사")
 private val wealthOptions = listOf(
