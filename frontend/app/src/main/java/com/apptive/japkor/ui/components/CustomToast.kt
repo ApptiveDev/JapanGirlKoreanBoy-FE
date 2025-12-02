@@ -4,11 +4,16 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,9 +28,12 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.apptive.japkor.ui.theme.CustomColor
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -113,10 +121,28 @@ private fun CustomToast(
     message: ToastMessage,
     onDismiss: () -> Unit
 ) {
-    val (backgroundColor, textColor) = when (message.type) {
-        ToastType.INFO -> Color(0xFF1F2937) to Color.White
-        ToastType.SUCCESS -> Color(0xFF065F46) to Color.White
-        ToastType.ERROR -> Color(0xFFB91C1C) to Color.White
+    val style = when (message.type) {
+        ToastType.INFO -> ToastVisualStyle(
+            startColor = Color(0xFFFEF8F3),
+            endColor = Color(0xFFF7E8DF),
+            borderColor = Color(0xFFE7D4C4),
+            textColor = Color(0xFF4A3B31),
+            accentColor = Color(0xFFD9B185)
+        )
+        ToastType.SUCCESS -> ToastVisualStyle(
+            startColor = Color(0xFFF2F8F2),
+            endColor = Color(0xFFE5F0E7),
+            borderColor = Color(0xFFBFD4C5),
+            textColor = Color(0xFF2F4738),
+            accentColor = Color(0xFF8BB89A)
+        )
+        ToastType.ERROR -> ToastVisualStyle(
+            startColor = Color(0xFFFDF4F4),
+            endColor = Color(0xFFF5E3E3),
+            borderColor = Color(0xFFE4B8B8),
+            textColor = Color(0xFF5B2C2C),
+            accentColor = Color(0xFFCF8D8D)
+        )
     }
 
     var visible by remember { mutableStateOf(false) }
@@ -134,19 +160,52 @@ private fun CustomToast(
         enter = fadeIn(),
         exit = fadeOut(),
     ) {
+        val gradient = Brush.linearGradient(colors = listOf(style.startColor, style.endColor))
+        val shape = RoundedCornerShape(14.dp)
+
         Box(
             modifier = Modifier
-                .shadow(elevation = 8.dp, shape = RoundedCornerShape(12.dp))
+                .fillMaxWidth()
+                .shadow(elevation = 10.dp, shape = shape)
                 .background(
-                    color = backgroundColor,
-                    shape = RoundedCornerShape(12.dp)
+                    brush = gradient,
+                    shape = shape
                 )
-                .padding(horizontal = 24.dp, vertical = 16.dp)
+                .border(width = 1.dp, color = style.borderColor, shape = shape)
+                .background(
+                    color = Color.Transparent,
+                    shape = shape
+                )
+                .padding(horizontal = 22.dp, vertical = 18.dp)
         ) {
-            Text(
-                text = message.message,
-                color = textColor
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .width(48.dp)
+                        .height(4.dp)
+                        .background(color = style.accentColor, shape = RoundedCornerShape(50))
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = message.message,
+                    color = style.textColor,
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp,
+                    fontWeight = FontWeight.Medium,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }
+
+private data class ToastVisualStyle(
+    val startColor: Color,
+    val endColor: Color,
+    val borderColor: Color,
+    val textColor: Color,
+    val accentColor: Color
+)
