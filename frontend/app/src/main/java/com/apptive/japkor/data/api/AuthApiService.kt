@@ -6,14 +6,12 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 
 interface AuthApiService {
-
-
     @POST("sign-up")
-    fun signUp(@Body body: SignUpRequest): Call<Void>
+    fun signUp(@Body body: SignUpDTO): Call<Void>
 
-    @POST("/email-code/send")
-    fun sendEmailCode(@Body email: String): Call<Void>
+    @POST("email-code/send")
+    fun sendEmailCode(@Body body: SendEmailCodeRequest): Call<Void>
 
-    @POST("/email-code/verify")
+    @POST("email-code/verify")
     fun verifyEmailCode(@Body body: VerifyEmailCodeRequest): Call<Void>
 }
