@@ -33,7 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -43,14 +42,14 @@ import com.apptive.japkor.ui.components.CustomOutlinedTextField
 import com.apptive.japkor.ui.components.CustomText
 import com.apptive.japkor.ui.components.CustomTextType
 import com.apptive.japkor.ui.theme.CustomColor
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.viewmodel.compose.viewModel
+
 import com.apptive.japkor.ui.signup.components.EmailWithAuthSection
 import com.apptive.japkor.ui.signup.components.PasswordSection
+import com.apptive.japkor.ui.components.LocalToastManager
 
 
 /**
@@ -62,7 +61,9 @@ import com.apptive.japkor.ui.signup.components.PasswordSection
  * PasswordSection: 비밀번호 입력 및 확인
  */
 @Composable
-fun SignUpScreen(navController: NavController) {
+fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = viewModel()) {
+    val toastManager = LocalToastManager.current
+
     var name by remember { mutableStateOf("") }
 
     var emailLocal by remember { mutableStateOf("") }   // @ 앞
@@ -80,6 +81,28 @@ fun SignUpScreen(navController: NavController) {
         passwordConfirm.isNotBlank() && password != passwordConfirm
 
     val scrollState = rememberScrollState()
+
+    val emailSent by viewModel.emailSent.collectAsState()
+    val emailVerified by viewModel.emailVerified.collectAsState()
+    val signUpSuccess by viewModel.signUpSuccess.collectAsState()
+
+    LaunchedEffect(emailSent) {
+        if (emailSent) {
+            toastManager.success("인증코드가 전송되었습니다!")
+        }
+    }
+
+    LaunchedEffect(emailVerified) {
+        if (emailVerified) {
+            toastManager.success("이메일 인증 완료!")
+        }
+    }
+
+    LaunchedEffect(signUpSuccess) {
+        if (signUpSuccess) {
+            navController.navigate("login")
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -182,11 +205,13 @@ fun SignUpScreen(navController: NavController) {
                 onAuthCodeChange = { authCode = it },
                 canSendCode = canSendCode,
                 onClickSendCode = {
-                    // TODO: 인증 코드 전송 API
+                    val email ="$emailLocal@$emailDomain"
+                    viewModel.sendEmailCode(email)
                 },
                 canVerifyCode = canVerifyCode,
                 onClickVerify = {
-                    // TODO: 인증 코드 검증 API
+                    val email ="$emailLocal@$emailDomain"
+                    viewModel.verifyEmail(email,authCode)
                 }
             )
 
@@ -203,7 +228,14 @@ fun SignUpScreen(navController: NavController) {
             // 가입하기
             Spacer(modifier = Modifier.height(16.dp))
             Button(
-                onClick = { /* TODO: 회원가입 API */ },
+                onClick = {
+                    val email = "$emailLocal@$emailDomain"
+                    viewModel.signUp(
+                        name = name,
+                        email = email,
+                        password = password
+                    )
+                },
                 enabled = name.isNotBlank()
                         && emailLocal.isNotBlank()
                         && emailDomain.isNotBlank()
@@ -230,4 +262,3 @@ fun SignUpScreen(navController: NavController) {
         }
     }
 }
-
