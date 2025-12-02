@@ -1,3 +1,10 @@
+import java.util.Properties
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
+}
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -20,7 +27,7 @@ android {
         buildConfigField(
             "String",
             "BASE_URL",
-            "\"${project.findProperty("BASE_URL") ?: ""}\""
+            "\"${localProperties.getProperty("BASE_URL")}\""
         )
     }
 
