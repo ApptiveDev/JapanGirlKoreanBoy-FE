@@ -1,178 +1,151 @@
 package com.apptive.japkor.ui.components
 
-import android.content.Context
-import android.graphics.drawable.GradientDrawable
-import android.util.Log
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.View
-import android.widget.TextView
-import android.widget.Toast
-import androidx.annotation.StringRes
-import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
-import com.apptive.japkor.R
-import kotlin.math.roundToInt
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import com.apptive.japkor.ui.theme.CustomColor
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import java.util.UUID
 
-/**
- * App-wide toast helper that provides a consistent look & feel.
- */
-object CustomToast {
+enum class ToastType {
+    INFO, SUCCESS, ERROR
+}
 
-    private const val TAG = "CustomToast"
+data class ToastMessage(
+    val id: String = UUID.randomUUID().toString(),
+    val message: String,
+    val type: ToastType,
+    val duration: Long = 2000L
+)
 
-    enum class ToastType {
-        DEFAULT,
-        SUCCESS,
-        ERROR,
-        DEBUG
+class ToastManager {
+    private val _toastMessages = MutableStateFlow<List<ToastMessage>>(emptyList())
+    val toastMessages: StateFlow<List<ToastMessage>> = _toastMessages.asStateFlow()
+
+    fun show(type: ToastType, message: String) {
+        _toastMessages.update {
+            it + ToastMessage(message = message, type = type)
+        }
     }
 
-    private data class ToastStyle(
-        val backgroundColor: Int,
-        val borderColor: Int,
-        val textColor: Int
-    )
+    fun info(message: String) = show(ToastType.INFO, message)
+    fun success(message: String) = show(ToastType.SUCCESS, message)
+    fun error(message: String) = show(ToastType.ERROR, message)
 
-    private var currentToast: Toast? = null
+    fun dismiss(id: String) {
+        _toastMessages.update { messages ->
+            messages.filterNot { it.id == id }
+        }
+    }
+}
 
-    fun show(
-        context: Context,
-        message: String,
-        type: ToastType = ToastType.DEFAULT,
-        duration: Int = Toast.LENGTH_SHORT
+val LocalToastManager = staticCompositionLocalOf<ToastManager> {
+    error("No ToastManager provided")
+}
+
+@Composable
+fun ToastProvider(
+    manager: ToastManager,
+    content: @Composable () -> Unit
+) {
+    CompositionLocalProvider(LocalToastManager provides manager) {
+        content()
+    }
+}
+
+@Composable
+fun CustomToastContainer(
+    manager: ToastManager,
+    modifier: Modifier = Modifier
+) {
+    val messages = manager.toastMessages.collectAsState().value
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(bottom = 100.dp),
+        contentAlignment = Alignment.BottomCenter
     ) {
-        logMessage(type, message)
-
-        val appContext = context.applicationContext
-        val toastView = LayoutInflater.from(appContext)
-            .inflate(R.layout.view_custom_toast, null)
-
-        val messageView = toastView.findViewById<TextView>(R.id.toast_message)
-        messageView.text = message
-
-        applyStyle(appContext, toastView, messageView, type)
-
-        ViewCompat.setElevation(toastView, 12f)
-
-        currentToast?.cancel()
-        currentToast = Toast(appContext).apply {
-            view = toastView
-            this.duration = duration
-            setGravity(
-                Gravity.TOP or Gravity.CENTER_HORIZONTAL,
-                0,
-                appContext.resources.getDimensionPixelSize(R.dimen.toast_vertical_offset)
-            )
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            messages.forEach { message ->
+                CustomToast(
+                    message = message,
+                    onDismiss = { manager.dismiss(message.id) }
+                )
+            }
         }
+    }
+}
 
-        currentToast?.show()
+
+@Composable
+private fun CustomToast(
+    message: ToastMessage,
+    onDismiss: () -> Unit
+) {
+    val (backgroundColor, textColor) = when (message.type) {
+        ToastType.INFO -> Color(0xFFFFEAE5) to CustomColor.gray400 // Wedding-like pink
+        ToastType.SUCCESS -> Color(0xFFE5F5E6) to CustomColor.gray400 // Soft Green
+        ToastType.ERROR -> Color(0xFFFDE2E2) to CustomColor.gray400 // Soft Red
     }
 
-    fun show(
-        context: Context,
-        @StringRes messageRes: Int,
-        type: ToastType = ToastType.DEFAULT,
-        duration: Int = Toast.LENGTH_SHORT
+    var visible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        visible = true
+        delay(message.duration)
+        visible = false
+        delay(300) // fade-out animation time
+        onDismiss()
+    }
+
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn(),
+        exit = fadeOut(),
     ) {
-        show(context, context.getString(messageRes), type, duration)
-    }
-
-    fun showLong(context: Context, message: String, type: ToastType = ToastType.DEFAULT) {
-        show(context, message, type, Toast.LENGTH_LONG)
-    }
-
-    fun showLong(
-        context: Context,
-        @StringRes messageRes: Int,
-        type: ToastType = ToastType.DEFAULT
-    ) {
-        show(context, context.getString(messageRes), type, Toast.LENGTH_LONG)
-    }
-
-    fun showSuccess(context: Context, message: String, long: Boolean = false) {
-        if (long) {
-            showLong(context, message, ToastType.SUCCESS)
-        } else {
-            show(context, message, ToastType.SUCCESS)
-        }
-    }
-
-    fun showError(context: Context, message: String, long: Boolean = false) {
-        if (long) {
-            showLong(context, message, ToastType.ERROR)
-        } else {
-            show(context, message, ToastType.ERROR)
-        }
-    }
-
-    fun showDebug(context: Context, message: String, long: Boolean = false) {
-        if (long) {
-            showLong(context, message, ToastType.DEBUG)
-        } else {
-            show(context, message, ToastType.DEBUG)
-        }
-    }
-
-    private fun applyStyle(
-        context: Context,
-        root: View,
-        messageView: TextView,
-        type: ToastType
-    ) {
-        val style = resolveStyle(context, type)
-        messageView.setTextColor(style.textColor)
-
-        val background = root.background
-        if (background is GradientDrawable) {
-            background.mutate()
-            background.setColor(style.backgroundColor)
-            background.setStroke(root.dpToPx(1f), style.borderColor)
-        } else {
-            root.setBackgroundColor(style.backgroundColor)
-        }
-    }
-
-    private fun resolveStyle(context: Context, type: ToastType): ToastStyle {
-        return when (type) {
-            ToastType.DEFAULT -> ToastStyle(
-                backgroundColor = ContextCompat.getColor(context, R.color.toast_background),
-                borderColor = ContextCompat.getColor(context, R.color.toast_border),
-                textColor = ContextCompat.getColor(context, R.color.toast_text)
+        Box(
+            modifier = Modifier
+                .shadow(elevation = 8.dp, shape = RoundedCornerShape(12.dp))
+                .background(
+                    color = backgroundColor,
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .padding(horizontal = 24.dp, vertical = 16.dp)
+        ) {
+            Text(
+                text = message.message,
+                color = textColor
             )
-
-            ToastType.SUCCESS -> ToastStyle(
-                backgroundColor = ContextCompat.getColor(context, R.color.toast_background),
-                borderColor = ContextCompat.getColor(context, R.color.toast_success_border),
-                textColor = ContextCompat.getColor(context, R.color.toast_text)
-            )
-
-            ToastType.ERROR -> ToastStyle(
-                backgroundColor = ContextCompat.getColor(context, R.color.toast_background),
-                borderColor = ContextCompat.getColor(context, R.color.toast_error_border),
-                textColor = ContextCompat.getColor(context, R.color.toast_text)
-            )
-
-            ToastType.DEBUG -> ToastStyle(
-                backgroundColor = ContextCompat.getColor(context, R.color.toast_background),
-                borderColor = ContextCompat.getColor(context, R.color.toast_debug_border),
-                textColor = ContextCompat.getColor(context, R.color.toast_text)
-            )
-        }
-    }
-
-    private fun View.dpToPx(value: Float): Int {
-        val density = resources.displayMetrics.density
-        return (value * density).roundToInt().coerceAtLeast(1)
-    }
-
-    private fun logMessage(type: ToastType, message: String) {
-        if (type == ToastType.ERROR) {
-            Log.e(TAG, message)
-        } else if (type == ToastType.DEBUG) {
-            Log.d(TAG, message)
-        } else {
-            Log.i(TAG, message)
         }
     }
 }

@@ -45,7 +45,7 @@ import com.apptive.japkor.navigation.Screen
 import com.apptive.japkor.ui.components.CustomOutlinedTextField
 import com.apptive.japkor.ui.components.CustomText
 import com.apptive.japkor.ui.components.CustomTextType
-import com.apptive.japkor.ui.components.CustomToast
+import com.apptive.japkor.ui.components.LocalToastManager
 import com.apptive.japkor.ui.components.auth.GoogleSignUpButton
 import com.apptive.japkor.ui.theme.CustomColor
 import retrofit2.Call
@@ -54,6 +54,7 @@ import retrofit2.Response
 
 @Composable
 fun LoginScreen(navController: NavController) {
+    val toastManager = LocalToastManager.current
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
@@ -288,11 +289,7 @@ fun LoginScreen(navController: NavController) {
                 GoogleSignUpButton(
                     onSignedIn = {
                         Log.d("LoginScreen", "onSignedIn 콜백 호출됨")
-                        CustomToast.showSuccess(
-                            context,
-                            "로그인 성공! 환영합니다."
-                        )
-
+                        toastManager.success("로그인 성공! 환영합니다.")
                         navController.navigate("requiredinfo")
                     },
                 )

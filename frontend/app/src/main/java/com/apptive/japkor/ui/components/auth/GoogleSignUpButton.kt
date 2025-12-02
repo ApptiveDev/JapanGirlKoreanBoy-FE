@@ -26,7 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.credentials.CredentialManager
 import com.apptive.japkor.R
-import com.apptive.japkor.ui.components.CustomToast
+import com.apptive.japkor.ui.components.LocalToastManager
 import com.apptive.japkor.ui.theme.CustomColor
 import com.apptive.japkor.utils.auth.GoogleCredentialHelper
 import kotlinx.coroutines.CancellationException
@@ -35,6 +35,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun GoogleSignUpButton(onSignedIn: () -> Unit) {
     val context = LocalContext.current
+    val toastManager = LocalToastManager.current
     val activity = context as? ComponentActivity ?: (context as? Activity)
     if (activity == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -43,19 +44,19 @@ fun GoogleSignUpButton(onSignedIn: () -> Unit) {
         return
     }
 
-    val credentialManager = remember { CredentialManager.create(context) } // Google 계정 토큰 획득
-    val coroutineScope = rememberCoroutineScope() // 버튼 클릭 시 비동기 처리용
+    val credentialManager = remember { CredentialManager.create(context) }
+    val coroutineScope = rememberCoroutineScope()
 
     Column {
         Button(
             modifier = Modifier
-                .size(30.dp) // 버튼 크기
+                .size(30.dp)
                 .border(
                     width = 1.dp,
                     color = CustomColor.gray200,
                     shape = CircleShape
                 ),
-            shape = CircleShape, // 완전한 원
+            shape = CircleShape,
             onClick = {
 
                 coroutineScope.launch {
@@ -79,10 +80,7 @@ fun GoogleSignUpButton(onSignedIn: () -> Unit) {
                                     activity,
                                     { future ->
                                         activity.runOnUiThread {
-                                            CustomToast.showSuccess(
-                                                activity,
-                                                "계정 추가 화면이 열렸습니다."
-                                            )
+                                            toastManager.success("계정 추가 화면이 열렸습니다.")
                                         }
                                     },
                                     null
@@ -126,10 +124,10 @@ fun GoogleSignUpButton(onSignedIn: () -> Unit) {
                     } catch (e: CancellationException) {
                         // 취소 무시
                         Log.w("GoogleSignInButton", "작업 취소됨 ${e.message}")
-                        CustomToast.showDebug(activity, "Google 로그인 취소")
+                        toastManager.info("Google 로그인 취소")
                     } catch (e: Exception) {
                         Log.e("GoogleSignInButton", "로그인 실패: ${e.message}")
-                        CustomToast.showError(activity, "Google 로그인에 실패했습니다.")
+                        toastManager.error("Google 로그인에 실패했습니다.")
 
                     }
                 }
