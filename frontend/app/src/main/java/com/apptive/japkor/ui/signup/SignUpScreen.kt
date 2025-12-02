@@ -47,6 +47,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
 
+import com.apptive.japkor.ui.components.ToastType
 import com.apptive.japkor.ui.signup.components.EmailWithAuthSection
 import com.apptive.japkor.ui.signup.components.PasswordSection
 import com.apptive.japkor.ui.components.LocalToastManager
@@ -84,14 +85,20 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = view
     val scrollState = rememberScrollState()
 
     val hasSentCode by viewModel.hasSentCode.collectAsState()
-    val isCountingDown by viewModel.isCountingDown.collectAsState()
     val isResendEnabled by viewModel.isResendEnabled.collectAsState()
     val codeTimerSeconds by viewModel.codeTimerSeconds.collectAsState()
+    val emailVerified by viewModel.emailVerified.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.events.collectLatest { event ->
             when (event) {
-                is SignUpUiEvent.ShowToast -> toastManager.success(event.message)
+                is SignUpUiEvent.ShowToast -> {
+                    when (event.type) {
+                        ToastType.INFO -> toastManager.info(event.message)
+                        ToastType.SUCCESS -> toastManager.success(event.message)
+                        ToastType.ERROR -> toastManager.error(event.message)
+                    }
+                }
                 SignUpUiEvent.NavigateToLogin -> navController.navigate("login")
             }
         }
@@ -196,24 +203,24 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = view
                 onEmailDomainChange = { emailDomain = it },
                 authCode = authCode,
                 onAuthCodeChange = { authCode = it },
-                canSendCode = canSendCode,
+                canSendCode = canSendCode && !emailVerified,
                 onClickSendCode = {
-                    val email ="$emailLocal@$emailDomain"
+                    val email = "$emailLocal@$emailDomain"
                     viewModel.sendEmailCode(email)
                 },
-                isSendButtonEnabled = !isCountingDown,
                 showResend = hasSentCode,
-                isResendEnabled = isResendEnabled,
-                remainingSeconds = codeTimerSeconds,
+                isResendEnabled = isResendEnabled && !emailVerified,
+                remainingSeconds = if (emailVerified) 0 else codeTimerSeconds,
                 onClickResend = {
-                    val email ="$emailLocal@$emailDomain"
+                    val email = "$emailLocal@$emailDomain"
                     viewModel.sendEmailCode(email)
                 },
-                canVerifyCode = canVerifyCode,
+                canVerifyCode = canVerifyCode && !emailVerified,
                 onClickVerify = {
-                    val email ="$emailLocal@$emailDomain"
-                    viewModel.verifyEmail(email,authCode)
-                }
+                    val email = "$emailLocal@$emailDomain"
+                    viewModel.verifyEmail(email, authCode)
+                },
+                isEmailVerified = emailVerified
             )
 
             // 비밀번호

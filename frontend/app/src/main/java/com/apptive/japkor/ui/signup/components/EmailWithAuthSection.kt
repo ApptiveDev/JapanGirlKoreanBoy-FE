@@ -32,13 +32,13 @@ fun EmailWithAuthSection(
     onAuthCodeChange: (String) -> Unit,
     canSendCode: Boolean,
     onClickSendCode: () -> Unit,
-    isSendButtonEnabled: Boolean,
     showResend: Boolean,
     isResendEnabled: Boolean,
     remainingSeconds: Int,
     onClickResend: () -> Unit,
     canVerifyCode: Boolean,
-    onClickVerify: () -> Unit
+    onClickVerify: () -> Unit,
+    isEmailVerified: Boolean
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -63,6 +63,7 @@ fun EmailWithAuthSection(
                 onValueChange = onEmailLocalChange,
                 placeholder = "이메일",
                 modifier = Modifier.weight(1f),
+                enabled = !isEmailVerified,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
@@ -80,6 +81,7 @@ fun EmailWithAuthSection(
                 onValueChange = onEmailDomainChange,
                 placeholder = "직접 입력",
                 modifier = Modifier.weight(1f),
+                enabled = !isEmailVerified,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
@@ -95,7 +97,7 @@ fun EmailWithAuthSection(
         ) {
             Button(
                 onClick = onClickSendCode,
-                enabled = canSendCode && isSendButtonEnabled,
+                enabled = canSendCode && !showResend && !isEmailVerified,
                 modifier = Modifier
                     .weight(1f)
                     .height(50.dp),
@@ -117,19 +119,23 @@ fun EmailWithAuthSection(
             if (showResend) {
                 Button(
                     onClick = onClickResend,
-                    enabled = isResendEnabled,
+                    enabled = isResendEnabled && !isEmailVerified,
                     modifier = Modifier.height(50.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF111827),
+                        containerColor = Color(0xFFF45C4A),
                         contentColor = CustomColor.white,
                         disabledContainerColor = CustomColor.gray300,
                         disabledContentColor = CustomColor.white
                     ),
                     shape = RoundedCornerShape(16.dp)
                 ) {
-                    val timerText = formatRemainingSeconds(remainingSeconds)
+                    val timerText = if (!isEmailVerified && remainingSeconds > 0) {
+                        formatRemainingSeconds(remainingSeconds)
+                    } else {
+                        null
+                    }
                     CustomText(
-                        text = if (remainingSeconds > 0) "재전송 ($timerText)" else "재전송",
+                        text = timerText?.let { "재전송 ($it)" } ?: "재전송",
                         type = CustomTextType.body,
                         size = 13.sp
                     )
@@ -142,7 +148,8 @@ fun EmailWithAuthSection(
             authCode = authCode,
             onAuthCodeChange = onAuthCodeChange,
             canVerifyCode = canVerifyCode,
-            onClickVerify = onClickVerify
+            onClickVerify = onClickVerify,
+            enabled = !isEmailVerified
         )
     }
 }

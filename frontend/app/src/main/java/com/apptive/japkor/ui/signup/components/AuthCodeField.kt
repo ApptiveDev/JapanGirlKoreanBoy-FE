@@ -33,19 +33,26 @@ fun AuthCodeField(
     authCode: String,
     onAuthCodeChange: (String) -> Unit,
     canVerifyCode: Boolean,
-    onClickVerify: () -> Unit
+    onClickVerify: () -> Unit,
+    enabled: Boolean = true
 ) {
     val outerShape = RoundedCornerShape(16.dp)
     var isFocused by remember { mutableStateOf(false) }
-    val borderWidth = if (isFocused) 2.dp else 1.dp
-    val borderColor = if (isFocused) CustomColor.gray300 else CustomColor.gray200
+    val borderWidth = if (enabled && isFocused) 2.dp else 1.dp
+    val borderColor = when {
+        !enabled -> CustomColor.gray200
+        isFocused -> CustomColor.gray300
+        else -> CustomColor.gray200
+    }
+    val backgroundColor = if (enabled) Color.White else CustomColor.gray100
+    val textColor = if (enabled) CustomColor.black else CustomColor.gray300
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(50.dp)
             .border(borderWidth, borderColor, outerShape)
-            .background(Color.White, outerShape)
+            .background(backgroundColor, outerShape)
             .padding(horizontal = 12.dp)
     ) {
         Row(
@@ -72,21 +79,22 @@ fun AuthCodeField(
                     onValueChange = onAuthCodeChange,
                     singleLine = true,
                     textStyle = TextStyle(
-                        color = CustomColor.black,
+                        color = textColor,
                         fontSize = 14.sp
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged { focusState ->
-                            isFocused = focusState.isFocused
-                        }
+                            isFocused = enabled && focusState.isFocused
+                        },
+                    enabled = enabled
                 )
             }
 
             // 필드 안에 들어가는 작은 인증 버튼
             Button(
                 onClick = onClickVerify,
-                enabled = canVerifyCode,
+                enabled = canVerifyCode && enabled,
                 modifier = Modifier.height(32.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFF45C4A),
