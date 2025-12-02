@@ -50,6 +50,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.apptive.japkor.ui.signup.components.EmailWithAuthSection
 import com.apptive.japkor.ui.signup.components.PasswordSection
 import com.apptive.japkor.ui.components.LocalToastManager
+import kotlinx.coroutines.flow.collectLatest
 
 
 /**
@@ -82,25 +83,17 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = view
 
     val scrollState = rememberScrollState()
 
-    val emailSent by viewModel.emailSent.collectAsState()
-    val emailVerified by viewModel.emailVerified.collectAsState()
-    val signUpSuccess by viewModel.signUpSuccess.collectAsState()
+    val hasSentCode by viewModel.hasSentCode.collectAsState()
+    val isCountingDown by viewModel.isCountingDown.collectAsState()
+    val isResendEnabled by viewModel.isResendEnabled.collectAsState()
+    val codeTimerSeconds by viewModel.codeTimerSeconds.collectAsState()
 
-    LaunchedEffect(emailSent) {
-        if (emailSent) {
-            toastManager.success("인증코드가 전송되었습니다!")
-        }
-    }
-
-    LaunchedEffect(emailVerified) {
-        if (emailVerified) {
-            toastManager.success("이메일 인증 완료!")
-        }
-    }
-
-    LaunchedEffect(signUpSuccess) {
-        if (signUpSuccess) {
-            navController.navigate("login")
+    LaunchedEffect(Unit) {
+        viewModel.events.collectLatest { event ->
+            when (event) {
+                is SignUpUiEvent.ShowToast -> toastManager.success(event.message)
+                SignUpUiEvent.NavigateToLogin -> navController.navigate("login")
+            }
         }
     }
 
@@ -205,6 +198,14 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = view
                 onAuthCodeChange = { authCode = it },
                 canSendCode = canSendCode,
                 onClickSendCode = {
+                    val email ="$emailLocal@$emailDomain"
+                    viewModel.sendEmailCode(email)
+                },
+                isSendButtonEnabled = !isCountingDown,
+                showResend = hasSentCode,
+                isResendEnabled = isResendEnabled,
+                remainingSeconds = codeTimerSeconds,
+                onClickResend = {
                     val email ="$emailLocal@$emailDomain"
                     viewModel.sendEmailCode(email)
                 },

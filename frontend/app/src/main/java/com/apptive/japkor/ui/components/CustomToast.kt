@@ -49,6 +49,7 @@ class ToastManager {
     val toastMessages: StateFlow<List<ToastMessage>> = _toastMessages.asStateFlow()
 
     fun show(type: ToastType, message: String) {
+        android.util.Log.d("ToastManager", "show toast type=$type message=$message")
         _toastMessages.update {
             it + ToastMessage(message = message, type = type)
         }
@@ -89,8 +90,8 @@ fun CustomToastContainer(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .padding(bottom = 100.dp),
-        contentAlignment = Alignment.BottomCenter
+            .padding(horizontal = 16.dp, vertical = 24.dp),
+        contentAlignment = Alignment.TopCenter
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -113,9 +114,9 @@ private fun CustomToast(
     onDismiss: () -> Unit
 ) {
     val (backgroundColor, textColor) = when (message.type) {
-        ToastType.INFO -> Color(0xFFFFEAE5) to CustomColor.gray400 // Wedding-like pink
-        ToastType.SUCCESS -> Color(0xFFE5F5E6) to CustomColor.gray400 // Soft Green
-        ToastType.ERROR -> Color(0xFFFDE2E2) to CustomColor.gray400 // Soft Red
+        ToastType.INFO -> Color(0xFF1F2937) to Color.White
+        ToastType.SUCCESS -> Color(0xFF065F46) to Color.White
+        ToastType.ERROR -> Color(0xFFB91C1C) to Color.White
     }
 
     var visible by remember { mutableStateOf(false) }

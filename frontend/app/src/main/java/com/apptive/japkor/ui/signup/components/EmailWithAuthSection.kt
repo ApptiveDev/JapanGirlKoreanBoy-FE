@@ -32,6 +32,11 @@ fun EmailWithAuthSection(
     onAuthCodeChange: (String) -> Unit,
     canSendCode: Boolean,
     onClickSendCode: () -> Unit,
+    isSendButtonEnabled: Boolean,
+    showResend: Boolean,
+    isResendEnabled: Boolean,
+    remainingSeconds: Int,
+    onClickResend: () -> Unit,
     canVerifyCode: Boolean,
     onClickVerify: () -> Unit
 ) {
@@ -83,25 +88,53 @@ fun EmailWithAuthSection(
         }
 
         // 인증 코드 전송 버튼 (비활성/활성)
-        Button(
-            onClick = onClickSendCode,
-            enabled = canSendCode,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFF45C4A),
-                contentColor = CustomColor.white,
-                disabledContainerColor = CustomColor.gray300,
-                disabledContentColor = CustomColor.white
-            ),
-            shape = RoundedCornerShape(16.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            CustomText(
-                text = "인증 코드 전송",
-                type = CustomTextType.body,
-                size = 15.sp
-            )
+            Button(
+                onClick = onClickSendCode,
+                enabled = canSendCode && isSendButtonEnabled,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFF45C4A),
+                    contentColor = CustomColor.white,
+                    disabledContainerColor = CustomColor.gray300,
+                    disabledContentColor = CustomColor.white
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                CustomText(
+                    text = "인증 코드 전송",
+                    type = CustomTextType.body,
+                    size = 15.sp
+                )
+            }
+
+            if (showResend) {
+                Button(
+                    onClick = onClickResend,
+                    enabled = isResendEnabled,
+                    modifier = Modifier.height(50.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF111827),
+                        contentColor = CustomColor.white,
+                        disabledContainerColor = CustomColor.gray300,
+                        disabledContentColor = CustomColor.white
+                    ),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    val timerText = formatRemainingSeconds(remainingSeconds)
+                    CustomText(
+                        text = if (remainingSeconds > 0) "재전송 ($timerText)" else "재전송",
+                        type = CustomTextType.body,
+                        size = 13.sp
+                    )
+                }
+            }
         }
 
         // 인증 코드 입력 + 필드 안쪽에 인증 버튼
@@ -112,4 +145,10 @@ fun EmailWithAuthSection(
             onClickVerify = onClickVerify
         )
     }
+}
+
+private fun formatRemainingSeconds(seconds: Int): String {
+    val minutes = seconds / 60
+    val sec = seconds % 60
+    return "%d:%02d".format(minutes, sec)
 }
