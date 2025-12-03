@@ -1,178 +1,211 @@
 package com.apptive.japkor.ui.components
 
-import android.content.Context
-import android.graphics.drawable.GradientDrawable
-import android.util.Log
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.View
-import android.widget.TextView
-import android.widget.Toast
-import androidx.annotation.StringRes
-import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
-import com.apptive.japkor.R
-import kotlin.math.roundToInt
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import java.util.UUID
 
-/**
- * App-wide toast helper that provides a consistent look & feel.
- */
-object CustomToast {
+enum class ToastType {
+    INFO, SUCCESS, ERROR
+}
 
-    private const val TAG = "CustomToast"
+data class ToastMessage(
+    val id: String = UUID.randomUUID().toString(),
+    val message: String,
+    val type: ToastType,
+    val duration: Long = 2000L
+)
 
-    enum class ToastType {
-        DEFAULT,
-        SUCCESS,
-        ERROR,
-        DEBUG
-    }
+class ToastManager {
+    private val _toastMessages = MutableStateFlow<List<ToastMessage>>(emptyList())
+    val toastMessages: StateFlow<List<ToastMessage>> = _toastMessages.asStateFlow()
 
-    private data class ToastStyle(
-        val backgroundColor: Int,
-        val borderColor: Int,
-        val textColor: Int
-    )
-
-    private var currentToast: Toast? = null
-
-    fun show(
-        context: Context,
-        message: String,
-        type: ToastType = ToastType.DEFAULT,
-        duration: Int = Toast.LENGTH_SHORT
-    ) {
-        logMessage(type, message)
-
-        val appContext = context.applicationContext
-        val toastView = LayoutInflater.from(appContext)
-            .inflate(R.layout.view_custom_toast, null)
-
-        val messageView = toastView.findViewById<TextView>(R.id.toast_message)
-        messageView.text = message
-
-        applyStyle(appContext, toastView, messageView, type)
-
-        ViewCompat.setElevation(toastView, 12f)
-
-        currentToast?.cancel()
-        currentToast = Toast(appContext).apply {
-            view = toastView
-            this.duration = duration
-            setGravity(
-                Gravity.TOP or Gravity.CENTER_HORIZONTAL,
-                0,
-                appContext.resources.getDimensionPixelSize(R.dimen.toast_vertical_offset)
-            )
-        }
-
-        currentToast?.show()
-    }
-
-    fun show(
-        context: Context,
-        @StringRes messageRes: Int,
-        type: ToastType = ToastType.DEFAULT,
-        duration: Int = Toast.LENGTH_SHORT
-    ) {
-        show(context, context.getString(messageRes), type, duration)
-    }
-
-    fun showLong(context: Context, message: String, type: ToastType = ToastType.DEFAULT) {
-        show(context, message, type, Toast.LENGTH_LONG)
-    }
-
-    fun showLong(
-        context: Context,
-        @StringRes messageRes: Int,
-        type: ToastType = ToastType.DEFAULT
-    ) {
-        show(context, context.getString(messageRes), type, Toast.LENGTH_LONG)
-    }
-
-    fun showSuccess(context: Context, message: String, long: Boolean = false) {
-        if (long) {
-            showLong(context, message, ToastType.SUCCESS)
-        } else {
-            show(context, message, ToastType.SUCCESS)
+    fun show(type: ToastType, message: String) {
+        android.util.Log.d("ToastManager", "show toast type=$type message=$message")
+        _toastMessages.update {
+            it + ToastMessage(message = message, type = type)
         }
     }
 
-    fun showError(context: Context, message: String, long: Boolean = false) {
-        if (long) {
-            showLong(context, message, ToastType.ERROR)
-        } else {
-            show(context, message, ToastType.ERROR)
-        }
-    }
+    fun info(message: String) = show(ToastType.INFO, message)
+    fun success(message: String) = show(ToastType.SUCCESS, message)
+    fun error(message: String) = show(ToastType.ERROR, message)
 
-    fun showDebug(context: Context, message: String, long: Boolean = false) {
-        if (long) {
-            showLong(context, message, ToastType.DEBUG)
-        } else {
-            show(context, message, ToastType.DEBUG)
-        }
-    }
-
-    private fun applyStyle(
-        context: Context,
-        root: View,
-        messageView: TextView,
-        type: ToastType
-    ) {
-        val style = resolveStyle(context, type)
-        messageView.setTextColor(style.textColor)
-
-        val background = root.background
-        if (background is GradientDrawable) {
-            background.mutate()
-            background.setColor(style.backgroundColor)
-            background.setStroke(root.dpToPx(1f), style.borderColor)
-        } else {
-            root.setBackgroundColor(style.backgroundColor)
-        }
-    }
-
-    private fun resolveStyle(context: Context, type: ToastType): ToastStyle {
-        return when (type) {
-            ToastType.DEFAULT -> ToastStyle(
-                backgroundColor = ContextCompat.getColor(context, R.color.toast_background),
-                borderColor = ContextCompat.getColor(context, R.color.toast_border),
-                textColor = ContextCompat.getColor(context, R.color.toast_text)
-            )
-
-            ToastType.SUCCESS -> ToastStyle(
-                backgroundColor = ContextCompat.getColor(context, R.color.toast_background),
-                borderColor = ContextCompat.getColor(context, R.color.toast_success_border),
-                textColor = ContextCompat.getColor(context, R.color.toast_text)
-            )
-
-            ToastType.ERROR -> ToastStyle(
-                backgroundColor = ContextCompat.getColor(context, R.color.toast_background),
-                borderColor = ContextCompat.getColor(context, R.color.toast_error_border),
-                textColor = ContextCompat.getColor(context, R.color.toast_text)
-            )
-
-            ToastType.DEBUG -> ToastStyle(
-                backgroundColor = ContextCompat.getColor(context, R.color.toast_background),
-                borderColor = ContextCompat.getColor(context, R.color.toast_debug_border),
-                textColor = ContextCompat.getColor(context, R.color.toast_text)
-            )
-        }
-    }
-
-    private fun View.dpToPx(value: Float): Int {
-        val density = resources.displayMetrics.density
-        return (value * density).roundToInt().coerceAtLeast(1)
-    }
-
-    private fun logMessage(type: ToastType, message: String) {
-        if (type == ToastType.ERROR) {
-            Log.e(TAG, message)
-        } else if (type == ToastType.DEBUG) {
-            Log.d(TAG, message)
-        } else {
-            Log.i(TAG, message)
+    fun dismiss(id: String) {
+        _toastMessages.update { messages ->
+            messages.filterNot { it.id == id }
         }
     }
 }
+
+val LocalToastManager = staticCompositionLocalOf<ToastManager> {
+    error("No ToastManager provided")
+}
+
+@Composable
+fun ToastProvider(
+    manager: ToastManager,
+    content: @Composable () -> Unit
+) {
+    CompositionLocalProvider(LocalToastManager provides manager) {
+        content()
+    }
+}
+
+@Composable
+fun CustomToastContainer(
+    manager: ToastManager,
+    modifier: Modifier = Modifier
+) {
+    val messages = manager.toastMessages.collectAsState().value
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp, vertical = 24.dp),
+        contentAlignment = Alignment.TopCenter
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            messages.forEach { message ->
+                CustomToast(
+                    message = message,
+                    onDismiss = { manager.dismiss(message.id) }
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun CustomToast(
+    message: ToastMessage,
+    onDismiss: () -> Unit
+) {
+    val style = when (message.type) {
+        ToastType.INFO -> ToastVisualStyle(
+            startColor = Color(0xFFFEF8F3),
+            endColor = Color(0xFFF7E8DF),
+            borderColor = Color(0xFFE7D4C4),
+            textColor = Color(0xFF4A3B31),
+            accentColor = Color(0xFFD9B185)
+        )
+        ToastType.SUCCESS -> ToastVisualStyle(
+            startColor = Color(0xFFF2F8F2),
+            endColor = Color(0xFFE5F0E7),
+            borderColor = Color(0xFFBFD4C5),
+            textColor = Color(0xFF2F4738),
+            accentColor = Color(0xFF8BB89A)
+        )
+        ToastType.ERROR -> ToastVisualStyle(
+            startColor = Color(0xFFFDF4F4),
+            endColor = Color(0xFFF5E3E3),
+            borderColor = Color(0xFFE4B8B8),
+            textColor = Color(0xFF5B2C2C),
+            accentColor = Color(0xFFCF8D8D)
+        )
+    }
+
+    var visible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        visible = true
+        delay(message.duration)
+        visible = false
+        delay(300) // fade-out animation time
+        onDismiss()
+    }
+
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn(),
+        exit = fadeOut(),
+    ) {
+        val gradient = Brush.linearGradient(colors = listOf(style.startColor, style.endColor))
+        val shape = RoundedCornerShape(14.dp)
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(elevation = 10.dp, shape = shape)
+                .background(
+                    brush = gradient,
+                    shape = shape
+                )
+                .border(width = 1.dp, color = style.borderColor, shape = shape)
+                .background(
+                    color = Color.Transparent,
+                    shape = shape
+                )
+                .padding(horizontal = 22.dp, vertical = 18.dp)
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .width(48.dp)
+                        .height(4.dp)
+                        .background(color = style.accentColor, shape = RoundedCornerShape(50))
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = message.message,
+                    color = style.textColor,
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp,
+                    fontWeight = FontWeight.Medium,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    }
+}
+
+private data class ToastVisualStyle(
+    val startColor: Color,
+    val endColor: Color,
+    val borderColor: Color,
+    val textColor: Color,
+    val accentColor: Color
+)

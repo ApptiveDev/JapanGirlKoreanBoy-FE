@@ -1,3 +1,10 @@
+import java.util.Properties
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
+}
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -16,6 +23,12 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField(
+            "String",
+            "BASE_URL",
+            "\"${localProperties.getProperty("BASE_URL")}\""
+        )
     }
 
     buildTypes {
@@ -35,6 +48,7 @@ android {
         jvmTarget = "11"
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
 }
@@ -45,10 +59,13 @@ dependencies {
     implementation(libs.androidx.credentials) // credentials
     implementation(libs.googleid) // googleId
 
-    implementation("com.squareup.retrofit2:retrofit:2.9.0") // retrofit
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0") // gson converter
-    implementation("com.squareup.retrofit2:converter-scalars:2.9.0") // scalars converter
-    implementation("com.squareup.okhttp3:okhttp:4.9.3") // okhttp
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.retrofit.converter.scalars)
+    implementation(libs.okhttp)
+
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.datastore.core)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

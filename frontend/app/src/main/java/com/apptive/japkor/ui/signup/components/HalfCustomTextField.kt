@@ -32,19 +32,26 @@ fun HalfCustomTextField(
     onValueChange: (String) -> Unit,
     placeholder: String,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None,
 ) {
     val shape = RoundedCornerShape(16.dp)
     var isFocused by remember { mutableStateOf(false) }
-    val borderWidth = if (isFocused) 2.dp else 1.dp
-    val borderColor = if (isFocused) CustomColor.gray300 else CustomColor.gray200
+    val borderWidth = if (enabled && isFocused) 2.dp else 1.dp
+    val borderColor = when {
+        !enabled -> CustomColor.gray200
+        isFocused -> CustomColor.gray300
+        else -> CustomColor.gray200
+    }
+    val backgroundColor = if (enabled) CustomColor.white else CustomColor.gray100
+    val textColor = if (enabled) CustomColor.black else CustomColor.gray300
 
     Box(
         modifier = modifier
             .height(50.dp)
             .border(borderWidth, borderColor, shape)
-            .background(CustomColor.white, shape)
+            .background(backgroundColor, shape)
             .padding(horizontal = 16.dp),
         contentAlignment = Alignment.CenterStart
     ) {
@@ -62,15 +69,16 @@ fun HalfCustomTextField(
             onValueChange = onValueChange,
             singleLine = true,
             textStyle = TextStyle(
-                color = CustomColor.black,
+                color = textColor,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Start
             ),
             modifier = Modifier
                 .fillMaxWidth()
                 .onFocusChanged { focusState ->
-                    isFocused = focusState.isFocused // 포커스 상태 업데이트 (never read라고 뜨지만 필요함)
+                    isFocused = enabled && focusState.isFocused // 포커스 상태 업데이트 (never read라고 뜨지만 필요함)
                 },
+            enabled = enabled,
             keyboardOptions = keyboardOptions,
             visualTransformation = visualTransformation
         )

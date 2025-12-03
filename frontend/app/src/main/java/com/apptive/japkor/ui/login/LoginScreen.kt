@@ -27,6 +27,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,24 +40,21 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.apptive.japkor.R
-import com.apptive.japkor.data.api.apiService
-import com.apptive.japkor.data.model.SignInRequest
-import com.apptive.japkor.data.model.SignInResponse
 import com.apptive.japkor.navigation.Screen
 import com.apptive.japkor.ui.components.CustomOutlinedTextField
 import com.apptive.japkor.ui.components.CustomText
 import com.apptive.japkor.ui.components.CustomTextType
-import com.apptive.japkor.ui.components.CustomToast
+import com.apptive.japkor.ui.components.LoadingDialog
+import com.apptive.japkor.ui.components.LocalToastManager
 import com.apptive.japkor.ui.components.auth.GoogleSignUpButton
 import com.apptive.japkor.ui.theme.CustomColor
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = viewModel()) {
+    val toastManager = LocalToastManager.current
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
@@ -66,6 +64,12 @@ fun LoginScreen(navController: NavController) {
     LocalDensity.current
     WindowInsets.ime
     WindowInsets.navigationBars
+
+    val isLoading by viewModel.isLoading.collectAsState()
+
+    if (isLoading) {
+        LoadingDialog()
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -157,67 +161,15 @@ fun LoginScreen(navController: NavController) {
 
                     Button(
                         onClick = {
-                            // 입력값 검증
-                            if (email.isBlank() || password.isBlank()) {
-                                CustomToast.showError(context, "아이디와 비밀번호를 모두 입력해주세요.")
-                                return@Button
+                            viewModel.signIn(email,password) {success ->
+                                if (success) {
+                                    toastManager.success("로그인 성공! 환영합니다.")
+                                    navController.navigate("requiredInfo")
+                                }
+                                else{
+                                    toastManager.error("로그인 실패! 이메일과 비밀번호를 확인해주세요.")
+                                }
                             }
-
-                            // 로그인 API 호출
-                            val loginRequest = SignInRequest(email = email, password = password)
-                            Log.d("LoginScreen", "로그인 시도 - 이메일: $email")
-                            CustomToast.showDebug(context, "로그인 시도 - 이메일: $email")
-
-                            apiService.signIn(loginRequest)
-                                .enqueue(object : Callback<SignInResponse> {
-                                    override fun onResponse(
-                                        call: Call<SignInResponse>,
-                                        response: Response<SignInResponse>
-                                    ) {
-                                        val statusCode = response.code()
-                                        Log.d("LoginScreen", "로그인 응답 상태코드: $statusCode")
-                                        CustomToast.showDebug(context, "응답 코드: $statusCode")
-
-                                        if (response.isSuccessful) {
-                                            val loginResponse = response.body()
-                                            Log.d(
-                                                "LoginScreen",
-                                                "로그인 성공 - 사용자: ${loginResponse?.name}, 토큰: ${loginResponse?.token}"
-                                            )
-
-                                            CustomToast.showSuccess(
-                                                context,
-                                                "로그인 성공! ${loginResponse?.name}님 환영합니다."
-                                            )
-
-                                            // TODO: 토큰 저장 및 메인 화면으로 이동
-                                            navController.navigate("requiredinfo")
-                                        } else {
-                                            val errorMsg = when (statusCode) {
-                                                400 -> "잘못된 요청입니다. (400)"
-                                                401 -> "아이디 또는 비밀번호가 잘못되었습니다. (401)"
-                                                403 -> "접근이 거부되었습니다. (403)"
-                                                404 -> "사용자를 찾을 수 없습니다. (404)"
-                                                500 -> "서버 오류가 발생했습니다. (500)"
-                                                else -> "로그인에 실패했습니다. ($statusCode)"
-                                            }
-                                            Log.e(
-                                                "LoginScreen",
-                                                "로그인 실패 - 상태코드: $statusCode, 메시지: $errorMsg"
-                                            )
-                                            CustomToast.showError(context, errorMsg, long = true)
-                                        }
-                                    }
-
-                                    override fun onFailure(
-                                        call: Call<SignInResponse>,
-                                        t: Throwable
-                                    ) {
-                                        val errorMsg = "네트워크 오류: ${t.message}"
-                                        Log.e("LoginScreen", errorMsg, t)
-                                        CustomToast.showError(context, "네트워크 연결을 확인해주세요.", long = true)
-                                    }
-                                })
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -229,24 +181,6 @@ fun LoginScreen(navController: NavController) {
                     ) {
                         CustomText(
                             text = "로그인",
-                            type = CustomTextType.body,
-                            color = Color.Black
-                        )
-                    }
-                    Button(
-                        onClick = {
-                            navController.navigate("requiredinfo")
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = CustomColor.gray300
-                        ),
-                        shape = RoundedCornerShape(16.dp)
-                    ) {
-                        CustomText(
-                            text = "임시 로그인",
                             type = CustomTextType.body,
                             color = Color.Black
                         )
@@ -351,11 +285,7 @@ fun LoginScreen(navController: NavController) {
                 GoogleSignUpButton(
                     onSignedIn = {
                         Log.d("LoginScreen", "onSignedIn 콜백 호출됨")
-                        CustomToast.showSuccess(
-                            context,
-                            "로그인 성공! 환영합니다."
-                        )
-
+                        toastManager.success("로그인 성공! 환영합니다.")
                         navController.navigate("requiredinfo")
                     },
                 )
