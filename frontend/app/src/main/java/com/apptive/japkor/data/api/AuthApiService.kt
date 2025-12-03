@@ -6,6 +6,9 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 
 interface AuthApiService {
+
+    @POST("sign-in")
+    fun signIn(@Body body: SignInDTO): Call<SignInResponse>
     @POST("sign-up")
     fun signUp(@Body body: SignUpDTO): Call<Void>
 
