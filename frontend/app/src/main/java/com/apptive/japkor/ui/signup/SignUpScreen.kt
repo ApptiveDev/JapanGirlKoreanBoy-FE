@@ -46,6 +46,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.apptive.japkor.ui.components.LoadingDialog
 
 import com.apptive.japkor.ui.components.ToastType
 import com.apptive.japkor.ui.signup.components.EmailWithAuthSection
@@ -88,6 +89,14 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = view
     val isResendEnabled by viewModel.isResendEnabled.collectAsState()
     val codeTimerSeconds by viewModel.codeTimerSeconds.collectAsState()
     val emailVerified by viewModel.emailVerified.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+
+
+    if (isLoading) {
+        LoadingDialog()
+    }
+
+
 
     LaunchedEffect(Unit) {
         viewModel.events.collectLatest { event ->

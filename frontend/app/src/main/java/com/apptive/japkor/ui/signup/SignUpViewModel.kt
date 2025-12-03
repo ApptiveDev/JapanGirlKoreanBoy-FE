@@ -49,8 +49,13 @@ class SignUpViewModel(
 
     private var timerJob: Job? = null
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
+
     fun sendEmailCode(email: String) {
         viewModelScope.launch {
+            _isLoading.value = true
             runCatching {
                 repository.sendEmailCode(email)
             }.onSuccess { result ->
@@ -66,12 +71,15 @@ class SignUpViewModel(
             }.onFailure { throwable ->
                 Log.e(TAG, "sendEmailCode exception", throwable)
                 _events.emit(SignUpUiEvent.ShowToast("인증코드 전송에 실패했습니다. 다시 시도해주세요.", ToastType.ERROR))
+            }.also{
+                _isLoading.value = false
             }
         }
     }
 
     fun verifyEmail(email: String, code: String) {
         viewModelScope.launch {
+            _isLoading.value = true
             runCatching {
                 repository.verifyEmailCode(email, code)
             }.onSuccess { result ->
@@ -85,6 +93,8 @@ class SignUpViewModel(
             }.onFailure { throwable ->
                 Log.e(TAG, "verifyEmail exception", throwable)
                 _events.emit(SignUpUiEvent.ShowToast("인증에 실패했습니다. 네트워크를 확인해주세요.", ToastType.ERROR))
+            }.also{
+                _isLoading.value = false
             }
         }
     }
@@ -95,6 +105,7 @@ class SignUpViewModel(
         password: String
     ) {
         viewModelScope.launch {
+            _isLoading.value = true
             val request = SignUpDTO(
                 name = name,
                 email = email,
@@ -114,6 +125,8 @@ class SignUpViewModel(
             }.onFailure { throwable ->
                 Log.e(TAG, "signUp exception", throwable)
                 _events.emit(SignUpUiEvent.ShowToast("회원가입에 실패했습니다. 네트워크를 확인해주세요.", ToastType.ERROR))
+            }.also{
+                _isLoading.value = false
             }
         }
     }
