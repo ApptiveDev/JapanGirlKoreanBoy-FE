@@ -4,6 +4,8 @@ import android.util.Log
 import com.apptive.japkor.data.api.ApiClient
 import com.apptive.japkor.data.api.AuthApiService
 import com.apptive.japkor.data.model.SendEmailCodeRequest
+import com.apptive.japkor.data.model.SignInDTO
+import com.apptive.japkor.data.model.SignInResponse
 import com.apptive.japkor.data.model.SignUpDTO
 import com.apptive.japkor.data.model.VerifyEmailCodeRequest
 import retrofit2.awaitResponse
@@ -36,5 +38,17 @@ class AuthRepository(
             Log.e("AuthRepository", "signUp failed: ${response.errorBody()?.string().orEmpty()}")
         }
         return response.isSuccessful
+    }
+
+    suspend fun signIn(email:String,password:String) : SignInResponse?{
+        val response = api.signIn(SignInDTO(email,password)).awaitResponse()
+        Log.d("AuthRepository", "signIn success=${response.isSuccessful} code=${response.code()}")
+
+        return if (response.isSuccessful) {
+            response.body()
+        } else {
+            Log.e("AuthRepository", "signIn failed: ${response.errorBody()?.string().orEmpty()}")
+            null
+        }
     }
 }

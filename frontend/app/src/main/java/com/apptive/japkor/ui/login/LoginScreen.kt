@@ -39,6 +39,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.apptive.japkor.R
 import com.apptive.japkor.navigation.Screen
@@ -48,12 +49,9 @@ import com.apptive.japkor.ui.components.CustomTextType
 import com.apptive.japkor.ui.components.LocalToastManager
 import com.apptive.japkor.ui.components.auth.GoogleSignUpButton
 import com.apptive.japkor.ui.theme.CustomColor
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = viewModel()) {
     val toastManager = LocalToastManager.current
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -155,7 +153,15 @@ fun LoginScreen(navController: NavController) {
 
                     Button(
                         onClick = {
-
+                            viewModel.signIn(email,password) {success ->
+                                if (success) {
+                                    toastManager.success("로그인 성공! 환영합니다.")
+                                    navController.navigate("requiredInfo")
+                                }
+                                else{
+                                    toastManager.error("로그인 실패! 이메일과 비밀번호를 확인해주세요.")
+                                }
+                            }
                         },
                         modifier = Modifier
                             .fillMaxWidth()
