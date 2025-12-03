@@ -27,6 +27,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,6 +47,7 @@ import com.apptive.japkor.navigation.Screen
 import com.apptive.japkor.ui.components.CustomOutlinedTextField
 import com.apptive.japkor.ui.components.CustomText
 import com.apptive.japkor.ui.components.CustomTextType
+import com.apptive.japkor.ui.components.LoadingDialog
 import com.apptive.japkor.ui.components.LocalToastManager
 import com.apptive.japkor.ui.components.auth.GoogleSignUpButton
 import com.apptive.japkor.ui.theme.CustomColor
@@ -62,6 +64,12 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
     LocalDensity.current
     WindowInsets.ime
     WindowInsets.navigationBars
+
+    val isLoading by viewModel.isLoading.collectAsState()
+
+    if (isLoading) {
+        LoadingDialog()
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -173,24 +181,6 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
                     ) {
                         CustomText(
                             text = "로그인",
-                            type = CustomTextType.body,
-                            color = Color.Black
-                        )
-                    }
-                    Button(
-                        onClick = {
-                            navController.navigate("requiredinfo")
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = CustomColor.gray300
-                        ),
-                        shape = RoundedCornerShape(16.dp)
-                    ) {
-                        CustomText(
-                            text = "임시 로그인",
                             type = CustomTextType.body,
                             color = Color.Black
                         )
