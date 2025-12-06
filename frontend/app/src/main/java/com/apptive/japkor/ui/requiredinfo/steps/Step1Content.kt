@@ -17,12 +17,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.apptive.japkor.ui.components.CustomText
 import com.apptive.japkor.ui.components.CustomTextType
 import com.apptive.japkor.ui.requiredinfo.RequiredInfoViewModel
 import com.apptive.japkor.ui.theme.CustomColor
-import com.apptive.japkor.utils.required_info.GenderMapper
+import com.apptive.japkor.utils.required_info.RequiredInfoMapper
 
 @Composable
 fun Step1Content(
@@ -65,7 +64,7 @@ fun Step1Content(
 
                     Button(
                         onClick = { selectedOption.value = option
-                            val serverValue = GenderMapper.toServerValue(option)
+                            val serverValue = RequiredInfoMapper.gender(option)
                             viewModel.setGender(serverValue ?: "")
                                   },
                         colors = ButtonDefaults.buttonColors(

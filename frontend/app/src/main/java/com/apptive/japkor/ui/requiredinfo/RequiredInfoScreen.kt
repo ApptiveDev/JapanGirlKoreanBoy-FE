@@ -185,7 +185,7 @@ fun RequiredInfoScreen(
 
                 when (currentStep.value) {
                     1 -> Step1Content(selectedOption = selectedOption,  viewModel = requiredInfoViewModel)
-                    2 -> Step2Content()
+                    2 -> Step2Content(viewModel = requiredInfoViewModel)
                     3 -> Step3Content()
                     4 -> Step4Content()
                     5 -> Step5Content()

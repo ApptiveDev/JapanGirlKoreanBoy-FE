@@ -1,20 +1,9 @@
 package com.apptive.japkor.ui.requiredinfo.steps
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -24,21 +13,22 @@ import com.apptive.japkor.ui.components.CustomText
 import com.apptive.japkor.ui.components.CustomTextType
 import com.apptive.japkor.ui.theme.CustomColor
 import com.apptive.japkor.ui.components.OptionChip
+import com.apptive.japkor.ui.requiredinfo.RequiredInfoViewModel
 
 @Composable
-fun Step2Content() {
-    var height by remember { mutableStateOf("") }
-    var weight by remember { mutableStateOf("") }
-    var region by remember { mutableStateOf("") }
+fun Step2Content(
+    viewModel: RequiredInfoViewModel
+) {
+    val height by viewModel.height.collectAsState()
+    val weight by viewModel.weight.collectAsState()
+    val region by viewModel.region.collectAsState()
+    val smoking by viewModel.smoking.collectAsState()
+    val drink by viewModel.drinking.collectAsState()
+    val religion by viewModel.religion.collectAsState()
 
     val smokingOptions = listOf("O", "X")
-    var smoking by remember { mutableStateOf("X") }
-
     val drinkOptions = listOf("주 1회 미만", "주 1회", "주 2회", "주 3회 이상")
-    var drink by remember { mutableStateOf("주 1회") }
-
     val religionOptions = listOf("무교", "불교", "기독교", "천주교", "기타")
-    var religion by remember { mutableStateOf("무교") }
 
     Column(
         modifier = Modifier
@@ -58,9 +48,12 @@ fun Step2Content() {
             color = CustomColor.gray400,
             type = CustomTextType.mainRegular,
         )
+
         Spacer(modifier = Modifier.height(5.dp))
 
-        // 키 / 몸무게 / 거주 지역
+        // ============================
+        //  키 / 몸무게 / 거주 지역 입력
+        // ============================
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -68,33 +61,48 @@ fun Step2Content() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+
+            // 키 입력 (Int?)
             CustomOutlinedTextField(
-                value = height,
-                onValueChange = { height = it },
-                placeholder = "키"
+                value = height?.toString() ?: "",
+                onValueChange = {
+                    val num = it.toIntOrNull()
+                    viewModel.setHeight(num)
+                },
+                placeholder = "키(cm)"
             )
+
+            // 몸무게 입력 (Int?)
             CustomOutlinedTextField(
-                value = weight,
-                onValueChange = { weight = it },
-                placeholder = "몸무게"
+                value = weight?.toString() ?: "",
+                onValueChange = {
+                    val num = it.toIntOrNull()
+                    viewModel.setWeight(num)
+                },
+                placeholder = "몸무게(kg)"
             )
+
+            // 지역 입력 (String)
             CustomOutlinedTextField(
-                value = region,
-                onValueChange = { region = it },
+                value = region ?: "",
+                onValueChange = { viewModel.setRegion(it) },
                 placeholder = "거주 지역"
             )
         }
 
         Spacer(modifier = Modifier.height(5.dp))
 
-        // 흡연 / 음주 / 종교 선택
+        // ============================
+        //  흡연 / 음주 / 종교 선택
+        // ============================
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(CustomColor.white, shape = RoundedCornerShape(16.dp)),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            // 흡연
+
+            // ---- 흡연 여부 ----
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 CustomText(
                     text = "흡연",
@@ -111,15 +119,14 @@ fun Step2Content() {
                         OptionChip(
                             text = option,
                             selected = smoking == option,
-                            onClick = { smoking = option },
+                            onClick = { viewModel.setSmoking(option) },
                             modifier = Modifier.weight(1f)
                         )
                     }
                 }
-
             }
 
-            // 음주 빈도 (2x2)
+            // ---- 음주 빈도 ----
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 CustomText(
                     text = "음주 빈도",
@@ -139,7 +146,7 @@ fun Step2Content() {
                                 OptionChip(
                                     text = option,
                                     selected = drink == option,
-                                    onClick = { drink = option },
+                                    onClick = { viewModel.setDrinking(option) },
                                     modifier = Modifier.weight(1f)
                                 )
                             }
@@ -148,11 +155,10 @@ fun Step2Content() {
                             }
                         }
                     }
-
                 }
             }
 
-            // 종교: 앞의 4개는 2x2, 마지막 '기타'는 전체 너비
+            // ---- 종교 ----
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 CustomText(
                     text = "종교",
@@ -165,6 +171,7 @@ fun Step2Content() {
                 val last = religionOptions.drop(4)
 
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+
                     val rows = firstFour.chunked(2)
                     rows.forEach { rowItems ->
                         Row(
@@ -175,7 +182,7 @@ fun Step2Content() {
                                 OptionChip(
                                     text = option,
                                     selected = religion == option,
-                                    onClick = { religion = option },
+                                    onClick = { viewModel.setReligion(option) },
                                     modifier = Modifier.weight(1f)
                                 )
                             }
@@ -185,13 +192,12 @@ fun Step2Content() {
                         }
                     }
 
-                    // 기타: 전체 너비
+                    // 기타
                     if (last.isNotEmpty()) {
-                        //Spacer(modifier = Modifier.height(8.dp))
                         OptionChip(
                             text = last[0],
                             selected = religion == last[0],
-                            onClick = { religion = last[0] },
+                            onClick = { viewModel.setReligion(last[0]) },
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -199,6 +205,7 @@ fun Step2Content() {
             }
         }
 
+        // 경고 문구
         CustomText(
             text = "거짓 정보 입력 시 서비스 이용이 제한될 수 있습니다.",
             color = CustomColor.gray300,
