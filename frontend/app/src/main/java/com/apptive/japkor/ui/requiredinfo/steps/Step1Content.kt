@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,7 +22,6 @@ import com.apptive.japkor.ui.components.CustomText
 import com.apptive.japkor.ui.components.CustomTextType
 import com.apptive.japkor.ui.requiredinfo.RequiredInfoViewModel
 import com.apptive.japkor.ui.theme.CustomColor
-import com.apptive.japkor.utils.required_info.RequiredInfoMapper
 
 @Composable
 fun Step1Content(
@@ -35,6 +35,11 @@ fun Step1Content(
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        LaunchedEffect(Unit) {
+            if (viewModel.gender.value == null) {
+                viewModel.setGender(selectedOption.value)
+            }
+        }
         CustomText(
             text = "성별을 설정해주세요",
             type = CustomTextType.mainRegular,
@@ -63,10 +68,10 @@ fun Step1Content(
                     val isSelected = selectedOption.value == option
 
                     Button(
-                        onClick = { selectedOption.value = option
-                            val serverValue = RequiredInfoMapper.gender(option)
-                            viewModel.setGender(serverValue ?: "")
-                                  },
+                        onClick = {
+                            selectedOption.value = option
+                            viewModel.setGender(option)
+                        },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = if (isSelected) CustomColor.gray300 else CustomColor.gray100
                         ),

@@ -14,6 +14,7 @@ import com.apptive.japkor.ui.components.CustomTextType
 import com.apptive.japkor.ui.theme.CustomColor
 import com.apptive.japkor.ui.components.OptionChip
 import com.apptive.japkor.ui.requiredinfo.RequiredInfoViewModel
+import com.apptive.japkor.utils.required_info.RequiredInfoMapper
 
 @Composable
 fun Step2Content(
@@ -26,9 +27,9 @@ fun Step2Content(
     val drink by viewModel.drinking.collectAsState()
     val religion by viewModel.religion.collectAsState()
 
-    val smokingOptions = listOf("O", "X")
+    val smokingOptions = listOf("흡연", "비흡연")
     val drinkOptions = listOf("주 1회 미만", "주 1회", "주 2회", "주 3회 이상")
-    val religionOptions = listOf("무교", "불교", "기독교", "천주교", "기타")
+    val religionOptions = listOf("무교", "불교", "기독교", "천주교", "신토", "기타")
 
     Column(
         modifier = Modifier
@@ -84,7 +85,7 @@ fun Step2Content(
 
             // 지역 입력 (String)
             CustomOutlinedTextField(
-                value = region ?: "",
+                value = region,
                 onValueChange = { viewModel.setRegion(it) },
                 placeholder = "거주 지역"
             )
@@ -118,7 +119,7 @@ fun Step2Content(
                     smokingOptions.forEach { option ->
                         OptionChip(
                             text = option,
-                            selected = smoking == option,
+                            selected = smoking == RequiredInfoMapper.smoking(option),
                             onClick = { viewModel.setSmoking(option) },
                             modifier = Modifier.weight(1f)
                         )
@@ -145,7 +146,7 @@ fun Step2Content(
                             rowItems.forEach { option ->
                                 OptionChip(
                                     text = option,
-                                    selected = drink == option,
+                                    selected = drink == RequiredInfoMapper.drinking(option),
                                     onClick = { viewModel.setDrinking(option) },
                                     modifier = Modifier.weight(1f)
                                 )
@@ -167,13 +168,8 @@ fun Step2Content(
                     size = 12.sp
                 )
 
-                val firstFour = religionOptions.take(4)
-                val last = religionOptions.drop(4)
-
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-
-                    val rows = firstFour.chunked(2)
-                    rows.forEach { rowItems ->
+                    religionOptions.chunked(2).forEach { rowItems ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -181,7 +177,7 @@ fun Step2Content(
                             rowItems.forEach { option ->
                                 OptionChip(
                                     text = option,
-                                    selected = religion == option,
+                                    selected = religion == RequiredInfoMapper.religion(option),
                                     onClick = { viewModel.setReligion(option) },
                                     modifier = Modifier.weight(1f)
                                 )
@@ -190,16 +186,6 @@ fun Step2Content(
                                 Spacer(modifier = Modifier.weight(1f))
                             }
                         }
-                    }
-
-                    // 기타
-                    if (last.isNotEmpty()) {
-                        OptionChip(
-                            text = last[0],
-                            selected = religion == last[0],
-                            onClick = { viewModel.setReligion(last[0]) },
-                            modifier = Modifier.fillMaxWidth()
-                        )
                     }
                 }
             }
