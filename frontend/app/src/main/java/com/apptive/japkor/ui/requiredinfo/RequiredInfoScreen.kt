@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.apptive.japkor.navigation.Screen
 import com.apptive.japkor.R
@@ -180,8 +181,10 @@ fun RequiredInfoScreen(
                 Spacer(modifier = Modifier.height(24.dp))
             }
             item {
+                val requiredInfoViewModel: RequiredInfoViewModel = viewModel()
+
                 when (currentStep.value) {
-                    1 -> Step1Content()
+                    1 -> Step1Content(selectedOption = selectedOption,  viewModel = requiredInfoViewModel)
                     2 -> Step2Content()
                     3 -> Step3Content()
                     4 -> Step4Content()
