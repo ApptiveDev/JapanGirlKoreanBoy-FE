@@ -1,8 +1,10 @@
 package com.apptive.japkor.data.repository
 
+import android.app.Service
 import android.util.Log
 import com.apptive.japkor.data.api.ApiClient
 import com.apptive.japkor.data.api.AuthApiService
+import com.apptive.japkor.data.api.ServiceFactory
 import com.apptive.japkor.data.model.SendEmailCodeRequest
 import com.apptive.japkor.data.model.SignInDTO
 import com.apptive.japkor.data.model.SignInResponse
@@ -11,7 +13,7 @@ import com.apptive.japkor.data.model.VerifyEmailCodeRequest
 import retrofit2.awaitResponse
 
 class AuthRepository(
-    private val api: AuthApiService = ApiClient.apiService
+    private val api: AuthApiService = ServiceFactory.authApiService
 ){
     suspend fun sendEmailCode(email: String) : Boolean{
         val response = api.sendEmailCode(SendEmailCodeRequest(email)).awaitResponse()

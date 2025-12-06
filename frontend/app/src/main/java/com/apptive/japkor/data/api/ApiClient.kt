@@ -13,7 +13,5 @@ object ApiClient{
             .build()
     }
 
-    val apiService: AuthApiService by lazy {
-        retrofit.create(AuthApiService::class.java)
-    }
+
 }
