@@ -181,7 +181,7 @@ fun RequiredInfoScreen(
             }
             item {
                 when (currentStep.value) {
-                    1 -> Step1Content(selectedOption = selectedOption)
+                    1 -> Step1Content()
                     2 -> Step2Content()
                     3 -> Step3Content()
                     4 -> Step4Content()

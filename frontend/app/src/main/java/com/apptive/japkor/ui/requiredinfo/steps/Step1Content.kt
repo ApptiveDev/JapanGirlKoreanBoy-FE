@@ -12,17 +12,25 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.apptive.japkor.ui.components.CustomText
 import com.apptive.japkor.ui.components.CustomTextType
+import com.apptive.japkor.ui.requiredinfo.RequiredInfoViewModel
 import com.apptive.japkor.ui.theme.CustomColor
+import com.apptive.japkor.utils.required_info.GenderMapper
 
 @Composable
-fun Step1Content(selectedOption: MutableState<String>) {
+fun Step1Content(viewModel: RequiredInfoViewModel = viewModel()) {
+
+    val selectedGender by viewModel.gender.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -35,11 +43,7 @@ fun Step1Content(selectedOption: MutableState<String>) {
             type = CustomTextType.mainRegular,
             size = 32.sp
         )
-        CustomText(
-            text = "한국인 남성, 일본인 여성 중 선택가능합니다.",
-            color = CustomColor.gray400,
-            type = CustomTextType.mainRegular,
-        )
+
         Spacer(modifier = Modifier.height(50.dp))
 
         Row(
@@ -47,17 +51,16 @@ fun Step1Content(selectedOption: MutableState<String>) {
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth()
         ) {
-            CustomText(
-                text = "저는",
-                color = CustomColor.gray400,
-                type = CustomTextType.mainRegular,
-            )
-            Spacer(modifier = Modifier.width(10.dp))
+
             Column {
                 listOf("한국 남성", "일본 여성").forEach { option ->
-                    val isSelected = selectedOption.value == option
+                    val isSelected = selectedGender == option
+
                     Button(
-                        onClick = { selectedOption.value = option },
+                        onClick = {
+                            val serverValue = GenderMapper.toServerValue(option)
+                            if (serverValue != null) viewModel.setGender(serverValue)
+                        },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = if (isSelected) CustomColor.gray300 else CustomColor.gray100
                         ),
@@ -71,25 +74,23 @@ fun Step1Content(selectedOption: MutableState<String>) {
                     }
                 }
             }
-            Spacer(modifier = Modifier.width(10.dp))
+        }
+
+        Spacer(modifier = Modifier.height(80.dp))
+
+        if (selectedGender != null) {
+            val koreanLabel = when (selectedGender) {
+                "KOREAN_MALE" -> "한국 남성"
+                "JAPANESE_FEMALE" -> "일본 여성"
+                else -> ""
+            }
+
             CustomText(
-                text = "입니다.",
-                color = CustomColor.gray400,
-                type = CustomTextType.mainRegular,
+                text = "'$koreanLabel'를 선택하셨습니다.\n\n프로필이 반대 성별에게 먼저 전달됩니다.",
+                color = CustomColor.gray300,
+                type = CustomTextType.body,
+                size = 14.sp
             )
         }
-        Spacer(modifier = Modifier.height(80.dp))
-        val selectedText = if (selectedOption.value == "한국 남성") {
-            "'한국 남성'를 선택하셨습니다.\n\n'한국 남성'를 선택하는 경우,\n'일본 여성'에게 프로필이 먼저 전달됩니다."
-        } else {
-            "'일본 여성'를 선택하셨습니다.\n\n'일본 여성'를 선택하는 경우,\n'한국 남성'에게 프로필이 먼저 전달됩니다."
-        }
-        CustomText(
-            text = selectedText,
-            color = CustomColor.gray300,
-            type = CustomTextType.body,
-            size = 14.sp
-        )
-        Spacer(modifier = Modifier.height(30.dp))
     }
 }
