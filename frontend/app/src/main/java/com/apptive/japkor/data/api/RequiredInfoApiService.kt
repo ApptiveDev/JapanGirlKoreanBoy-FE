@@ -10,7 +10,7 @@ interface RequiredInfoApiService {
     fun postRequiredInfo(@Body body: RequiredInfoDTO): Call<Void>
 
     @POST("image/presigned-url")
-    fun getPresignedUrl(@Body body: PresignedUrlRequest): Call<List<PresignedUrlResponse>>
+    fun getPresignedUrl(@Body body: PresignedUrlRequest): Call<PresignedUrlResponse>
 
     @POST("image/presigned-url/list")
     fun getPresignedUrlList(@Body body : List<PresignedUrlRequest>): Call<List<PresignedUrlResponse>>

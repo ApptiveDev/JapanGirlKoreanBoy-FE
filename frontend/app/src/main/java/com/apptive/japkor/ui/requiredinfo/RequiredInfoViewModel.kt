@@ -1,13 +1,49 @@
 package com.apptive.japkor.ui.requiredinfo
 
+import android.content.Context
+import android.net.Uri
+import android.provider.OpenableColumns
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.apptive.japkor.data.model.PresignedUrlRequest
 import com.apptive.japkor.data.model.RequiredInfoDTO
+import com.apptive.japkor.data.repository.ApiResult
 import com.apptive.japkor.data.repository.RequiredInfoRepository
+import com.apptive.japkor.ui.components.ToastType
 import com.apptive.japkor.utils.required_info.RequiredInfoMapper
+import java.util.UUID
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+enum class UploadStatus { Uploading, Success, Failed }
+
+data class ProfileImageState(
+    val id: String = UUID.randomUUID().toString(),
+    val uri: Uri,
+    val fileName: String,
+    val contentType: String,
+    val uploadedUrl: String? = null,
+    val status: UploadStatus = UploadStatus.Uploading,
+    val errorMessage: String? = null
+)
+
+sealed class RequiredInfoEvent {
+    data class ShowToast(val message: String, val type: ToastType = ToastType.INFO) : RequiredInfoEvent()
+    object NavigateToComplete : RequiredInfoEvent()
+}
 
 class RequiredInfoViewModel(
     private val repository: RequiredInfoRepository = RequiredInfoRepository()
@@ -161,10 +197,112 @@ class RequiredInfoViewModel(
     val priority3: StateFlow<String?> = _priority3
     fun setPriority3(label: String) { _priority3.value = RequiredInfoMapper.priority(label) }
 
+    private val _profileImages = MutableStateFlow<List<ProfileImageState>>(emptyList())
+    val profileImages: StateFlow<List<ProfileImageState>> = _profileImages.asStateFlow()
+
+    private val _events = MutableSharedFlow<RequiredInfoEvent>(extraBufferCapacity = 1)
+    val events: SharedFlow<RequiredInfoEvent> = _events.asSharedFlow()
+
+    val step1Valid: StateFlow<Boolean> = gender
+        .map { it != null }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    @Suppress("UNCHECKED_CAST")
+    val step2Valid: StateFlow<Boolean> = combine(
+        height, weight, region, smoking, drinking, religion
+    ) { values ->
+        val h = values[0] as Int?
+        val w = values[1] as Int?
+        val r = values[2] as String
+        val s = values[3] as String?
+        val d = values[4] as String?
+        val rel = values[5] as String?
+        h != null && w != null && r.isNotBlank() && s != null && d != null && rel != null
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    val step3Valid: StateFlow<Boolean> = combine(
+        education, asset, otherInfo
+    ) { edu, assets, intro ->
+        edu != null && assets != null && intro.trim().isNotEmpty()
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    val step4Valid: StateFlow<Boolean> = profileImages
+        .map { images ->
+            val completed = images.filter { it.status == UploadStatus.Success && it.uploadedUrl != null }
+            completed.isNotEmpty() && images.none { it.status == UploadStatus.Uploading }
+        }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    private val heightRangeValid = combine(preferredHeightMin, preferredHeightMax) { minH, maxH ->
+        minH != null && maxH != null &&
+                minH in 130..230 &&
+                maxH in 130..230 &&
+                minH <= maxH
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    private val assetRangeValid = combine(preferredAssetMin, preferredAssetMax) { assetMin, assetMax ->
+        assetMin != null && assetMax != null && assetMin <= assetMax
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    private val mbtiValid = combine(mbti1, mbti2, mbti3, mbti4) { m1, m2, m3, m4 ->
+        (m1 in setOf("E", "I", "X")) &&
+                (m2 in setOf("N", "S", "X")) &&
+                (m3 in setOf("T", "F", "X")) &&
+                (m4 in setOf("J", "P", "X"))
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    private val prioritiesValid = combine(priority1, priority2, priority3) { p1, p2, p3 ->
+        listOfNotNull(p1, p2, p3).size == 3 && setOf(p1, p2, p3).size == 3
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    private val jobsValid = combine(preferredJobs, avoidedJobs) { preferJob, avoidJob ->
+        preferJob.isNotEmpty() && preferJob.size <= 3 &&
+                avoidJob.isNotEmpty() && avoidJob.size <= 3
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    @Suppress("UNCHECKED_CAST")
+    val step5Valid: StateFlow<Boolean> = combine(
+        heightRangeValid,
+        avoidReligions,
+        preferredEducationLevel,
+        preferredAppearanceStyle,
+        parentAssetRequirement,
+        assetRangeValid,
+        jobsValid,
+        mbtiValid,
+        prioritiesValid
+    ) { values ->
+        val heightValid = values[0] as Boolean
+        val avoid = values[1] as Set<String>
+        val edu = values[2] as String?
+        val appearance = values[3] as String?
+        val parentAsset = values[4] as String?
+        val assetValid = values[5] as Boolean
+        val jobValid = values[6] as Boolean
+        val mbtiOk = values[7] as Boolean
+        val priorityOk = values[8] as Boolean
+
+        heightValid &&
+                avoid.isNotEmpty() &&
+                edu != null &&
+                appearance != null &&
+                parentAsset != null &&
+                assetValid &&
+                jobValid &&
+                mbtiOk &&
+                priorityOk
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
     private val _submitState = MutableStateFlow<SubmitState>(SubmitState.Idle)
     val submitState: StateFlow<SubmitState> = _submitState
 
     fun submitRequiredInfo() {
+        val uploadedImages = _profileImages.value.filter { it.status == UploadStatus.Success && it.uploadedUrl != null }
+        if (uploadedImages.isEmpty()) {
+            return setError("프로필 사진을 최소 1장 이상 업로드해주세요.")
+        }
+        val profileImageUrls = uploadedImages.mapNotNull { it.uploadedUrl }
+        val thumbnailImageUrl = profileImageUrls.firstOrNull()
 
         val gender = _gender.value ?: return setError("성별을 선택해주세요.")
         val height = _height.value ?: return setError("키를 입력해주세요.")
@@ -187,6 +325,7 @@ class RequiredInfoViewModel(
             ?: return setError("선호 키 최대값을 입력해주세요.")
         if (preferredHeightMin < 130) return setError("선호 키 최소값은 130 이상이어야 합니다.")
         if (preferredHeightMax > 230) return setError("선호 키 최대값은 230 이하여야 합니다.")
+        if (preferredHeightMin > preferredHeightMax) return setError("선호 키 범위를 확인해주세요.")
 
         val avoidReligions = _avoidReligions.value
         if (avoidReligions.isEmpty()) return setError("기피 종교를 선택해주세요.")
@@ -202,6 +341,7 @@ class RequiredInfoViewModel(
             ?: return setError("선호 자산 최소값을 입력해주세요.")
         val preferredAssetMax = _preferredAssetMax.value
             ?: return setError("선호 자산 최대값을 입력해주세요.")
+        if (preferredAssetMin > preferredAssetMax) return setError("선호 자산 최소/최대값을 확인해주세요.")
 
         val preferredJobs = _preferredJobs.value
         if (preferredJobs.isEmpty()) return setError("선호 직업을 선택해주세요.")
@@ -240,8 +380,8 @@ class RequiredInfoViewModel(
             education = education,
             asset = asset,
             otherInfo = otherInfo,
-            profileImageUrls = null,
-            thumbnailImageUrl = null,
+            profileImageUrls = profileImageUrls,
+            thumbnailImageUrl = thumbnailImageUrl,
             preferredHeightMin = preferredHeightMin,
             preferredHeightMax = preferredHeightMax,
             avoidReligions = avoidReligions.toList(),
@@ -264,16 +404,148 @@ class RequiredInfoViewModel(
         viewModelScope.launch {
             _submitState.value = SubmitState.Loading
 
-            val (success, errorMessage) = repository.postRequiredInfo(dto)
+            val result: ApiResult<Unit> = repository.postRequiredInfo(dto)
+            Log.d(TAG, "postRequiredInfo result success=${result.success} code=${result.code}")
 
-            _submitState.value =
-                if (success) SubmitState.Success
-                else SubmitState.Error(errorMessage ?: "알 수 없는 오류가 발생했습니다.")
+            if (result.success && result.code in 200..299) {
+                _submitState.value = SubmitState.Success
+                _events.emit(RequiredInfoEvent.NavigateToComplete)
+            } else {
+                val message = result.errorMessage ?: "알 수 없는 오류가 발생했습니다."
+                _submitState.value = SubmitState.Error(message)
+                _events.emit(RequiredInfoEvent.ShowToast(message, ToastType.ERROR))
+            }
         }
+    }
+
+    fun uploadProfileImage(context: Context, uri: Uri, targetIndex: Int? = null) {
+        val index = targetIndex ?: _profileImages.value.size
+        if (index >= MAX_IMAGES) {
+            viewModelScope.launch {
+                _events.emit(
+                    RequiredInfoEvent.ShowToast(
+                        "이미지는 최대 ${MAX_IMAGES}장까지 업로드할 수 있습니다.",
+                        ToastType.ERROR
+                    )
+                )
+            }
+            return
+        }
+
+        val fileName = resolveFileName(context, uri)
+        val contentType = resolveContentType(context, uri)
+        val newState = ProfileImageState(
+            uri = uri,
+            fileName = fileName,
+            contentType = contentType,
+            status = UploadStatus.Uploading
+        )
+        val imageId = newState.id
+
+        placeImageState(index, newState)
+
+        viewModelScope.launch {
+            val presignedResult = repository.getPresignedUrls(
+                PresignedUrlRequest(fileName, contentType)
+            )
+            val presigned = presignedResult.data
+            if (!presignedResult.success || presigned == null) {
+                markUploadFailure(imageId, presignedResult.errorMessage ?: "Presigned URL 발급에 실패했습니다.")
+                return@launch
+            }
+            Log.d(TAG, "Presigned URL issued for $fileName: ${presigned.presignedUrl}")
+
+            val bytes = withContext(Dispatchers.IO) {
+                context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+            }
+            if (bytes == null) {
+                markUploadFailure(imageId, "이미지 파일을 불러올 수 없습니다.")
+                return@launch
+            }
+
+            val uploadSuccess = withContext(Dispatchers.IO) {
+                repository.uploadImageToPresignedUrl(
+                    presigned.presignedUrl,
+                    bytes,
+                    presigned.contentType
+                )
+            }
+
+            if (!uploadSuccess) {
+                markUploadFailure(imageId, "이미지 업로드에 실패했습니다.")
+                return@launch
+            }
+
+            val remoteUrl = presigned.presignedUrl.substringBefore("?")
+            Log.d(TAG, "Image upload completed. Remote URL=$remoteUrl")
+            updateImageState(imageId) {
+                it.copy(
+                    uploadedUrl = remoteUrl,
+                    status = UploadStatus.Success,
+                    errorMessage = null
+                )
+            }
+        }
+    }
+
+    private fun placeImageState(index: Int, state: ProfileImageState) {
+        _profileImages.update { current ->
+            val mutable = current.toMutableList()
+            if (index < mutable.size) {
+                mutable[index] = state
+            } else {
+                mutable.add(state)
+            }
+            if (mutable.size > MAX_IMAGES) {
+                mutable.subList(MAX_IMAGES, mutable.size).clear()
+            }
+            mutable
+        }
+    }
+
+    private fun updateImageState(imageId: String, transform: (ProfileImageState) -> ProfileImageState) {
+        _profileImages.update { images ->
+            images.map { if (it.id == imageId) transform(it) else it }
+        }
+    }
+
+    private suspend fun markUploadFailure(imageId: String, message: String) {
+        updateImageState(imageId) {
+            it.copy(status = UploadStatus.Failed, errorMessage = message)
+        }
+        _events.emit(RequiredInfoEvent.ShowToast(message, ToastType.ERROR))
+    }
+
+    private fun resolveFileName(context: Context, uri: Uri): String {
+        val nameFromCursor = runCatching {
+            context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                if (cursor.moveToFirst() && nameIndex >= 0) {
+                    cursor.getString(nameIndex)
+                } else {
+                    null
+                }
+            }
+        }.getOrNull()
+
+        return nameFromCursor?.takeIf { it.isNotBlank() }
+            ?: "image_${System.currentTimeMillis()}.jpg"
+    }
+
+    private fun resolveContentType(context: Context, uri: Uri): String {
+        return context.contentResolver.getType(uri) ?: "image/jpeg"
     }
 
     private fun setError(msg: String) {
         _submitState.value = SubmitState.Error(msg)
+        viewModelScope.launch {
+            _events.emit(RequiredInfoEvent.ShowToast(msg, ToastType.ERROR))
+        }
+    }
+
+    companion object {
+        private const val MAX_IMAGES = 6
+        private const val TAG = "RequiredInfoViewModel"
     }
 }
 

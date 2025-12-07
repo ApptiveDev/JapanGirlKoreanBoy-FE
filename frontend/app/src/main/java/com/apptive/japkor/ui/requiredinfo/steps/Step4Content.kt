@@ -1,5 +1,7 @@
 package com.apptive.japkor.ui.requiredinfo.steps
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -8,18 +10,38 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.apptive.japkor.ui.components.CustomText
 import com.apptive.japkor.ui.components.CustomTextType
 import com.apptive.japkor.ui.components.step4.PhotoUploadGrid
+import com.apptive.japkor.ui.requiredinfo.RequiredInfoViewModel
 import com.apptive.japkor.ui.theme.CustomColor
 
 @Composable
-fun Step4Content() {
+fun Step4Content(
+    viewModel: RequiredInfoViewModel
+) {
+    val context = LocalContext.current
+    val profileImages by viewModel.profileImages.collectAsState()
+    val pendingIndex = remember { mutableStateOf(0) }
+
+    val photoPicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            viewModel.uploadProfileImage(context, it, pendingIndex.value)
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -39,9 +61,13 @@ fun Step4Content() {
         )
         Spacer(modifier = Modifier.height(5.dp))
 
-        PhotoUploadGrid()
-
-
+        PhotoUploadGrid(
+            images = profileImages,
+            onPickImage = { index ->
+                pendingIndex.value = if (index <= profileImages.size) index else profileImages.size
+                photoPicker.launch("image/*")
+            }
+        )
 
         CustomText(
             text = "- 사진은 프로필에서 가장 중요한 요소입니다.",
@@ -84,8 +110,3 @@ fun Step4Content() {
         )
     }
 }
-
-// 3열 그리드 (간격/패딩/정사각형 유지)
-
-
-// 카드 1칸 (화이트 카드 + 소프트 섀도우 + 중앙 원형 + 아이콘)

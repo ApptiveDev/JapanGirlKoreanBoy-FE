@@ -161,16 +161,16 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
 
                     Button(
                         onClick = {
-                            navController.navigate("requiredInfo")
-//                            viewModel.signIn(email,password) {success ->
-//                                if (success) {
-//                                    toastManager.success("로그인 성공! 환영합니다.")
-//                                    navController.navigate("requiredInfo")
-//                                }
-//                                else{
-//                                    toastManager.error("로그인 실패! 이메일과 비밀번호를 확인해주세요.")
-//                                }
-//                            }
+
+                            viewModel.signIn(email,password) {success ->
+                                if (success) {
+                                    toastManager.success("로그인 성공! 환영합니다.")
+                                    navController.navigate("requiredInfo")
+                                }
+                                else{
+                                    toastManager.error("로그인 실패! 이메일과 비밀번호를 확인해주세요.")
+                                }
+                            }
                         },
                         modifier = Modifier
                             .fillMaxWidth()
