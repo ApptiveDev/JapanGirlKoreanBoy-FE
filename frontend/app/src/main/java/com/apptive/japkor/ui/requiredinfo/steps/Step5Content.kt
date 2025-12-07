@@ -85,7 +85,7 @@ fun Step5Content(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 45.dp),
+            .padding(horizontal = 40.dp),
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -105,7 +105,7 @@ fun Step5Content(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(CustomColor.white, shape = RoundedCornerShape(16.dp))
-                .padding(horizontal = 16.dp, vertical = 20.dp),
+                .padding( vertical = 20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Row(
@@ -324,7 +324,7 @@ fun Step5Content(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(CustomColor.white, shape = RoundedCornerShape(16.dp))
-                .padding(horizontal = 16.dp, vertical = 20.dp),
+                .padding( vertical = 20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -399,7 +399,7 @@ fun Step5Content(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(CustomColor.white, shape = RoundedCornerShape(16.dp))
-                .padding(horizontal = 16.dp, vertical = 20.dp),
+                .padding( vertical = 20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             CustomText(
@@ -439,7 +439,7 @@ fun Step5Content(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(CustomColor.white, shape = RoundedCornerShape(16.dp))
-                .padding(horizontal = 16.dp, vertical = 20.dp),
+                .padding( vertical = 20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             CustomText(
