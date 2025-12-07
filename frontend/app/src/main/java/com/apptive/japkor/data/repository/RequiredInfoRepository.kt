@@ -5,6 +5,8 @@ import android.util.Log
 import com.apptive.japkor.data.api.RequiredInfoApiService
 import com.apptive.japkor.data.api.ServiceFactory
 import com.apptive.japkor.data.model.ErrorResponse
+import com.apptive.japkor.data.model.PresignedUrlRequest
+import com.apptive.japkor.data.model.PresignedUrlResponse
 import com.apptive.japkor.data.model.RequiredInfoDTO
 import com.google.gson.Gson
 import retrofit2.awaitResponse
@@ -35,5 +37,21 @@ class RequiredInfoRepository(
             "postRequiredInfo failed: $errorMessage")
 
         return Pair(false, errorMessage)
+    }
+
+    suspend fun getPresignedUrls(request: PresignedUrlRequest): Pair<List<PresignedUrlResponse>?,String?>{
+        val response = api.getPresignedUrl(request).awaitResponse()
+
+        if (response.isSuccessful){
+            return Pair(response.body(),null)
+        }
+
+        val errorJson = response.errorBody()?.string()
+        val errorMessage = try {
+            Gson().fromJson(errorJson, ErrorResponse::class.java)?.message
+        } catch (e: Exception) {
+            null
+        }
+        return Pair(null,errorMessage)
     }
 }

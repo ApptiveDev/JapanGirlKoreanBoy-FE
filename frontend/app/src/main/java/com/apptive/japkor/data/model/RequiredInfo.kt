@@ -1,5 +1,6 @@
 package com.apptive.japkor.data.model
 
+// 전체필수정보 DTO
 data class RequiredInfoDTO(
     val gender: String,
     val height: Int,
@@ -33,4 +34,18 @@ data class RequiredInfoDTO(
     val priority1: String,
     val priority2: String,
     val priority3: String
+)
+
+// 이미지 발급 요청 DTO
+data class PresignedUrlRequest(
+    val fileName: String,
+    val contentType: String
+)
+
+// 이미지 업로드 응답 DTO
+
+data class PresignedUrlResponse(
+    val fileName: String,
+    val presignedUrl: String,
+    val contentType: String
 )
