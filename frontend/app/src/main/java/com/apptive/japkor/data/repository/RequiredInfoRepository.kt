@@ -54,4 +54,20 @@ class RequiredInfoRepository(
         }
         return Pair(null,errorMessage)
     }
+
+    suspend fun getPresignedUrlList(requests: List<PresignedUrlRequest>): Pair<List<PresignedUrlResponse>?,String?>{
+        val response = api.getPresignedUrlList(requests).awaitResponse()
+
+        if (response.isSuccessful){
+            return Pair(response.body(),null)
+        }
+
+        val errorJson = response.errorBody()?.string()
+        val errorMessage = try {
+            Gson().fromJson(errorJson, ErrorResponse::class.java)?.message
+        } catch (e: Exception) {
+            null
+        }
+        return Pair(null,errorMessage)
+    }
 }
