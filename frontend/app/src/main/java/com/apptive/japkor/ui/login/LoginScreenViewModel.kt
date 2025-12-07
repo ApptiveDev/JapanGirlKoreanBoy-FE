@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptive.japkor.data.local.DataStoreManager
+import com.apptive.japkor.data.local.TokenProvider
 import com.apptive.japkor.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,6 +22,17 @@ class LoginScreenViewModel(
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
+    init {
+        // 앱 재시작 시 저장된 토큰을 메모리에 올려둔다.
+        viewModelScope.launch {
+            val savedToken = dataStore.getUserToken().first()
+            if (savedToken.isNotBlank()) {
+                TokenProvider.setToken(savedToken)
+                Log.d("LoginVM", "Restored token from DataStore")
+            }
+        }
+    }
+
     fun signIn(email:String,password:String,onResult:(Boolean)->Unit){
         viewModelScope.launch {
             _isLoading.value = true
@@ -31,6 +43,7 @@ class LoginScreenViewModel(
                 val result = repository.signIn(email, password)
                 if (result != null) {
                     Log.d("LoginVM", "로그인 성공! token=${result.token}")
+                    TokenProvider.setToken(result.token)
 
                     dataStore.saveUserInfo(
                         memberId = result.memberId,
