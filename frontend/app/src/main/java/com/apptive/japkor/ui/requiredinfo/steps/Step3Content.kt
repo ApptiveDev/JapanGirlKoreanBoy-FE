@@ -53,7 +53,7 @@ fun Step3Content(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 30.dp),
+            .padding(horizontal = 40.dp),
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -63,11 +63,10 @@ fun Step3Content(
             size = 32.sp
         )
         CustomText(
-            text = "학력과 자산, 자기소개를 입력해주세요.",
+            text = "클릭하여 각 항목에 정보를 입력해주세요.",
             color = CustomColor.gray400,
             type = CustomTextType.mainRegular,
         )
-        Spacer(modifier = Modifier.height(20.dp))
 
         Column(
             modifier = Modifier
@@ -78,8 +77,8 @@ fun Step3Content(
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                    .fillMaxWidth(),
+
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 CustomText(
@@ -120,8 +119,8 @@ fun Step3Content(
 
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                    .fillMaxWidth(),
+
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 CustomText(
@@ -148,8 +147,8 @@ fun Step3Content(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(CustomColor.white, shape = RoundedCornerShape(16.dp))
-                .padding(horizontal = 16.dp, vertical = 20.dp),
+                .background(CustomColor.white, shape = RoundedCornerShape(16.dp)),
+
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             CustomText(
