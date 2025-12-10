@@ -4,7 +4,8 @@ package com.apptive.japkor.ui.theme
 import androidx.compose.ui.graphics.Color
 
 object CustomColor {
-
+    val primary600 = Color(0xFFFF4D4D)
+    val primary300 = Color(0xFFFF9A9A)
     val gray100 = Color(0xFFF7F7F7)
     val gray200 = Color(0xFFD1D5DB)
 

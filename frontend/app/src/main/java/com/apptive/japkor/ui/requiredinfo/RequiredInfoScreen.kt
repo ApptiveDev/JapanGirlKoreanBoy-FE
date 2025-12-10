@@ -130,7 +130,7 @@ fun RequiredInfoScreen(
                                 .fillMaxWidth()
                                 .height(50.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = CustomColor.gray300,
+                                containerColor = CustomColor.primary600,
                                 disabledContainerColor = CustomColor.gray200
                             ),
                             shape = RoundedCornerShape(16.dp)
@@ -138,7 +138,7 @@ fun RequiredInfoScreen(
                             CustomText(
                                 text = "다음",
                                 type = CustomTextType.body,
-                                color = Color.Black
+                                color = Color.White
                             )
                         }
                     } else {
@@ -176,15 +176,15 @@ fun RequiredInfoScreen(
                                     .weight(1f)
                                     .height(50.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = CustomColor.gray300,
-                                    disabledContainerColor = CustomColor.gray200
+                                    containerColor = CustomColor.primary600,
+                                    disabledContainerColor = CustomColor.primary300
                                 ),
                                 shape = RoundedCornerShape(16.dp)
                             ) {
                                 CustomText(
                                     text = if (currentStep.value < 5) "다음" else "완료",
                                     type = CustomTextType.body,
-                                    color = Color.Black
+                                    color = Color.White
                                 )
                             }
                         }

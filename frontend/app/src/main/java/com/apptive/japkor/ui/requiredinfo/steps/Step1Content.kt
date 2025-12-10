@@ -73,7 +73,7 @@ fun Step1Content(
                             viewModel.setGender(option)
                         },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (isSelected) CustomColor.gray300 else CustomColor.gray100
+                            containerColor = if (isSelected) CustomColor.primary600 else CustomColor.gray100
                         ),
                         modifier = Modifier.padding(end = 8.dp)
                     ) {
