@@ -26,7 +26,7 @@ fun OptionChip(
 ) {
     val shape = RoundedCornerShape(12.dp)
 
-    val background = if (selected) CustomColor.gray400 else CustomColor.white
+    val background = if (selected) CustomColor.primary600 else CustomColor.white
     val textColor = if (selected) CustomColor.white else CustomColor.gray300
     val borderColor = if (selected) CustomColor.gray300 else CustomColor.gray200
 

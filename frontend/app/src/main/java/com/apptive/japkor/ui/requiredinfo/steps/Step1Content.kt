@@ -31,7 +31,7 @@ fun Step1Content(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 50.dp),
+            .padding(horizontal = 40.dp),
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {

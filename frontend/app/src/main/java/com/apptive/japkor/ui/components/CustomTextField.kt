@@ -20,11 +20,20 @@ fun CustomOutlinedTextField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
-    isPassword: Boolean = false
+    isPassword: Boolean = false,
+    isNumberOnly: Boolean = false   // ⬅ 숫자만 입력 여부 추가
 ) {
     OutlinedTextField(
         value = value,
-        onValueChange = onValueChange,
+        onValueChange = { newValue ->
+            if (isNumberOnly) {
+                // 숫자만 허용
+                val filtered = newValue.filter { it.isDigit() }
+                onValueChange(filtered)
+            } else {
+                onValueChange(newValue)
+            }
+        },
         modifier = Modifier
             .fillMaxWidth()
             .height(50.dp),
@@ -44,6 +53,11 @@ fun CustomOutlinedTextField(
             textAlign = TextAlign.Start
         ),
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
-        keyboardOptions = if (isPassword) KeyboardOptions(keyboardType = KeyboardType.Password) else KeyboardOptions.Default
+        keyboardOptions =
+            when {
+                isPassword -> KeyboardOptions(keyboardType = KeyboardType.Password)
+                isNumberOnly -> KeyboardOptions(keyboardType = KeyboardType.Number)
+                else -> KeyboardOptions.Default
+            }
     )
 }

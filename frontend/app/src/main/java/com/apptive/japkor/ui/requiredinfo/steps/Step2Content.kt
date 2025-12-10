@@ -34,7 +34,7 @@ fun Step2Content(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 50.dp)
+            .padding(horizontal = 40.dp)
             .imePadding(),
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -70,7 +70,8 @@ fun Step2Content(
                     val num = it.toIntOrNull()
                     viewModel.setHeight(num)
                 },
-                placeholder = "키(cm)"
+                placeholder = "키(cm)",
+                isNumberOnly = true
             )
 
             // 몸무게 입력 (Int?)
@@ -80,7 +81,8 @@ fun Step2Content(
                     val num = it.toIntOrNull()
                     viewModel.setWeight(num)
                 },
-                placeholder = "몸무게(kg)"
+                placeholder = "몸무게(kg)",
+                isNumberOnly = true
             )
 
             // 지역 입력 (String)
