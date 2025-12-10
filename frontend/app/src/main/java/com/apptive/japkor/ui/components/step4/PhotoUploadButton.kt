@@ -1,5 +1,6 @@
 package com.apptive.japkor.ui.components.step4
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -8,7 +9,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -19,9 +21,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.apptive.japkor.ui.requiredinfo.ProfileImageState
 import com.apptive.japkor.ui.requiredinfo.UploadStatus
 
@@ -56,22 +60,14 @@ fun PhotoUploadButton(
             }
 
             UploadStatus.Success -> {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = "업로드 완료",
-                        tint = Color(0xFF4CAF50)
-                    )
-                    Text(
-                        text = "완료",
-                        fontSize = 12.sp,
-                        color = Color(0xFF4A4F57),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
+                Log.d("IMAGE_URL", state.uploadedUrl ?: "null")
+
+                AsyncImage(
+                    model = state.uploadedUrl,
+                    contentDescription = "uploaded image",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
             }
 
             UploadStatus.Failed -> {

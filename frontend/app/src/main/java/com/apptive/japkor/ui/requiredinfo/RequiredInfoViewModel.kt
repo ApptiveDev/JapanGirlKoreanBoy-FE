@@ -229,7 +229,7 @@ class RequiredInfoViewModel(
     val step4Valid: StateFlow<Boolean> = profileImages
         .map { images ->
             val completed = images.filter { it.status == UploadStatus.Success && it.uploadedUrl != null }
-            completed.isNotEmpty() && images.none { it.status == UploadStatus.Uploading }
+            completed.size >= 2 && images.none { it.status == UploadStatus.Uploading }
         }
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 

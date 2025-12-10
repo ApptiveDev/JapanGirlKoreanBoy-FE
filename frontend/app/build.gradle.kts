@@ -54,6 +54,7 @@ android {
 }
 
 dependencies {
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
     implementation(libs.navigation.compose) // navigation
     implementation(libs.androidx.credentials) // credentials

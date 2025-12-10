@@ -59,7 +59,12 @@ fun Step4Content(
             color = CustomColor.gray400,
             type = CustomTextType.mainRegular,
         )
-        Spacer(modifier = Modifier.height(5.dp))
+
+        CustomText(
+            text = "(대표사진)",
+            color = CustomColor.gray300,
+            type = CustomTextType.label,
+        )
 
         PhotoUploadGrid(
             images = profileImages,
