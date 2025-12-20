@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,17 +20,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.apptive.japkor.ui.components.CustomText
 import com.apptive.japkor.ui.components.CustomTextType
+import com.apptive.japkor.ui.requiredinfo.RequiredInfoViewModel
 import com.apptive.japkor.ui.theme.CustomColor
 
 @Composable
-fun Step1Content(selectedOption: MutableState<String>) {
+fun Step1Content(
+    selectedOption: MutableState<String>,
+    viewModel: RequiredInfoViewModel
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 50.dp),
+            .padding(horizontal = 40.dp),
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        LaunchedEffect(Unit) {
+            if (viewModel.gender.value == null) {
+                viewModel.setGender(selectedOption.value)
+            }
+        }
         CustomText(
             text = "성별을 설정해주세요",
             type = CustomTextType.mainRegular,
@@ -56,10 +66,14 @@ fun Step1Content(selectedOption: MutableState<String>) {
             Column {
                 listOf("한국 남성", "일본 여성").forEach { option ->
                     val isSelected = selectedOption.value == option
+
                     Button(
-                        onClick = { selectedOption.value = option },
+                        onClick = {
+                            selectedOption.value = option
+                            viewModel.setGender(option)
+                        },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (isSelected) CustomColor.gray300 else CustomColor.gray100
+                            containerColor = if (isSelected) CustomColor.primary600 else CustomColor.gray100
                         ),
                         modifier = Modifier.padding(end = 8.dp)
                     ) {

@@ -24,6 +24,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -32,18 +35,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.apptive.japkor.navigation.Screen
 import com.apptive.japkor.R
+import com.apptive.japkor.navigation.Screen
 import com.apptive.japkor.ui.components.CustomText
 import com.apptive.japkor.ui.components.CustomTextType
+import com.apptive.japkor.ui.components.LoadingDialog
+import com.apptive.japkor.ui.components.LocalToastManager
 import com.apptive.japkor.ui.components.StepIndicator
+import com.apptive.japkor.ui.components.ToastType
 import com.apptive.japkor.ui.requiredinfo.steps.Step1Content
 import com.apptive.japkor.ui.requiredinfo.steps.Step2Content
 import com.apptive.japkor.ui.requiredinfo.steps.Step3Content
 import com.apptive.japkor.ui.requiredinfo.steps.Step4Content
 import com.apptive.japkor.ui.requiredinfo.steps.Step5Content
 import com.apptive.japkor.ui.theme.CustomColor
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun RequiredInfoScreen(
@@ -51,8 +59,49 @@ fun RequiredInfoScreen(
     onSubmit: (name: String, email: String) -> Unit = { _, _ -> },
     initialStep: Int = 1
 ) {
+    val requiredInfoViewModel: RequiredInfoViewModel = viewModel()
+    val toastManager = LocalToastManager.current
+
     val selectedOption = remember { mutableStateOf("한국 남성") }
     val currentStep = remember { mutableStateOf(initialStep) }
+
+    val step1Valid by requiredInfoViewModel.step1Valid.collectAsState()
+    val step2Valid by requiredInfoViewModel.step2Valid.collectAsState()
+    val step3Valid by requiredInfoViewModel.step3Valid.collectAsState()
+    val step4Valid by requiredInfoViewModel.step4Valid.collectAsState()
+    val step5Valid by requiredInfoViewModel.step5Valid.collectAsState()
+    val submitState by requiredInfoViewModel.submitState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        requiredInfoViewModel.events.collectLatest { event ->
+            when (event) {
+                is RequiredInfoEvent.ShowToast -> {
+                    when (event.type) {
+                        ToastType.INFO -> toastManager.info(event.message)
+                        ToastType.SUCCESS -> toastManager.success(event.message)
+                        ToastType.ERROR -> toastManager.error(event.message)
+                    }
+                }
+                RequiredInfoEvent.NavigateToComplete -> {
+                    navController.navigate(Screen.RequiredInfoComplete.route) {
+                        popUpTo(Screen.RequiredInfo.route) { inclusive = true }
+                    }
+                }
+            }
+        }
+    }
+
+    if (submitState is SubmitState.Loading) {
+        LoadingDialog()
+    }
+
+    val canProceed = when (currentStep.value) {
+        1 -> step1Valid
+        2 -> step2Valid
+        3 -> step3Valid
+        4 -> step4Valid
+        else -> step5Valid
+    } && submitState !is SubmitState.Loading
 
     Scaffold(
         modifier = Modifier
@@ -76,18 +125,20 @@ fun RequiredInfoScreen(
                     if (currentStep.value == 1) {
                         Button(
                             onClick = { currentStep.value += 1 },
+                            enabled = canProceed,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(50.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = CustomColor.gray300
+                                containerColor = CustomColor.primary600,
+                                disabledContainerColor = CustomColor.gray200
                             ),
                             shape = RoundedCornerShape(16.dp)
                         ) {
                             CustomText(
                                 text = "다음",
                                 type = CustomTextType.body,
-                                color = Color.Black
+                                color = Color.White
                             )
                         }
                     } else {
@@ -117,21 +168,23 @@ fun RequiredInfoScreen(
                                     if (currentStep.value < 5) {
                                         currentStep.value += 1
                                     } else {
-                                        navController.navigate(Screen.RequiredInfoComplete.route)
+                                        requiredInfoViewModel.submitRequiredInfo()
                                     }
                                 },
+                                enabled = canProceed,
                                 modifier = Modifier
                                     .weight(1f)
                                     .height(50.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = CustomColor.gray300
+                                    containerColor = CustomColor.primary600,
+                                    disabledContainerColor = CustomColor.primary300
                                 ),
                                 shape = RoundedCornerShape(16.dp)
                             ) {
                                 CustomText(
                                     text = if (currentStep.value < 5) "다음" else "완료",
                                     type = CustomTextType.body,
-                                    color = Color.Black
+                                    color = Color.White
                                 )
                             }
                         }
@@ -181,11 +234,11 @@ fun RequiredInfoScreen(
             }
             item {
                 when (currentStep.value) {
-                    1 -> Step1Content(selectedOption = selectedOption)
-                    2 -> Step2Content()
-                    3 -> Step3Content()
-                    4 -> Step4Content()
-                    5 -> Step5Content()
+                    1 -> Step1Content(selectedOption = selectedOption,  viewModel = requiredInfoViewModel)
+                    2 -> Step2Content(viewModel = requiredInfoViewModel)
+                    3 -> Step3Content(viewModel = requiredInfoViewModel)
+                    4 -> Step4Content(viewModel = requiredInfoViewModel)
+                    5 -> Step5Content(viewModel = requiredInfoViewModel)
                 }
             }
         }

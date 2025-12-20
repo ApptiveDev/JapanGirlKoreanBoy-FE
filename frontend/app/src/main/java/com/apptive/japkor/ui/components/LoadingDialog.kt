@@ -64,12 +64,12 @@ fun LoadingDialog() {
             ) {
                 LoveThreadIndicator()
                 CustomText(
-                    text = "인연의 실을 곱게 잇는 중이에요",
+                    text = "인연의 실을\n 곱게 잇는 중이에요",
                     type = CustomTextType.mainBold,
                     color = Color(0xFF4C3B30)
                 )
                 CustomText(
-                    text = "두 마음이 예쁘게 묶이도록 조금만 기다려주세요",
+                    text = "두 마음이 예쁘게 묶이도록\n 조금만 기다려주세요",
                     type = CustomTextType.body,
                     color = CustomColor.gray400,
                     textAlign = TextAlign.Center

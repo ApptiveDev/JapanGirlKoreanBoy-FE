@@ -161,6 +161,8 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
 
                     Button(
                         onClick = {
+
+
                             viewModel.signIn(email,password) {success ->
                                 if (success) {
                                     toastManager.success("로그인 성공! 환영합니다.")

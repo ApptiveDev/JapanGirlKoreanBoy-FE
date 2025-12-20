@@ -7,10 +7,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.apptive.japkor.ui.theme.CustomColor.primary600
 
 // 회색 팔레트
 private val Gray100 = Color(0xFFF5F5F5)
@@ -28,8 +30,8 @@ fun StepIndicator(
     modifier: Modifier = Modifier,
     currentStep: Int,
     totalSteps: Int = 4,
-    activeColor: Color = Gray100,
-    inactiveColor: Color = Gray400,
+    activeColor: Color = primary600,
+    inactiveColor: Color = Gray100,
 ) {
     val clampedIndex = currentStep.coerceIn(1, totalSteps) - 1
     Row(
@@ -45,7 +47,7 @@ fun StepIndicator(
                     .height(5.dp)
                     .background(
                         color = if (index == clampedIndex) activeColor else inactiveColor,
-                        shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(8.dp)
                     )
             )
         }

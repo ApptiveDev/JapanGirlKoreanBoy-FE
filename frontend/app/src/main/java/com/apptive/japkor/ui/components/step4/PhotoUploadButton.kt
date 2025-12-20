@@ -1,11 +1,19 @@
 package com.apptive.japkor.ui.components.step4
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -13,40 +21,89 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import com.apptive.japkor.ui.requiredinfo.ProfileImageState
+import com.apptive.japkor.ui.requiredinfo.UploadStatus
 
 @Composable
 fun PhotoUploadButton(
     modifier: Modifier = Modifier,
+    state: ProfileImageState? = null,
     onClick: () -> Unit = {}
 ) {
     val shape = RoundedCornerShape(10.dp)
+    val containerColor = when (state?.status) {
+        UploadStatus.Success -> Color(0xFFF2F6FF)
+        UploadStatus.Failed -> Color(0xFFFFF5F5)
+        else -> Color.White
+    }
 
-    // 바탕 카드 (soft shadow)
     Box(
         modifier = modifier
             .shadow(2.dp, shape, clip = false)
             .clip(shape)
-            .background(Color.White)
+            .background(containerColor)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        // 가운데 옅은 원 + '+' 아이콘
-        Box(
-            modifier = Modifier
-                .size(25.dp)                          // 원 크기
-                .background(
-                    color = Color(0xFFF5F6F8),        // 연한 회색 배경
-                    shape = CircleShape
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "+",
-                fontSize = 22.sp,
-                color = Color(0xFFB8BDC7)            // 아이콘 컬러
-            )
+        when (state?.status) {
+            UploadStatus.Uploading -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(28.dp),
+                    strokeWidth = 3.dp,
+                    color = Color(0xFFB8BDC7)
+                )
+            }
+
+            UploadStatus.Success -> {
+                Log.d("IMAGE_URL", state.uploadedUrl ?: "null")
+
+                AsyncImage(
+                    model = state.uploadedUrl,
+                    contentDescription = "uploaded image",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            }
+
+            UploadStatus.Failed -> {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = "다시 시도",
+                        tint = Color(0xFFE57373)
+                    )
+                    Text(
+                        text = "재시도",
+                        fontSize = 12.sp,
+                        color = Color(0xFF5B2C2C)
+                    )
+                }
+            }
+
+            null -> {
+                Box(
+                    modifier = Modifier
+                        .size(25.dp)
+                        .background(
+                            color = Color(0xFFF5F6F8),
+                            shape = CircleShape
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "+",
+                        fontSize = 22.sp,
+                        color = Color(0xFFB8BDC7)
+                    )
+                }
+            }
         }
     }
 }
