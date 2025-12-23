@@ -1,6 +1,5 @@
 package com.apptive.japkor.ui.login
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -285,11 +284,10 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
 
                 ) {
                 GoogleSignUpButton(
-                    onSignedIn = {
-                        Log.d("LoginScreen", "onSignedIn 콜백 호출됨")
-                        toastManager.success("로그인 성공! 환영합니다.")
-                        navController.navigate("requiredinfo")
-                    },
+                    onClick = {
+                        // TODO: Google 로그인/연동 로직 추가
+                        toastManager.info("Google 로그인 준비 중입니다.")
+                    }
                 )
 
             }
