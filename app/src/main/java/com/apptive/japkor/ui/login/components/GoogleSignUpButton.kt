@@ -1,4 +1,4 @@
-package com.apptive.japkor.ui.components.auth
+package com.apptive.japkor.ui.login.components
 
 import android.accounts.AccountManager
 import android.app.Activity

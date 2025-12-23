@@ -49,7 +49,7 @@ import com.apptive.japkor.ui.components.CustomText
 import com.apptive.japkor.ui.components.CustomTextType
 import com.apptive.japkor.ui.components.LoadingDialog
 import com.apptive.japkor.ui.components.LocalToastManager
-import com.apptive.japkor.ui.components.auth.GoogleSignUpButton
+import com.apptive.japkor.ui.login.components.GoogleSignUpButton
 import com.apptive.japkor.ui.theme.CustomColor
 
 @Composable
