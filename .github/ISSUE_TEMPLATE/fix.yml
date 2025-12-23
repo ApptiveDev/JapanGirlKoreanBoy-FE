@@ -1,0 +1,34 @@
+name: 🪲 버그 수정 (fix)
+description: 버그를 보고해주세요
+title: "[fix] "
+labels: ["fix"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 문제 설명
+      description: 어떤 상황에서 문제가 발생하나요?
+      placeholder: 문제를 자세히 작성해주세요
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 재현 방법
+      description: 문제를 재현하는 단계
+      placeholder: |
+        1. 
+        2. 
+        3.
+    validations:
+      required: false
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 기대 결과
+      description: 정상이라면 어떻게 되어야 하나요?
+      placeholder: 기대 결과
+    validations:
+      required: false
