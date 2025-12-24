@@ -176,14 +176,14 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
                             .fillMaxWidth()
                             .height(50.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = CustomColor.gray300
+                            containerColor = CustomColor.primary600
                         ),
                         shape = RoundedCornerShape(16.dp)
                     ) {
                         CustomText(
                             text = "로그인",
                             type = CustomTextType.body,
-                            color = Color.Black
+                            color = Color.White
                         )
                     }
 
