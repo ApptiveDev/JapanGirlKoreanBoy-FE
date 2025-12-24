@@ -16,6 +16,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RangeSlider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -136,8 +137,27 @@ fun Step5Content(
                     viewModel.setPreferredHeightMax(end)
                 },
                 valueRange = 130f..230f,
-                steps = 99
+                steps = 99,
+                colors = SliderDefaults.colors(
+                    thumbColor = CustomColor.primary600,
+                    activeTrackColor = CustomColor.primary500,
+                    activeTickColor= CustomColor.primary500,
+                    inactiveTrackColor = CustomColor.primary300,
+                    inactiveTickColor = CustomColor.primary600
+
+                )
             )
+
+//            thumbColor: Color = Color.Unspecified,
+//            activeTrackColor: Color = Color.Unspecified,
+//            activeTickColor: Color = Color.Unspecified,
+//            inactiveTrackColor: Color = Color.Unspecified,
+//            inactiveTickColor: Color = Color.Unspecified,
+//            disabledThumbColor: Color = Color.Unspecified,
+//            disabledActiveTrackColor: Color = Color.Unspecified,
+//            disabledActiveTickColor: Color = Color.Unspecified,
+//            disabledInactiveTrackColor: Color = Color.Unspecified,
+//            disabledInactiveTickColor: Color = Color.Unspecified
 
             CustomText(
                 text = "130~230cm 범위에서 설정해주세요.",
