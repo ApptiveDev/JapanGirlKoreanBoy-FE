@@ -2,6 +2,7 @@ package com.apptive.japkor.ui.requiredinfo.steps
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -9,22 +10,29 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RangeSlider
+import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.apptive.japkor.ui.components.CustomText
@@ -33,6 +41,7 @@ import com.apptive.japkor.ui.components.OptionChip
 import com.apptive.japkor.ui.requiredinfo.RequiredInfoViewModel
 import com.apptive.japkor.ui.theme.CustomColor
 import com.apptive.japkor.utils.required_info.RequiredInfoMapper
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 private val avoidReligionOptions = listOf("없음", "불교", "기독교", "천주교", "신토", "기타")
@@ -81,6 +90,10 @@ fun Step5Content(
     LaunchedEffect(Unit) {
         if (viewModel.preferredHeightMin.value == null) viewModel.setPreferredHeightMin(160)
         if (viewModel.preferredHeightMax.value == null) viewModel.setPreferredHeightMax(180)
+        if (viewModel.mbti1.value == null) viewModel.setMbti1("X")
+        if (viewModel.mbti2.value == null) viewModel.setMbti2("X")
+        if (viewModel.mbti3.value == null) viewModel.setMbti3("X")
+        if (viewModel.mbti4.value == null) viewModel.setMbti4("X")
     }
 
     Column(
@@ -429,26 +442,26 @@ fun Step5Content(
             )
 
             MbtiRow(
-                label = "E / I",
-                options = listOf("E", "I", "X"),
+                left = MbtiChoice(value = "I", label = "I(내향성)"),
+                right = MbtiChoice(value = "E", label = "E(외향성)"),
                 selected = mbti1,
                 onSelect = { viewModel.setMbti1(it) }
             )
             MbtiRow(
-                label = "N / S",
-                options = listOf("N", "S", "X"),
+                left = MbtiChoice(value = "N", label = "직관성(N)"),
+                right = MbtiChoice(value = "S", label = "감각형(S)"),
                 selected = mbti2,
                 onSelect = { viewModel.setMbti2(it) }
             )
             MbtiRow(
-                label = "T / F",
-                options = listOf("T", "F", "X"),
+                left = MbtiChoice(value = "T", label = "사고형(T)"),
+                right = MbtiChoice(value = "F", label = "감정형(F)"),
                 selected = mbti3,
                 onSelect = { viewModel.setMbti3(it) }
             )
             MbtiRow(
-                label = "J / P",
-                options = listOf("J", "P", "X"),
+                left = MbtiChoice(value = "J", label = "판단형(J)"),
+                right = MbtiChoice(value = "P", label = "인식형(P)"),
                 selected = mbti4,
                 onSelect = { viewModel.setMbti4(it) }
             )
@@ -487,39 +500,119 @@ fun Step5Content(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
+private data class MbtiChoice(
+    val value: String,
+    val label: String
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MbtiRow(
-    label: String,
-    options: List<String>,
+    left: MbtiChoice,
+    right: MbtiChoice,
     selected: String?,
     onSelect: (String) -> Unit
 ) {
+    val centerValue = 50f
+    val snapThreshold = 6f
+    val normalized = selected?.uppercase()
+    val targetValue = when (normalized) {
+        left.value -> 0f
+        right.value -> 100f
+        "X" -> centerValue
+        else -> centerValue
+    }
+    var sliderValue by remember { mutableStateOf(targetValue) }
+    var userChanged by remember { mutableStateOf(false) }
+
+    LaunchedEffect(normalized) {
+        if (!userChanged) {
+            sliderValue = targetValue
+        }
+    }
+
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         CustomText(
-            text = label,
+            text = left.label,
             type = CustomTextType.body,
             color = CustomColor.gray300,
-            size = 12.sp,
-            modifier = Modifier.width(48.dp)
+            size = 12.sp
         )
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            options.forEach { option ->
-                OptionChip(
-                    text = option,
-                    selected = selected == option,
-                    onClick = { onSelect(option) }
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(1.dp)
+                        .background(CustomColor.gray300)
+                )
+                Slider(
+                    value = sliderValue,
+                    onValueChange = { value ->
+                        userChanged = true
+                        val clamped = value.coerceIn(0f, 100f)
+                        val snapped = if (abs(clamped - centerValue) <= snapThreshold) {
+                            centerValue
+                        } else {
+                            clamped
+                        }
+                        sliderValue = snapped
+                        val mapped = when {
+                            snapped == centerValue -> "X"
+                            snapped < centerValue -> left.value
+                            else -> right.value
+                        }
+                        if (mapped != normalized) onSelect(mapped)
+                    },
+                    valueRange = 0f..100f,
+                    steps = 0,
+                    colors = SliderDefaults.colors(
+                        thumbColor = CustomColor.primary600,
+                        activeTrackColor = Color.Transparent,
+                        inactiveTrackColor = Color.Transparent,
+                        activeTickColor = Color.Transparent,
+                        inactiveTickColor = Color.Transparent
+                    ),
+                    thumb = {
+                        Box(
+                            modifier = Modifier
+                                .size(18.dp)
+                                .background(CustomColor.primary600, CircleShape)
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                CustomText(
+                    text = "X",
+                    type = CustomTextType.body,
+                    color = CustomColor.gray300,
+                    size = 12.sp
                 )
             }
         }
+        CustomText(
+            text = right.label,
+            type = CustomTextType.body,
+            color = CustomColor.gray300,
+            size = 12.sp,
+            textAlign = TextAlign.End
+        )
     }
 }
 
