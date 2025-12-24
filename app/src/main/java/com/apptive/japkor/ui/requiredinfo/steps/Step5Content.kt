@@ -513,12 +513,14 @@ private fun MbtiRow(
     selected: String?,
     onSelect: (String) -> Unit
 ) {
+    val leftValue = 0f
     val centerValue = 50f
+    val rightValue = 100f
     val snapThreshold = 6f
     val normalized = selected?.uppercase()
     val targetValue = when (normalized) {
-        left.value -> 0f
-        right.value -> 100f
+        left.value -> leftValue
+        right.value -> rightValue
         "X" -> centerValue
         else -> centerValue
     }
@@ -538,7 +540,7 @@ private fun MbtiRow(
         CustomText(
             text = left.label,
             type = CustomTextType.body,
-            color = CustomColor.gray300,
+            color = CustomColor.primary600,
             size = 12.sp
         )
         Column(
@@ -561,7 +563,7 @@ private fun MbtiRow(
                     value = sliderValue,
                     onValueChange = { value ->
                         userChanged = true
-                        val clamped = value.coerceIn(0f, 100f)
+                        val clamped = value.coerceIn(leftValue, rightValue)
                         val snapped = if (abs(clamped - centerValue) <= snapThreshold) {
                             centerValue
                         } else {
@@ -571,6 +573,17 @@ private fun MbtiRow(
                         val mapped = when {
                             snapped == centerValue -> "X"
                             snapped < centerValue -> left.value
+                            else -> right.value
+                        }
+                        if (mapped != normalized) onSelect(mapped)
+                    },
+                    onValueChangeFinished = {
+                        val nearest = listOf(leftValue, centerValue, rightValue)
+                            .minByOrNull { abs(sliderValue - it) } ?: centerValue
+                        sliderValue = nearest
+                        val mapped = when (nearest) {
+                            centerValue -> "X"
+                            leftValue -> left.value
                             else -> right.value
                         }
                         if (mapped != normalized) onSelect(mapped)
@@ -601,7 +614,7 @@ private fun MbtiRow(
                 CustomText(
                     text = "X",
                     type = CustomTextType.body,
-                    color = CustomColor.gray300,
+                    color = CustomColor.primary600,
                     size = 12.sp
                 )
             }
@@ -609,7 +622,7 @@ private fun MbtiRow(
         CustomText(
             text = right.label,
             type = CustomTextType.body,
-            color = CustomColor.gray300,
+            color = CustomColor.primary600,
             size = 12.sp,
             textAlign = TextAlign.End
         )
