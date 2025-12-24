@@ -20,13 +20,19 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.apptive.japkor.data.local.DataStoreManager
+import com.apptive.japkor.data.model.UserStatus
 import com.apptive.japkor.navigation.Screen
 import com.apptive.japkor.ui.components.CustomText
 import com.apptive.japkor.ui.components.CustomTextType
@@ -34,6 +40,19 @@ import com.apptive.japkor.ui.theme.CustomColor
 
 @Composable
 fun RequiredInfoCompleteScreen(navController: NavController) {
+    val context = LocalContext.current
+    val dataStore = remember { DataStoreManager(context) }
+    val statusValue by dataStore.getUserStatus().collectAsState(initial = "")
+    val userStatus = runCatching { UserStatus.valueOf(statusValue) }.getOrNull()
+    val statusMessage = when (userStatus) {
+        UserStatus.APPROVED,
+        UserStatus.CONNECTING,
+        UserStatus.CONNECTED,
+        UserStatus.BLACKLISTED -> userStatus.displayLabel
+        UserStatus.PENDING_APPROVAL,
+        null -> "심사 중입니다"
+    }
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -80,7 +99,7 @@ fun RequiredInfoCompleteScreen(navController: NavController) {
                     textAlign = TextAlign.Center
                 )
                 CustomText(
-                    text = "심사 중입니다",
+                    text = statusMessage,
                     type = CustomTextType.body,
                     color = CustomColor.gray400,
                     textAlign = TextAlign.Center

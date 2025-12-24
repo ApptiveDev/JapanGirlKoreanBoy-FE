@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.apptive.japkor.R
+import com.apptive.japkor.data.model.UserStatus
 import com.apptive.japkor.navigation.Screen
 import com.apptive.japkor.ui.components.CustomOutlinedTextField
 import com.apptive.japkor.ui.components.CustomText
@@ -162,12 +163,22 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
                         onClick = {
 
 
-                            viewModel.signIn(email,password) {success ->
+                            viewModel.signIn(email, password) { success, status ->
                                 if (success) {
                                     toastManager.success("로그인 성공! 환영합니다.")
-                                    navController.navigate("requiredInfo")
-                                }
-                                else{
+                                    when (status) {
+                                        UserStatus.PENDING_APPROVAL -> {
+                                            navController.navigate(Screen.RequiredInfo.route)
+                                        }
+                                        UserStatus.APPROVED,
+                                        UserStatus.CONNECTING,
+                                        UserStatus.CONNECTED,
+                                        UserStatus.BLACKLISTED -> {
+                                            navController.navigate(Screen.RequiredInfoComplete.route)
+                                        }
+                                        null -> navController.navigate(Screen.RequiredInfo.route)
+                                    }
+                                } else {
                                     toastManager.error("로그인 실패! 이메일과 비밀번호를 확인해주세요.")
                                 }
                             }

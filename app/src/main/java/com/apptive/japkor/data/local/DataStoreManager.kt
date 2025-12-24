@@ -29,6 +29,8 @@ class DataStoreManager(private val context: Context) {
 
     fun getUserToken() = context.dataStore.data.map { it[KEY_TOKEN] ?: "" }
 
+    fun getUserStatus() = context.dataStore.data.map { it[KEY_STATUS] ?: "" }
+
     fun getUserInfo() = context.dataStore.data.map {
         mapOf(
             "memberId" to (it[KEY_MEMBER_ID] ?: -1),
