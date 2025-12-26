@@ -89,7 +89,7 @@ fun Step2Content(
             CustomOutlinedTextField(
                 value = region,
                 onValueChange = { viewModel.setRegion(it) },
-                placeholder = "거주 지역"
+                placeholder = "거주 지역(예: 서울특별시)"
             )
         }
 
