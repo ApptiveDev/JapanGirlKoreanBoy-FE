@@ -250,30 +250,30 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        CustomText(
-                            text = "아이디 찾기",
-                            type = CustomTextType.body,
-                            color = CustomColor.black,
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        CustomText(
-                            text = " | ",
-                            type = CustomTextType.body,
-                            color = CustomColor.gray300,
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        CustomText(
-                            text = "비밀번호 찾기",
-                            type = CustomTextType.body,
-                            color = CustomColor.black,
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        CustomText(
-                            text = " | ",
-                            type = CustomTextType.body,
-                            color = CustomColor.gray300,
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
+//                        CustomText(
+//                            text = "아이디 찾기",
+//                            type = CustomTextType.body,
+//                            color = CustomColor.black,
+//                        )
+//                        Spacer(modifier = Modifier.width(8.dp))
+//                        CustomText(
+//                            text = " | ",
+//                            type = CustomTextType.body,
+//                            color = CustomColor.gray300,
+//                        )
+//                        Spacer(modifier = Modifier.width(8.dp))
+//                        CustomText(
+//                            text = "비밀번호 찾기",
+//                            type = CustomTextType.body,
+//                            color = CustomColor.black,
+//                        )
+//                        Spacer(modifier = Modifier.width(8.dp))
+//                        CustomText(
+//                            text = " | ",
+//                            type = CustomTextType.body,
+//                            color = CustomColor.gray300,
+//                        )
+//                        Spacer(modifier = Modifier.width(8.dp))
                         CustomText(
                             text = "회원가입",
                             type = CustomTextType.body,
@@ -304,75 +304,75 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                HorizontalDivider(
-                    modifier = Modifier
-                        .weight(1f)
-                        .align(Alignment.CenterVertically),
-                    color = CustomColor.gray300,
-                    thickness = 1.dp
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-                CustomText(
-                    text = "SNS 계정으로 로그인",
-                    type = CustomTextType.body,
-                    color = CustomColor.gray300,
-                    modifier = Modifier.align(Alignment.CenterVertically)
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-                HorizontalDivider(
-                    modifier = Modifier
-                        .weight(1f)
-                        .align(Alignment.CenterVertically),
-                    color = CustomColor.gray300,
-                    thickness = 1.dp
-                )
-            }
+//            Row(
+//                modifier = Modifier.fillMaxWidth(),
+//                horizontalArrangement = Arrangement.Center
+//            ) {
+//                HorizontalDivider(
+//                    modifier = Modifier
+//                        .weight(1f)
+//                        .align(Alignment.CenterVertically),
+//                    color = CustomColor.gray300,
+//                    thickness = 1.dp
+//                )
+//                Spacer(modifier = Modifier.width(10.dp))
+//                CustomText(
+//                    text = "SNS 계정으로 로그인",
+//                    type = CustomTextType.body,
+//                    color = CustomColor.gray300,
+//                    modifier = Modifier.align(Alignment.CenterVertically)
+//                )
+//                Spacer(modifier = Modifier.width(10.dp))
+//                HorizontalDivider(
+//                    modifier = Modifier
+//                        .weight(1f)
+//                        .align(Alignment.CenterVertically),
+//                    color = CustomColor.gray300,
+//                    thickness = 1.dp
+//                )
+//            }
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp, bottom = 90.dp),
-                horizontalArrangement = Arrangement.Center,
+//            Row(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(top = 16.dp, bottom = 90.dp),
+//                horizontalArrangement = Arrangement.Center,
+//
+//                ) {
+//                GoogleSignUpButton(
+//                    onClick = {
+//                        val url = "https://masil-main.duckdns.org/oauth2/authorization/google"
+//                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+//                        context.startActivity(intent)
+//                    }
+//                )
+//
+//            }
 
-                ) {
-                GoogleSignUpButton(
-                    onClick = {
-                        val url = "https://masil-main.duckdns.org/oauth2/authorization/google"
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                        context.startActivity(intent)
-                    }
-                )
 
-            }
-
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                CustomText(
-                    text = "이용약관",
-                    type = CustomTextType.body,
-                    color = CustomColor.black,
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                CustomText(
-                    text = " | ",
-                    type = CustomTextType.body,
-                    color = CustomColor.gray300,
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                CustomText(
-                    text = "개인정보 보호정책",
-                    type = CustomTextType.body,
-                    color = CustomColor.black,
-                )
-            }
+//            Row(
+//                modifier = Modifier.fillMaxWidth(),
+//                horizontalArrangement = Arrangement.Center,
+//                verticalAlignment = Alignment.CenterVertically
+//            ) {
+//                CustomText(
+//                    text = "이용약관",
+//                    type = CustomTextType.body,
+//                    color = CustomColor.black,
+//                )
+//                Spacer(modifier = Modifier.width(16.dp))
+//                CustomText(
+//                    text = " | ",
+//                    type = CustomTextType.body,
+//                    color = CustomColor.gray300,
+//                )
+//                Spacer(modifier = Modifier.width(16.dp))
+//                CustomText(
+//                    text = "개인정보 보호정책",
+//                    type = CustomTextType.body,
+//                    color = CustomColor.black,
+//                )
+//            }
 
 
         }
