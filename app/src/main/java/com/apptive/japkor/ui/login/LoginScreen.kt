@@ -167,9 +167,10 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
                                 if (success) {
                                     toastManager.success("로그인 성공! 환영합니다.")
                                     when (status) {
-                                        UserStatus.PENDING_APPROVAL -> {
+                                        UserStatus.INCOMPLETE_PROFILE -> {
                                             navController.navigate(Screen.RequiredInfo.route)
                                         }
+                                        UserStatus.PENDING_APPROVAL,
                                         UserStatus.APPROVED,
                                         UserStatus.CONNECTING,
                                         UserStatus.CONNECTED,

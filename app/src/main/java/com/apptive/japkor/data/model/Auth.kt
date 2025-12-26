@@ -21,6 +21,7 @@ data class SignInResponse(
 )
 
 enum class UserStatus(val displayLabel: String) {
+    INCOMPLETE_PROFILE("필수정보 미입력"), // 회원가입만 완료됨
     PENDING_APPROVAL("승인대기"), // 승인대기
     APPROVED("승인완료"), // 승인완료
     CONNECTING("연결중"), // 연결중

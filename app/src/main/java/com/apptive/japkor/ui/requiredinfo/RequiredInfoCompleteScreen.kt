@@ -49,6 +49,7 @@ fun RequiredInfoCompleteScreen(navController: NavController) {
         UserStatus.CONNECTING,
         UserStatus.CONNECTED,
         UserStatus.BLACKLISTED -> userStatus.displayLabel
+        UserStatus.INCOMPLETE_PROFILE -> "필수정보 입력이 필요합니다"
         UserStatus.PENDING_APPROVAL,
         null -> "심사 중입니다"
     }
