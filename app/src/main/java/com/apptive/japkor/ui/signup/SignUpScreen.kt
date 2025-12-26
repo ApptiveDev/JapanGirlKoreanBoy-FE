@@ -264,7 +264,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = view
                     .fillMaxWidth()
                     .height(50.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFF45C4A),
+                    containerColor = CustomColor.primary600,
                     contentColor = CustomColor.white,
                     disabledContainerColor = CustomColor.gray300,
                     disabledContentColor = CustomColor.white
