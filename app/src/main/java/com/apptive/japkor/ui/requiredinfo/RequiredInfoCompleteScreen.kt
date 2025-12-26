@@ -20,13 +20,19 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.apptive.japkor.data.local.DataStoreManager
+import com.apptive.japkor.data.model.UserStatus
 import com.apptive.japkor.navigation.Screen
 import com.apptive.japkor.ui.components.CustomText
 import com.apptive.japkor.ui.components.CustomTextType
@@ -34,6 +40,20 @@ import com.apptive.japkor.ui.theme.CustomColor
 
 @Composable
 fun RequiredInfoCompleteScreen(navController: NavController) {
+    val context = LocalContext.current
+    val dataStore = remember { DataStoreManager(context) }
+    val statusValue by dataStore.getUserStatus().collectAsState(initial = "")
+    val userStatus = runCatching { UserStatus.valueOf(statusValue) }.getOrNull()
+    val statusMessage = when (userStatus) {
+        UserStatus.APPROVED,
+        UserStatus.CONNECTING,
+        UserStatus.CONNECTED,
+        UserStatus.BLACKLISTED -> userStatus.displayLabel
+        UserStatus.INCOMPLETE_PROFILE -> "필수정보 입력이 필요합니다"
+        UserStatus.PENDING_APPROVAL,
+        null -> "심사 중입니다"
+    }
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -56,14 +76,14 @@ fun RequiredInfoCompleteScreen(navController: NavController) {
             ) {
                 Box(
                     modifier = Modifier
-                        .size(88.dp)
-                        .background(color = CustomColor.gray100, shape = CircleShape),
+                        .size(70.dp)
+                        .background(color = CustomColor.primary600, shape = CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Check,
                         contentDescription = "완료",
-                        tint = CustomColor.black,
+                        tint = CustomColor.white,
                         modifier = Modifier.size(40.dp)
                     )
                 }
@@ -80,7 +100,7 @@ fun RequiredInfoCompleteScreen(navController: NavController) {
                     textAlign = TextAlign.Center
                 )
                 CustomText(
-                    text = "심사 중입니다",
+                    text = statusMessage,
                     type = CustomTextType.body,
                     color = CustomColor.gray400,
                     textAlign = TextAlign.Center
@@ -115,14 +135,14 @@ fun RequiredInfoCompleteScreen(navController: NavController) {
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = CustomColor.gray300),
+                    colors = ButtonDefaults.buttonColors(containerColor = CustomColor.primary600),
                     shape = RoundedCornerShape(16.dp),
                     contentPadding = PaddingValues(vertical = 16.dp)
                 ) {
                     CustomText(
                         text = "확인했어요",
                         type = CustomTextType.body,
-                        color = Color.Black
+                        color = Color.White
                     )
                 }
 

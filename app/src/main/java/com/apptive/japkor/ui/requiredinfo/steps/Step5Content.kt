@@ -2,6 +2,7 @@ package com.apptive.japkor.ui.requiredinfo.steps
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -9,21 +10,29 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RangeSlider
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.apptive.japkor.ui.components.CustomText
@@ -32,6 +41,7 @@ import com.apptive.japkor.ui.components.OptionChip
 import com.apptive.japkor.ui.requiredinfo.RequiredInfoViewModel
 import com.apptive.japkor.ui.theme.CustomColor
 import com.apptive.japkor.utils.required_info.RequiredInfoMapper
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 private val avoidReligionOptions = listOf("없음", "불교", "기독교", "천주교", "신토", "기타")
@@ -53,6 +63,7 @@ private val parentAssetOptions = listOf(
 )
 private val jobOptions = listOf("의사", "교사", "엔지니어", "프리랜서", "무직")
 private val priorityOptions = listOf("직업", "학력", "키", "외모", "부모 자산", "본인 자산", "종교", "성격")
+private val missingIndicatorColor = Color(0xFFE53935)
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -76,10 +87,27 @@ fun Step5Content(
     val priority1 by viewModel.priority1.collectAsState()
     val priority2 by viewModel.priority2.collectAsState()
     val priority3 by viewModel.priority3.collectAsState()
+    val heightMissing = preferredHeightMin == null || preferredHeightMax == null
+    val avoidReligionMissing = avoidReligions.isEmpty()
+    val preferredEducationMissing = preferredEducationLevel == null
+    val preferredAppearanceMissing = preferredAppearanceStyle == null
+    val parentAssetMissing = parentAssetRequirement == null
+    val preferredAssetMissing = preferredAssetMin == null || preferredAssetMax == null
+    val preferredJobsMissing = preferredJobs.isEmpty()
+    val avoidedJobsMissing = avoidedJobs.isEmpty()
+    val mbtiMissing = listOf(mbti1, mbti2, mbti3, mbti4).any { it == null }
+    val priority1Missing = priority1 == null
+    val priority2Missing = priority2 == null
+    val priority3Missing = priority3 == null
+    val selectedPriorities = setOfNotNull(priority1, priority2, priority3)
 
     LaunchedEffect(Unit) {
         if (viewModel.preferredHeightMin.value == null) viewModel.setPreferredHeightMin(160)
         if (viewModel.preferredHeightMax.value == null) viewModel.setPreferredHeightMax(180)
+        if (viewModel.mbti1.value == null) viewModel.setMbti1("X")
+        if (viewModel.mbti2.value == null) viewModel.setMbti2("X")
+        if (viewModel.mbti3.value == null) viewModel.setMbti3("X")
+        if (viewModel.mbti4.value == null) viewModel.setMbti4("X")
     }
 
     Column(
@@ -113,11 +141,17 @@ fun Step5Content(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                CustomText(
-                    text = "선호 키",
-                    type = CustomTextType.mainBold,
-                    size = 16.sp
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    CustomText(
+                        text = "선호 키",
+                        type = CustomTextType.mainBold,
+                        size = 16.sp
+                    )
+                    MissingIndicator(show = heightMissing)
+                }
                 CustomText(
                     text = "${preferredHeightMin ?: 160}cm ~ ${preferredHeightMax ?: 180}cm",
                     type = CustomTextType.mainBold,
@@ -136,8 +170,27 @@ fun Step5Content(
                     viewModel.setPreferredHeightMax(end)
                 },
                 valueRange = 130f..230f,
-                steps = 99
+                steps = 99,
+                colors = SliderDefaults.colors(
+                    thumbColor = CustomColor.primary600,
+                    activeTrackColor = CustomColor.primary500,
+                    activeTickColor= CustomColor.primary500,
+                    inactiveTrackColor = CustomColor.primary300,
+                    inactiveTickColor = CustomColor.primary600
+
+                )
             )
+
+//            thumbColor: Color = Color.Unspecified,
+//            activeTrackColor: Color = Color.Unspecified,
+//            activeTickColor: Color = Color.Unspecified,
+//            inactiveTrackColor: Color = Color.Unspecified,
+//            inactiveTickColor: Color = Color.Unspecified,
+//            disabledThumbColor: Color = Color.Unspecified,
+//            disabledActiveTrackColor: Color = Color.Unspecified,
+//            disabledActiveTickColor: Color = Color.Unspecified,
+//            disabledInactiveTrackColor: Color = Color.Unspecified,
+//            disabledInactiveTickColor: Color = Color.Unspecified
 
             CustomText(
                 text = "130~230cm 범위에서 설정해주세요.",
@@ -156,12 +209,18 @@ fun Step5Content(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                CustomText(
-                    text = "기피 종교",
-                    type = CustomTextType.body,
-                    color = CustomColor.gray300,
-                    size = 12.sp
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    CustomText(
+                        text = "기피 종교",
+                        type = CustomTextType.body,
+                        color = CustomColor.gray300,
+                        size = 12.sp
+                    )
+                    MissingIndicator(show = avoidReligionMissing)
+                }
                 FlowRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -179,12 +238,18 @@ fun Step5Content(
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                CustomText(
-                    text = "선호 학벌",
-                    type = CustomTextType.body,
-                    color = CustomColor.gray300,
-                    size = 12.sp
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    CustomText(
+                        text = "선호 학벌",
+                        type = CustomTextType.body,
+                        color = CustomColor.gray300,
+                        size = 12.sp
+                    )
+                    MissingIndicator(show = preferredEducationMissing)
+                }
                 FlowRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -202,12 +267,18 @@ fun Step5Content(
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                CustomText(
-                    text = "선호 외모 스타일",
-                    type = CustomTextType.body,
-                    color = CustomColor.gray300,
-                    size = 12.sp
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    CustomText(
+                        text = "선호 외모 스타일",
+                        type = CustomTextType.body,
+                        color = CustomColor.gray300,
+                        size = 12.sp
+                    )
+                    MissingIndicator(show = preferredAppearanceMissing)
+                }
                 FlowRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -225,12 +296,18 @@ fun Step5Content(
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                CustomText(
-                    text = "부모님 자산 요구사항",
-                    type = CustomTextType.body,
-                    color = CustomColor.gray300,
-                    size = 12.sp
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    CustomText(
+                        text = "부모님 자산 요구사항",
+                        type = CustomTextType.body,
+                        color = CustomColor.gray300,
+                        size = 12.sp
+                    )
+                    MissingIndicator(show = parentAssetMissing)
+                }
                 FlowRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -256,12 +333,18 @@ fun Step5Content(
                 .padding( vertical = 20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            CustomText(
-                text = "선호 자산 (원 단위)",
-                type = CustomTextType.body,
-                color = CustomColor.gray300,
-                size = 12.sp
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                CustomText(
+                    text = "선호 자산 (원 단위)",
+                    type = CustomTextType.body,
+                    color = CustomColor.gray300,
+                    size = 12.sp
+                )
+                MissingIndicator(show = preferredAssetMissing)
+            }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -330,13 +413,20 @@ fun Step5Content(
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    CustomText(
-                        text = "선호 직업",
-                        type = CustomTextType.mainBold,
-                        size = 16.sp
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        CustomText(
+                            text = "선호 직업",
+                            type = CustomTextType.mainBold,
+                            size = 16.sp
+                        )
+                        MissingIndicator(show = preferredJobsMissing)
+                    }
                     CustomText(
                         text = "(최대 3개)",
                         type = CustomTextType.body,
@@ -351,9 +441,12 @@ fun Step5Content(
                 ) {
                     jobOptions.forEach { option ->
                         val mapped = RequiredInfoMapper.job(option)
+                        val isSelected = mapped != null && preferredJobs.contains(mapped)
+                        val isDisabled = mapped != null && avoidedJobs.contains(mapped) && !isSelected
                         OptionChip(
                             text = option,
-                            selected = preferredJobs.contains(mapped),
+                            selected = isSelected,
+                            enabled = !isDisabled,
                             onClick = { viewModel.togglePreferredJob(option) }
                         )
                     }
@@ -363,13 +456,20 @@ fun Step5Content(
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    CustomText(
-                        text = "비선호 직업",
-                        type = CustomTextType.mainBold,
-                        size = 16.sp
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        CustomText(
+                            text = "비선호 직업",
+                            type = CustomTextType.mainBold,
+                            size = 16.sp
+                        )
+                        MissingIndicator(show = avoidedJobsMissing)
+                    }
                     CustomText(
                         text = "(최대 3개)",
                         type = CustomTextType.body,
@@ -384,9 +484,12 @@ fun Step5Content(
                 ) {
                     jobOptions.forEach { option ->
                         val mapped = RequiredInfoMapper.job(option)
+                        val isSelected = mapped != null && avoidedJobs.contains(mapped)
+                        val isDisabled = mapped != null && preferredJobs.contains(mapped) && !isSelected
                         OptionChip(
                             text = option,
-                            selected = avoidedJobs.contains(mapped),
+                            selected = isSelected,
+                            enabled = !isDisabled,
                             onClick = { viewModel.toggleAvoidedJob(option) }
                         )
                     }
@@ -402,33 +505,39 @@ fun Step5Content(
                 .padding( vertical = 20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            CustomText(
-                text = "선호 성격 (MBTI)",
-                type = CustomTextType.mainBold,
-                size = 16.sp
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                CustomText(
+                    text = "선호 성격 (MBTI)",
+                    type = CustomTextType.mainBold,
+                    size = 16.sp
+                )
+                MissingIndicator(show = mbtiMissing)
+            }
 
             MbtiRow(
-                label = "E / I",
-                options = listOf("E", "I", "X"),
+                left = MbtiChoice(value = "I", label = "I(내향성)"),
+                right = MbtiChoice(value = "E", label = "E(외향성)"),
                 selected = mbti1,
                 onSelect = { viewModel.setMbti1(it) }
             )
             MbtiRow(
-                label = "N / S",
-                options = listOf("N", "S", "X"),
+                left = MbtiChoice(value = "N", label = "직관성(N)"),
+                right = MbtiChoice(value = "S", label = "감각형(S)"),
                 selected = mbti2,
                 onSelect = { viewModel.setMbti2(it) }
             )
             MbtiRow(
-                label = "T / F",
-                options = listOf("T", "F", "X"),
+                left = MbtiChoice(value = "T", label = "사고형(T)"),
+                right = MbtiChoice(value = "F", label = "감정형(F)"),
                 selected = mbti3,
                 onSelect = { viewModel.setMbti3(it) }
             )
             MbtiRow(
-                label = "J / P",
-                options = listOf("J", "P", "X"),
+                left = MbtiChoice(value = "J", label = "판단형(J)"),
+                right = MbtiChoice(value = "P", label = "인식형(P)"),
                 selected = mbti4,
                 onSelect = { viewModel.setMbti4(it) }
             )
@@ -451,54 +560,169 @@ fun Step5Content(
             PriorityRow(
                 title = "1순위",
                 selected = priority1,
+                showMissing = priority1Missing,
+                disabledOptions = selectedPriorities - setOfNotNull(priority1),
                 onSelect = { viewModel.setPriority1(it) }
             )
             PriorityRow(
                 title = "2순위",
                 selected = priority2,
+                showMissing = priority2Missing,
+                disabledOptions = selectedPriorities - setOfNotNull(priority2),
                 onSelect = { viewModel.setPriority2(it) }
             )
             PriorityRow(
                 title = "3순위",
                 selected = priority3,
+                showMissing = priority3Missing,
+                disabledOptions = selectedPriorities - setOfNotNull(priority3),
                 onSelect = { viewModel.setPriority3(it) }
             )
         }
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
+private data class MbtiChoice(
+    val value: String,
+    val label: String
+)
+
+@Composable
+private fun MissingIndicator(
+    show: Boolean,
+    modifier: Modifier = Modifier
+) {
+    if (show) {
+        CustomText(
+            text = "입력이 아직 안됐어요",
+            type = CustomTextType.body,
+            size = 12.sp,
+            color = missingIndicatorColor,
+            modifier = modifier
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MbtiRow(
-    label: String,
-    options: List<String>,
+    left: MbtiChoice,
+    right: MbtiChoice,
     selected: String?,
     onSelect: (String) -> Unit
 ) {
-    Row(
+    val leftValue = 0f
+    val centerValue = 50f
+    val rightValue = 100f
+    val snapThreshold = 6f
+    val normalized = selected?.uppercase()
+    val targetValue = when (normalized) {
+        left.value -> leftValue
+        right.value -> rightValue
+        "X" -> centerValue
+        else -> centerValue
+    }
+    var sliderValue by remember { mutableStateOf(targetValue) }
+    var userChanged by remember { mutableStateOf(false) }
+
+    LaunchedEffect(normalized) {
+        if (!userChanged) {
+            sliderValue = targetValue
+        }
+    }
+
+    Column(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        CustomText(
-            text = label,
-            type = CustomTextType.body,
-            color = CustomColor.gray300,
-            size = 12.sp,
-            modifier = Modifier.width(48.dp)
-        )
-        FlowRow(
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            options.forEach { option ->
-                OptionChip(
-                    text = option,
-                    selected = selected == option,
-                    onClick = { onSelect(option) }
+            CustomText(
+                text = left.label,
+                type = CustomTextType.body,
+                color = CustomColor.primary600,
+                size = 12.sp
+            )
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(1.dp)
+                        .background(CustomColor.gray300)
+                )
+                Slider(
+                    value = sliderValue,
+                    onValueChange = { value ->
+                        userChanged = true
+                        val clamped = value.coerceIn(leftValue, rightValue)
+                        val snapped = if (abs(clamped - centerValue) <= snapThreshold) {
+                            centerValue
+                        } else {
+                            clamped
+                        }
+                        sliderValue = snapped
+                        val mapped = when {
+                            snapped == centerValue -> "X"
+                            snapped < centerValue -> left.value
+                            else -> right.value
+                        }
+                        if (mapped != normalized) onSelect(mapped)
+                    },
+                    onValueChangeFinished = {
+                        val nearest = listOf(leftValue, centerValue, rightValue)
+                            .minByOrNull { abs(sliderValue - it) } ?: centerValue
+                        sliderValue = nearest
+                        val mapped = when (nearest) {
+                            centerValue -> "X"
+                            leftValue -> left.value
+                            else -> right.value
+                        }
+                        if (mapped != normalized) onSelect(mapped)
+                    },
+                    valueRange = 0f..100f,
+                    steps = 0,
+                    colors = SliderDefaults.colors(
+                        thumbColor = CustomColor.primary600,
+                        activeTrackColor = Color.Transparent,
+                        inactiveTrackColor = Color.Transparent,
+                        activeTickColor = Color.Transparent,
+                        inactiveTickColor = Color.Transparent
+                    ),
+                    thumb = {
+                        Box(
+                            modifier = Modifier
+                                .size(18.dp)
+                                .background(CustomColor.primary600, CircleShape)
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
+            CustomText(
+                text = right.label,
+                type = CustomTextType.body,
+                color = CustomColor.primary600,
+                size = 12.sp,
+                textAlign = TextAlign.End
+            )
+        }
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            CustomText(
+                text = "X",
+                type = CustomTextType.body,
+                color = CustomColor.primary600,
+                size = 12.sp
+            )
         }
     }
 }
@@ -508,15 +732,23 @@ private fun MbtiRow(
 private fun PriorityRow(
     title: String,
     selected: String?,
+    showMissing: Boolean,
+    disabledOptions: Set<String>,
     onSelect: (String) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        CustomText(
-            text = title,
-            type = CustomTextType.body,
-            color = CustomColor.gray300,
-            size = 12.sp
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            CustomText(
+                text = title,
+                type = CustomTextType.body,
+                color = CustomColor.gray300,
+                size = 12.sp
+            )
+            MissingIndicator(show = showMissing)
+        }
         FlowRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -524,9 +756,12 @@ private fun PriorityRow(
         ) {
             priorityOptions.forEach { option ->
                 val mapped = RequiredInfoMapper.priority(option)
+                val isSelected = mapped != null && selected == mapped
+                val isDisabled = mapped != null && mapped in disabledOptions && !isSelected
                 OptionChip(
                     text = option,
-                    selected = selected == mapped,
+                    selected = isSelected,
+                    enabled = !isDisabled,
                     onClick = { onSelect(option) }
                 )
             }

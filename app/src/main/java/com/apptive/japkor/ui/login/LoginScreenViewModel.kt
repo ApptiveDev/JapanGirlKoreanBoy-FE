@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptive.japkor.data.local.DataStoreManager
 import com.apptive.japkor.data.local.TokenProvider
+import com.apptive.japkor.data.model.UserStatus
 import com.apptive.japkor.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,6 +22,7 @@ class LoginScreenViewModel(
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
+    val rememberedEmail = dataStore.getRememberedEmail()
 
     init {
         // 앱 재시작 시 저장된 토큰을 메모리에 올려둔다.
@@ -33,7 +35,7 @@ class LoginScreenViewModel(
         }
     }
 
-    fun signIn(email:String,password:String,onResult:(Boolean)->Unit){
+    fun signIn(email: String, password: String, onResult: (Boolean, UserStatus?) -> Unit) {
         viewModelScope.launch {
             _isLoading.value = true
 
@@ -54,16 +56,26 @@ class LoginScreenViewModel(
 
                     val info = dataStore.getUserInfo().first()
                     Log.d("LoginVM", "저장된 UserInfo: $info")
-                    onResult(true)
+                    onResult(true, result.status)
                 } else {
                     Log.e("LoginVM", "로그인 실패: 결과 null")
-                    onResult(false)
+                    onResult(false, null)
                 }
             } catch (e: Exception) {
                 Log.e("LoginVM", "로그인 실패: 예외 발생", e)
-                onResult(false)
+                onResult(false, null)
             } finally {
                 _isLoading.value = false
+            }
+        }
+    }
+
+    fun updateRememberedEmail(remember: Boolean, email: String) {
+        viewModelScope.launch {
+            if (remember && email.isNotBlank()) {
+                dataStore.saveRememberedEmail(email)
+            } else {
+                dataStore.clearRememberedEmail()
             }
         }
     }

@@ -16,6 +16,7 @@ class DataStoreManager(private val context: Context) {
         val KEY_NAME = stringPreferencesKey("name")
         val KEY_TOKEN = stringPreferencesKey("token")
         val KEY_STATUS = stringPreferencesKey("status")
+        val KEY_REMEMBERED_EMAIL = stringPreferencesKey("remembered_email")
     }
 
     suspend fun saveUserInfo(memberId: Int, name: String, token: String, status: String) {
@@ -29,6 +30,8 @@ class DataStoreManager(private val context: Context) {
 
     fun getUserToken() = context.dataStore.data.map { it[KEY_TOKEN] ?: "" }
 
+    fun getUserStatus() = context.dataStore.data.map { it[KEY_STATUS] ?: "" }
+
     fun getUserInfo() = context.dataStore.data.map {
         mapOf(
             "memberId" to (it[KEY_MEMBER_ID] ?: -1),
@@ -36,6 +39,20 @@ class DataStoreManager(private val context: Context) {
             "token" to (it[KEY_TOKEN] ?: ""),
             "status" to (it[KEY_STATUS] ?: "")
         )
+    }
+
+    suspend fun saveRememberedEmail(email: String) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_REMEMBERED_EMAIL] = email
+        }
+    }
+
+    fun getRememberedEmail() = context.dataStore.data.map { it[KEY_REMEMBERED_EMAIL] ?: "" }
+
+    suspend fun clearRememberedEmail() {
+        context.dataStore.edit { prefs ->
+            prefs.remove(KEY_REMEMBERED_EMAIL)
+        }
     }
 
     suspend fun clear() {

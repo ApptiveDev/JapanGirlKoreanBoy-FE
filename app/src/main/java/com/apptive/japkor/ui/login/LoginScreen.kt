@@ -23,9 +23,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.apptive.japkor.R
+import com.apptive.japkor.data.model.UserStatus
 import com.apptive.japkor.navigation.Screen
 import com.apptive.japkor.ui.components.CustomOutlinedTextField
 import com.apptive.japkor.ui.components.CustomText
@@ -56,8 +60,17 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
     val toastManager = LocalToastManager.current
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var rememberEmail by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
     val context = LocalContext.current
+    val savedEmail by viewModel.rememberedEmail.collectAsState(initial = "")
+
+    LaunchedEffect(savedEmail) {
+        if (savedEmail.isNotBlank()) {
+            email = savedEmail
+            rememberEmail = true
+        }
+    }
 
     // 키보드 높이 감지
     LocalDensity.current
@@ -158,16 +171,54 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
                         isPassword = true
                     )
 
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = rememberEmail,
+                            onCheckedChange = { checked ->
+                                rememberEmail = checked
+                                if (!checked) {
+                                    viewModel.updateRememberedEmail(false, email)
+                                } else if (email.isNotBlank()) {
+                                    viewModel.updateRememberedEmail(true, email)
+                                }
+                            },
+                            colors = CheckboxDefaults.colors(
+                                checkedColor = CustomColor.primary600,
+                                uncheckedColor = CustomColor.gray300,
+                                checkmarkColor = Color.White
+                            )
+                        )
+                        CustomText(
+                            text = "아이디 기억하기",
+                            type = CustomTextType.body,
+                            color = CustomColor.gray400,
+                        )
+                    }
+
                     Button(
                         onClick = {
+                            viewModel.updateRememberedEmail(rememberEmail, email)
 
-
-                            viewModel.signIn(email,password) {success ->
+                            viewModel.signIn(email, password) { success, status ->
                                 if (success) {
                                     toastManager.success("로그인 성공! 환영합니다.")
-                                    navController.navigate("requiredInfo")
-                                }
-                                else{
+                                    when (status) {
+                                        UserStatus.INCOMPLETE_PROFILE -> {
+                                            navController.navigate(Screen.RequiredInfo.route)
+                                        }
+                                        UserStatus.PENDING_APPROVAL,
+                                        UserStatus.APPROVED,
+                                        UserStatus.CONNECTING,
+                                        UserStatus.CONNECTED,
+                                        UserStatus.BLACKLISTED -> {
+                                            navController.navigate(Screen.RequiredInfoComplete.route)
+                                        }
+                                        null -> navController.navigate(Screen.RequiredInfo.route)
+                                    }
+                                } else {
                                     toastManager.error("로그인 실패! 이메일과 비밀번호를 확인해주세요.")
                                 }
                             }
@@ -176,14 +227,14 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
                             .fillMaxWidth()
                             .height(50.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = CustomColor.gray300
+                            containerColor = CustomColor.primary600
                         ),
                         shape = RoundedCornerShape(16.dp)
                     ) {
                         CustomText(
                             text = "로그인",
                             type = CustomTextType.body,
-                            color = Color.Black
+                            color = Color.White
                         )
                     }
 
