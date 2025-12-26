@@ -58,7 +58,7 @@ private val appearanceOptions = listOf(
 )
 private val parentAssetOptions = listOf(
     "상속받을 자산이 1억 이상 있어야 해요",
-    "노후관리만 되어 있으면 돼요",
+    "노후 관리만 되어 있으면 돼요",
     "상관없어요"
 )
 private val jobOptions = listOf("의사", "교사", "엔지니어", "프리랜서", "무직")
@@ -123,7 +123,7 @@ fun Step5Content(
             size = 32.sp
         )
         CustomText(
-            text = "선호 키, 조건, 직업, 우선순위를 모두 입력해주세요.",
+            text = "선호 키, 조건, 직업, 우선순위를 모두 입력해 주세요.",
             color = CustomColor.gray400,
             type = CustomTextType.mainRegular,
         )
@@ -132,8 +132,7 @@ fun Step5Content(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(CustomColor.white, shape = RoundedCornerShape(16.dp))
-                .padding( vertical = 20.dp),
+                .background(CustomColor.white, shape = RoundedCornerShape(16.dp)),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Row(
@@ -193,7 +192,7 @@ fun Step5Content(
 //            disabledInactiveTickColor: Color = Color.Unspecified
 
             CustomText(
-                text = "130 ~ 230cm 범위에서 설정해주세요.",
+                text = "130 ~ 230cm 범위에서 설정해 주세요.",
                 type = CustomTextType.body,
                 color = CustomColor.gray300,
                 size = 12.sp
@@ -205,7 +204,7 @@ fun Step5Content(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(CustomColor.white, shape = RoundedCornerShape(16.dp))
-                .padding( vertical = 20.dp),
+                .padding( vertical = 10.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -215,9 +214,8 @@ fun Step5Content(
                 ) {
                     CustomText(
                         text = "기피 종교",
-                        type = CustomTextType.body,
-                        color = CustomColor.gray300,
-                        size = 12.sp
+                        type = CustomTextType.mainBold,
+                        size = 16.sp
                     )
                     MissingIndicator(show = avoidReligionMissing)
                 }
@@ -244,9 +242,8 @@ fun Step5Content(
                 ) {
                     CustomText(
                         text = "선호 학벌",
-                        type = CustomTextType.body,
-                        color = CustomColor.gray300,
-                        size = 12.sp
+                        type = CustomTextType.mainBold,
+                        size = 16.sp
                     )
                     MissingIndicator(show = preferredEducationMissing)
                 }
@@ -273,9 +270,8 @@ fun Step5Content(
                 ) {
                     CustomText(
                         text = "선호 외모 스타일",
-                        type = CustomTextType.body,
-                        color = CustomColor.gray300,
-                        size = 12.sp
+                        type = CustomTextType.mainBold,
+                        size = 16.sp
                     )
                     MissingIndicator(show = preferredAppearanceMissing)
                 }
@@ -302,9 +298,8 @@ fun Step5Content(
                 ) {
                     CustomText(
                         text = "부모님 자산 요구사항",
-                        type = CustomTextType.body,
-                        color = CustomColor.gray300,
-                        size = 12.sp
+                        type = CustomTextType.mainBold,
+                        size = 16.sp
                     )
                     MissingIndicator(show = parentAssetMissing)
                 }
@@ -339,9 +334,8 @@ fun Step5Content(
             ) {
                 CustomText(
                     text = "선호 자산 (원 단위)",
-                    type = CustomTextType.body,
-                    color = CustomColor.gray300,
-                    size = 12.sp
+                    type = CustomTextType.mainBold,
+                    size = 16.sp
                 )
                 MissingIndicator(show = preferredAssetMissing)
             }
@@ -518,13 +512,13 @@ fun Step5Content(
             }
 
             MbtiRow(
-                left = MbtiChoice(value = "I", label = "I(내향성)"),
-                right = MbtiChoice(value = "E", label = "E(외향성)"),
+                left = MbtiChoice(value = "I", label = "내향성(I)"),
+                right = MbtiChoice(value = "E", label = "외향성(E)"),
                 selected = mbti1,
                 onSelect = { viewModel.setMbti1(it) }
             )
             MbtiRow(
-                left = MbtiChoice(value = "N", label = "직관성(N)"),
+                left = MbtiChoice(value = "N", label = "직관형(N)"),
                 right = MbtiChoice(value = "S", label = "감각형(S)"),
                 selected = mbti2,
                 onSelect = { viewModel.setMbti2(it) }
