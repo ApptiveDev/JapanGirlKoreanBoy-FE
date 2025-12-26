@@ -171,7 +171,7 @@ fun Step3Content(
                 shape = RoundedCornerShape(16.dp),
                 placeholder = {
                     CustomText(
-                        text = "300자 이내로 자기소개를 작성해주세요.",
+                        text = "300자 이내로 자기소개를 작성해 주세요.",
                         type = CustomTextType.body,
                         color = CustomColor.gray300
                     )

@@ -193,7 +193,7 @@ fun Step5Content(
 //            disabledInactiveTickColor: Color = Color.Unspecified
 
             CustomText(
-                text = "130~230cm 범위에서 설정해주세요.",
+                text = "130 ~ 230cm 범위에서 설정해주세요.",
                 type = CustomTextType.body,
                 color = CustomColor.gray300,
                 size = 12.sp

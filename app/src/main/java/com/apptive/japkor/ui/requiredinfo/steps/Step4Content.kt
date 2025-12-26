@@ -55,13 +55,13 @@ fun Step4Content(
             size = 32.sp
         )
         CustomText(
-            text = "클릭하여 얼굴이 보이는 사진을 첨부해주세요.",
+            text = "클릭하여 얼굴이 보이는 사진을 첨부해 주세요.",
             color = CustomColor.gray400,
             type = CustomTextType.mainRegular,
         )
 
         CustomText(
-            text = "(대표사진)",
+            text = "(대표 사진)",
             color = CustomColor.gray300,
             type = CustomTextType.label,
         )
@@ -78,7 +78,7 @@ fun Step4Content(
             text = "- 사진은 프로필에서 가장 중요한 요소입니다.",
             color = CustomColor.gray300,
             type = CustomTextType.body,
-            modifier = Modifier.padding(horizontal = 7.dp),
+
             size = 14.sp
         )
 
@@ -86,7 +86,6 @@ fun Step4Content(
             text = "- 얼굴 정면이 잘 보이는 사진으로 최소 2장 이상 올려주세요.",
             color = CustomColor.gray400,
             type = CustomTextType.body,
-            modifier = Modifier.padding(horizontal = 7.dp),
             size = 14.sp
         )
 
@@ -94,24 +93,23 @@ fun Step4Content(
             text = "- 과도한 포토샵/스티커, 마스크로 가린 사진, 똑같은 사진 2장 등 가이드에 벗어나는 사진은 가입이 거절될 수 있습니다.",
             color = CustomColor.gray300,
             type = CustomTextType.body,
-            modifier = Modifier.padding(horizontal = 7.dp),
             size = 14.sp
         )
 
 
-        CustomText(
-            text = "프로필 사진 가이드 보기",
-            color = CustomColor.gray300,
-            type = CustomTextType.body,
-            underline = true,
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(vertical = 14.dp)
-                .clickable(
-                    role = Role.Button,
-                    onClick = { /* TODO: 사진 가이드 보기 */ }
-                ),
-            size = 14.sp
-        )
+//        CustomText(
+//            text = "프로필 사진 가이드 보기",
+//            color = CustomColor.gray300,
+//            type = CustomTextType.body,
+//            underline = true,
+//            modifier = Modifier
+//                .align(Alignment.CenterHorizontally)
+//                .padding(vertical = 14.dp)
+//                .clickable(
+//                    role = Role.Button,
+//                    onClick = { /* TODO: 사진 가이드 보기 */ }
+//                ),
+//            size = 14.sp
+//        )
     }
 }
