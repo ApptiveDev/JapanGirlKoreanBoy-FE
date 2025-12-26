@@ -1,5 +1,7 @@
 package com.apptive.japkor.ui.login
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -330,14 +332,15 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 16.dp),
+                    .padding(top = 16.dp, bottom = 90.dp),
                 horizontalArrangement = Arrangement.Center,
 
                 ) {
                 GoogleSignUpButton(
                     onClick = {
-                        // TODO: Google 로그인/연동 로직 추가
-                        toastManager.info("Google 로그인 준비 중입니다.")
+                        val url = "https://masil-main.duckdns.org/oauth2/authorization/google"
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                        context.startActivity(intent)
                     }
                 )
 
