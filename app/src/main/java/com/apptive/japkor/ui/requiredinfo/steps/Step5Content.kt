@@ -63,6 +63,7 @@ private val parentAssetOptions = listOf(
 )
 private val jobOptions = listOf("의사", "교사", "엔지니어", "프리랜서", "무직")
 private val priorityOptions = listOf("직업", "학력", "키", "외모", "부모 자산", "본인 자산", "종교", "성격")
+private val missingIndicatorColor = Color(0xFFE53935)
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -86,6 +87,19 @@ fun Step5Content(
     val priority1 by viewModel.priority1.collectAsState()
     val priority2 by viewModel.priority2.collectAsState()
     val priority3 by viewModel.priority3.collectAsState()
+    val heightMissing = preferredHeightMin == null || preferredHeightMax == null
+    val avoidReligionMissing = avoidReligions.isEmpty()
+    val preferredEducationMissing = preferredEducationLevel == null
+    val preferredAppearanceMissing = preferredAppearanceStyle == null
+    val parentAssetMissing = parentAssetRequirement == null
+    val preferredAssetMissing = preferredAssetMin == null || preferredAssetMax == null
+    val preferredJobsMissing = preferredJobs.isEmpty()
+    val avoidedJobsMissing = avoidedJobs.isEmpty()
+    val mbtiMissing = listOf(mbti1, mbti2, mbti3, mbti4).any { it == null }
+    val priority1Missing = priority1 == null
+    val priority2Missing = priority2 == null
+    val priority3Missing = priority3 == null
+    val selectedPriorities = setOfNotNull(priority1, priority2, priority3)
 
     LaunchedEffect(Unit) {
         if (viewModel.preferredHeightMin.value == null) viewModel.setPreferredHeightMin(160)
@@ -127,11 +141,17 @@ fun Step5Content(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                CustomText(
-                    text = "선호 키",
-                    type = CustomTextType.mainBold,
-                    size = 16.sp
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    CustomText(
+                        text = "선호 키",
+                        type = CustomTextType.mainBold,
+                        size = 16.sp
+                    )
+                    MissingIndicator(show = heightMissing)
+                }
                 CustomText(
                     text = "${preferredHeightMin ?: 160}cm ~ ${preferredHeightMax ?: 180}cm",
                     type = CustomTextType.mainBold,
@@ -189,12 +209,18 @@ fun Step5Content(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                CustomText(
-                    text = "기피 종교",
-                    type = CustomTextType.body,
-                    color = CustomColor.gray300,
-                    size = 12.sp
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    CustomText(
+                        text = "기피 종교",
+                        type = CustomTextType.body,
+                        color = CustomColor.gray300,
+                        size = 12.sp
+                    )
+                    MissingIndicator(show = avoidReligionMissing)
+                }
                 FlowRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -212,12 +238,18 @@ fun Step5Content(
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                CustomText(
-                    text = "선호 학벌",
-                    type = CustomTextType.body,
-                    color = CustomColor.gray300,
-                    size = 12.sp
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    CustomText(
+                        text = "선호 학벌",
+                        type = CustomTextType.body,
+                        color = CustomColor.gray300,
+                        size = 12.sp
+                    )
+                    MissingIndicator(show = preferredEducationMissing)
+                }
                 FlowRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -235,12 +267,18 @@ fun Step5Content(
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                CustomText(
-                    text = "선호 외모 스타일",
-                    type = CustomTextType.body,
-                    color = CustomColor.gray300,
-                    size = 12.sp
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    CustomText(
+                        text = "선호 외모 스타일",
+                        type = CustomTextType.body,
+                        color = CustomColor.gray300,
+                        size = 12.sp
+                    )
+                    MissingIndicator(show = preferredAppearanceMissing)
+                }
                 FlowRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -258,12 +296,18 @@ fun Step5Content(
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                CustomText(
-                    text = "부모님 자산 요구사항",
-                    type = CustomTextType.body,
-                    color = CustomColor.gray300,
-                    size = 12.sp
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    CustomText(
+                        text = "부모님 자산 요구사항",
+                        type = CustomTextType.body,
+                        color = CustomColor.gray300,
+                        size = 12.sp
+                    )
+                    MissingIndicator(show = parentAssetMissing)
+                }
                 FlowRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -289,12 +333,18 @@ fun Step5Content(
                 .padding( vertical = 20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            CustomText(
-                text = "선호 자산 (원 단위)",
-                type = CustomTextType.body,
-                color = CustomColor.gray300,
-                size = 12.sp
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                CustomText(
+                    text = "선호 자산 (원 단위)",
+                    type = CustomTextType.body,
+                    color = CustomColor.gray300,
+                    size = 12.sp
+                )
+                MissingIndicator(show = preferredAssetMissing)
+            }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -363,13 +413,20 @@ fun Step5Content(
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    CustomText(
-                        text = "선호 직업",
-                        type = CustomTextType.mainBold,
-                        size = 16.sp
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        CustomText(
+                            text = "선호 직업",
+                            type = CustomTextType.mainBold,
+                            size = 16.sp
+                        )
+                        MissingIndicator(show = preferredJobsMissing)
+                    }
                     CustomText(
                         text = "(최대 3개)",
                         type = CustomTextType.body,
@@ -384,9 +441,12 @@ fun Step5Content(
                 ) {
                     jobOptions.forEach { option ->
                         val mapped = RequiredInfoMapper.job(option)
+                        val isSelected = mapped != null && preferredJobs.contains(mapped)
+                        val isDisabled = mapped != null && avoidedJobs.contains(mapped) && !isSelected
                         OptionChip(
                             text = option,
-                            selected = preferredJobs.contains(mapped),
+                            selected = isSelected,
+                            enabled = !isDisabled,
                             onClick = { viewModel.togglePreferredJob(option) }
                         )
                     }
@@ -396,13 +456,20 @@ fun Step5Content(
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    CustomText(
-                        text = "비선호 직업",
-                        type = CustomTextType.mainBold,
-                        size = 16.sp
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        CustomText(
+                            text = "비선호 직업",
+                            type = CustomTextType.mainBold,
+                            size = 16.sp
+                        )
+                        MissingIndicator(show = avoidedJobsMissing)
+                    }
                     CustomText(
                         text = "(최대 3개)",
                         type = CustomTextType.body,
@@ -417,9 +484,12 @@ fun Step5Content(
                 ) {
                     jobOptions.forEach { option ->
                         val mapped = RequiredInfoMapper.job(option)
+                        val isSelected = mapped != null && avoidedJobs.contains(mapped)
+                        val isDisabled = mapped != null && preferredJobs.contains(mapped) && !isSelected
                         OptionChip(
                             text = option,
-                            selected = avoidedJobs.contains(mapped),
+                            selected = isSelected,
+                            enabled = !isDisabled,
                             onClick = { viewModel.toggleAvoidedJob(option) }
                         )
                     }
@@ -435,11 +505,17 @@ fun Step5Content(
                 .padding( vertical = 20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            CustomText(
-                text = "선호 성격 (MBTI)",
-                type = CustomTextType.mainBold,
-                size = 16.sp
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                CustomText(
+                    text = "선호 성격 (MBTI)",
+                    type = CustomTextType.mainBold,
+                    size = 16.sp
+                )
+                MissingIndicator(show = mbtiMissing)
+            }
 
             MbtiRow(
                 left = MbtiChoice(value = "I", label = "I(내향성)"),
@@ -484,16 +560,22 @@ fun Step5Content(
             PriorityRow(
                 title = "1순위",
                 selected = priority1,
+                showMissing = priority1Missing,
+                disabledOptions = selectedPriorities - setOfNotNull(priority1),
                 onSelect = { viewModel.setPriority1(it) }
             )
             PriorityRow(
                 title = "2순위",
                 selected = priority2,
+                showMissing = priority2Missing,
+                disabledOptions = selectedPriorities - setOfNotNull(priority2),
                 onSelect = { viewModel.setPriority2(it) }
             )
             PriorityRow(
                 title = "3순위",
                 selected = priority3,
+                showMissing = priority3Missing,
+                disabledOptions = selectedPriorities - setOfNotNull(priority3),
                 onSelect = { viewModel.setPriority3(it) }
             )
         }
@@ -504,6 +586,22 @@ private data class MbtiChoice(
     val value: String,
     val label: String
 )
+
+@Composable
+private fun MissingIndicator(
+    show: Boolean,
+    modifier: Modifier = Modifier
+) {
+    if (show) {
+        CustomText(
+            text = "입력이 아직 안됐어요",
+            type = CustomTextType.body,
+            size = 12.sp,
+            color = missingIndicatorColor,
+            modifier = modifier
+        )
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -533,24 +631,24 @@ private fun MbtiRow(
         }
     }
 
-    Row(
+    Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        CustomText(
-            text = left.label,
-            type = CustomTextType.body,
-            color = CustomColor.primary600,
-            size = 12.sp
-        )
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
+            CustomText(
+                text = left.label,
+                type = CustomTextType.body,
+                color = CustomColor.primary600,
+                size = 12.sp
+            )
             Box(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 12.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Box(
@@ -607,25 +705,25 @@ private fun MbtiRow(
                     modifier = Modifier.fillMaxWidth()
                 )
             }
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                CustomText(
-                    text = "X",
-                    type = CustomTextType.body,
-                    color = CustomColor.primary600,
-                    size = 12.sp
-                )
-            }
+            CustomText(
+                text = right.label,
+                type = CustomTextType.body,
+                color = CustomColor.primary600,
+                size = 12.sp,
+                textAlign = TextAlign.End
+            )
         }
-        CustomText(
-            text = right.label,
-            type = CustomTextType.body,
-            color = CustomColor.primary600,
-            size = 12.sp,
-            textAlign = TextAlign.End
-        )
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            CustomText(
+                text = "X",
+                type = CustomTextType.body,
+                color = CustomColor.primary600,
+                size = 12.sp
+            )
+        }
     }
 }
 
@@ -634,15 +732,23 @@ private fun MbtiRow(
 private fun PriorityRow(
     title: String,
     selected: String?,
+    showMissing: Boolean,
+    disabledOptions: Set<String>,
     onSelect: (String) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        CustomText(
-            text = title,
-            type = CustomTextType.body,
-            color = CustomColor.gray300,
-            size = 12.sp
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            CustomText(
+                text = title,
+                type = CustomTextType.body,
+                color = CustomColor.gray300,
+                size = 12.sp
+            )
+            MissingIndicator(show = showMissing)
+        }
         FlowRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -650,9 +756,12 @@ private fun PriorityRow(
         ) {
             priorityOptions.forEach { option ->
                 val mapped = RequiredInfoMapper.priority(option)
+                val isSelected = mapped != null && selected == mapped
+                val isDisabled = mapped != null && mapped in disabledOptions && !isSelected
                 OptionChip(
                     text = option,
-                    selected = selected == mapped,
+                    selected = isSelected,
+                    enabled = !isDisabled,
                     onClick = { onSelect(option) }
                 )
             }
