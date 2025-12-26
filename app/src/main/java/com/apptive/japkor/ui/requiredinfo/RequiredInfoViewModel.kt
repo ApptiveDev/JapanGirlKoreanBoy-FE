@@ -400,6 +400,7 @@ class RequiredInfoViewModel(
             priority2 = priority2,
             priority3 = priority3
         )
+        Log.d(TAG, "submitRequiredInfo dto=$dto")
 
         viewModelScope.launch {
             _submitState.value = SubmitState.Loading

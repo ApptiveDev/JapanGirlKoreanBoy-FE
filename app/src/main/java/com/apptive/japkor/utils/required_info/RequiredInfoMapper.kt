@@ -121,6 +121,7 @@ object RequiredInfoMapper {
         "상속받을 자산이 1억 이상 있어야 해요" -> "OVER_100M"
         "연금만 있어도 됨" -> "RETIREMENT_ONLY"
         "노후관리만 되어 있으면 돼요" -> "RETIREMENT_ONLY"
+        "노후 관리만 되어 있으면 돼요" -> "RETIREMENT_ONLY"
         "상관 없음" -> "NO_CONCERN"
         "상관없어요" -> "NO_CONCERN"
         else -> null

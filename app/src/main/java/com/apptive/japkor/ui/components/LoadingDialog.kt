@@ -35,7 +35,7 @@ fun LoadingDialog() {
         )
     ) {
         Box(
-            modifier = Modifier.padding(horizontal = 16.dp),
+            modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
             Column(
@@ -68,7 +68,8 @@ fun LoadingDialog() {
                 CustomText(
                     text = "인연의 실을\n 곱게 잇는 중이에요",
                     type = CustomTextType.mainBold,
-                    color = Color(0xFF4C3B30)
+                    color = Color(0xFF4C3B30),
+                    textAlign = TextAlign.Center
                 )
                 CustomText(
                     text = "두 마음이 예쁘게 묶이도록\n 조금만 기다려주세요",

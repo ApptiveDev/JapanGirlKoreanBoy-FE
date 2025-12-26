@@ -46,7 +46,7 @@ fun Step1Content(
             size = 32.sp
         )
         CustomText(
-            text = "한국인 남성, 일본인 여성 중 선택가능합니다.",
+            text = "한국인 남성, 일본인 여성 중 선택 가능합니다.",
             color = CustomColor.gray400,
             type = CustomTextType.mainRegular,
         )
@@ -94,9 +94,9 @@ fun Step1Content(
         }
         Spacer(modifier = Modifier.height(80.dp))
         val selectedText = if (selectedOption.value == "한국 남성") {
-            "'한국 남성'를 선택하셨습니다.\n\n'한국 남성'를 선택하는 경우,\n'일본 여성'에게 프로필이 먼저 전달됩니다."
+            "'한국 남성'을 선택하셨습니다.\n\n'한국 남성'을 선택하는 경우,\n'일본 여성'에게 프로필이 먼저 전달됩니다."
         } else {
-            "'일본 여성'를 선택하셨습니다.\n\n'일본 여성'를 선택하는 경우,\n'한국 남성'에게 프로필이 먼저 전달됩니다."
+            "'일본 여성'을 선택하셨습니다.\n\n'일본 여성'을 선택하는 경우,\n'한국 남성'에게 프로필이 먼저 전달됩니다."
         }
         CustomText(
             text = selectedText,
