@@ -16,20 +16,33 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.apptive.japkor.data.local.DataStoreManager
 import com.apptive.japkor.ui.components.CustomText
 import com.apptive.japkor.ui.components.CustomTextType
+import com.apptive.japkor.ui.localization.AppLanguage
+import com.apptive.japkor.ui.localization.AppLocalizer
+import com.apptive.japkor.ui.localization.LocalAppLanguage
 import com.apptive.japkor.ui.theme.CustomColor
+import kotlinx.coroutines.launch
 
 @Composable
 fun LanguageScreen(navController: NavController) {
+    val context = LocalContext.current
+    val dataStore = remember { DataStoreManager(context) }
+    val appLanguage = LocalAppLanguage.current
+    val scope = rememberCoroutineScope()
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -57,7 +70,7 @@ fun LanguageScreen(navController: NavController) {
     ) {
         Image(
             painter = painterResource(id = com.apptive.japkor.R.drawable.ic_en_logo),
-            contentDescription = "영어 로고",
+            contentDescription = AppLocalizer.translate("영어 로고", appLanguage),
             modifier = Modifier
                 .height(66.dp)
                 .width(56.dp)
@@ -98,7 +111,12 @@ fun LanguageScreen(navController: NavController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 30.dp)
-                    .clickable { navController.navigate("login") },
+                    .clickable {
+                        scope.launch {
+                            dataStore.setLanguage(AppLanguage.Japanese.code)
+                            navController.navigate("login")
+                        }
+                    },
 
                 textAlign = TextAlign.Center,
                 size = 40.sp,
@@ -112,7 +130,12 @@ fun LanguageScreen(navController: NavController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 30.dp)
-                    .clickable { navController.navigate("login") },
+                    .clickable {
+                        scope.launch {
+                            dataStore.setLanguage(AppLanguage.Korean.code)
+                            navController.navigate("login")
+                        }
+                    },
 
                 textAlign = TextAlign.Center,
                 size = 30.sp,

@@ -17,6 +17,7 @@ class DataStoreManager(private val context: Context) {
         val KEY_TOKEN = stringPreferencesKey("token")
         val KEY_STATUS = stringPreferencesKey("status")
         val KEY_REMEMBERED_EMAIL = stringPreferencesKey("remembered_email")
+        val KEY_LANGUAGE = stringPreferencesKey("app_language")
     }
 
     suspend fun saveUserInfo(memberId: Int, name: String, token: String, status: String) {
@@ -52,6 +53,14 @@ class DataStoreManager(private val context: Context) {
     suspend fun clearRememberedEmail() {
         context.dataStore.edit { prefs ->
             prefs.remove(KEY_REMEMBERED_EMAIL)
+        }
+    }
+
+    fun getLanguage() = context.dataStore.data.map { it[KEY_LANGUAGE] ?: "ko" }
+
+    suspend fun setLanguage(languageCode: String) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_LANGUAGE] = languageCode
         }
     }
 

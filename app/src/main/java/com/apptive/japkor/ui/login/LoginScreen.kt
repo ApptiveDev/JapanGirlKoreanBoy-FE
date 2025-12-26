@@ -55,11 +55,14 @@ import com.apptive.japkor.ui.components.CustomTextType
 import com.apptive.japkor.ui.components.LoadingDialog
 import com.apptive.japkor.ui.components.LocalToastManager
 import com.apptive.japkor.ui.login.components.GoogleSignUpButton
+import com.apptive.japkor.ui.localization.AppLocalizer
+import com.apptive.japkor.ui.localization.LocalAppLanguage
 import com.apptive.japkor.ui.theme.CustomColor
 
 @Composable
 fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = viewModel()) {
     val toastManager = LocalToastManager.current
+    val appLanguage = LocalAppLanguage.current
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var rememberEmail by remember { mutableStateOf(false) }
@@ -106,7 +109,7 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.ic_back),
-                        contentDescription = "뒤로가기",
+                        contentDescription = AppLocalizer.translate("뒤로가기", appLanguage),
                         modifier = Modifier.width(20.dp)
                     )
                 }

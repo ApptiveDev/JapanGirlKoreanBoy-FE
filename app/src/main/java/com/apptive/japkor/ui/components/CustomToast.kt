@@ -34,6 +34,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.apptive.japkor.ui.localization.AppLocalizer
+import com.apptive.japkor.ui.localization.LocalAppLanguage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -160,6 +162,8 @@ private fun CustomToast(
         enter = fadeIn(),
         exit = fadeOut(),
     ) {
+        val appLanguage = LocalAppLanguage.current
+        val localizedMessage = AppLocalizer.translate(message.message, appLanguage)
         val gradient = Brush.linearGradient(colors = listOf(style.startColor, style.endColor))
         val shape = RoundedCornerShape(14.dp)
 
@@ -190,7 +194,7 @@ private fun CustomToast(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = message.message,
+                    text = localizedMessage,
                     color = style.textColor,
                     fontSize = 14.sp,
                     lineHeight = 20.sp,

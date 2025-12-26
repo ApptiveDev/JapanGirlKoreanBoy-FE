@@ -53,6 +53,8 @@ import com.apptive.japkor.ui.signup.components.EmailWithAuthSection
 import com.apptive.japkor.ui.signup.components.PasswordSection
 import com.apptive.japkor.ui.components.LocalToastManager
 import kotlinx.coroutines.flow.collectLatest
+import com.apptive.japkor.ui.localization.AppLocalizer
+import com.apptive.japkor.ui.localization.LocalAppLanguage
 
 
 /**
@@ -66,6 +68,7 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = viewModel()) {
     val toastManager = LocalToastManager.current
+    val appLanguage = LocalAppLanguage.current
 
     var name by remember { mutableStateOf("") }
 
@@ -139,7 +142,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = view
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.ic_back),
-                        contentDescription = "뒤로가기",
+                        contentDescription = AppLocalizer.translate("뒤로가기", appLanguage),
                         modifier = Modifier.width(20.dp)
                     )
                 }

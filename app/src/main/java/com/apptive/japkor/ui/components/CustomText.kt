@@ -14,6 +14,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import com.apptive.japkor.R
+import com.apptive.japkor.ui.localization.AppLocalizer
+import com.apptive.japkor.ui.localization.LocalAppLanguage
 
 val Pretendard = FontFamily(
     Font(R.font.pretendard_thin, FontWeight.W100),
@@ -108,12 +110,14 @@ fun CustomText(
     size: TextUnit? = null,
     underline: Boolean = false
 ) {
+    val appLanguage = LocalAppLanguage.current
+    val localizedText = AppLocalizer.translate(text, appLanguage)
     val baseStyle = style ?: getTextStyle(type)
     val finalStyle = if (size != null) baseStyle.copy(fontSize = size) else baseStyle
     val appliedStyle =
         if (underline) finalStyle.copy(textDecoration = TextDecoration.Underline) else finalStyle
     Text(
-        text = text,
+        text = localizedText,
         modifier = modifier,
         style = appliedStyle,
         color = color,

@@ -26,6 +26,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.apptive.japkor.ui.localization.AppLocalizer
+import com.apptive.japkor.ui.localization.LocalAppLanguage
 import com.apptive.japkor.ui.requiredinfo.ProfileImageState
 import com.apptive.japkor.ui.requiredinfo.UploadStatus
 
@@ -35,6 +37,7 @@ fun PhotoUploadButton(
     state: ProfileImageState? = null,
     onClick: () -> Unit = {}
 ) {
+    val appLanguage = LocalAppLanguage.current
     val shape = RoundedCornerShape(10.dp)
     val containerColor = when (state?.status) {
         UploadStatus.Success -> Color(0xFFF2F6FF)
@@ -64,7 +67,7 @@ fun PhotoUploadButton(
 
                 AsyncImage(
                     model = state.uploadedUrl,
-                    contentDescription = "uploaded image",
+                    contentDescription = AppLocalizer.translate("uploaded image", appLanguage),
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
@@ -76,11 +79,11 @@ fun PhotoUploadButton(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Refresh,
-                        contentDescription = "다시 시도",
+                        contentDescription = AppLocalizer.translate("다시 시도", appLanguage),
                         tint = Color(0xFFE57373)
                     )
                     Text(
-                        text = "재시도",
+                        text = AppLocalizer.translate("재시도", appLanguage),
                         fontSize = 12.sp,
                         color = Color(0xFF5B2C2C)
                     )
