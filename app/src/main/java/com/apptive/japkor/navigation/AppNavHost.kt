@@ -23,10 +23,14 @@ sealed class Screen(val route: String) {
 }
 
 @Composable
-fun AppNavHost(navController: NavHostController, isSignedIn: Boolean) {
+fun AppNavHost(
+    navController: NavHostController,
+    isSignedIn: Boolean,
+    startDestination: String = Screen.Language.route    // 이거 왜 생겼냐면 로그인 콜백에서 바로 이동하려고
+) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Language.route
+        startDestination = startDestination
     ) {
         composable(Screen.Language.route) {
             LanguageScreen(navController)
