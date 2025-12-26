@@ -76,14 +76,14 @@ fun RequiredInfoCompleteScreen(navController: NavController) {
             ) {
                 Box(
                     modifier = Modifier
-                        .size(88.dp)
-                        .background(color = CustomColor.gray100, shape = CircleShape),
+                        .size(70.dp)
+                        .background(color = CustomColor.primary600, shape = CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Check,
                         contentDescription = "완료",
-                        tint = CustomColor.black,
+                        tint = CustomColor.white,
                         modifier = Modifier.size(40.dp)
                     )
                 }
@@ -135,14 +135,14 @@ fun RequiredInfoCompleteScreen(navController: NavController) {
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = CustomColor.gray300),
+                    colors = ButtonDefaults.buttonColors(containerColor = CustomColor.primary600),
                     shape = RoundedCornerShape(16.dp),
                     contentPadding = PaddingValues(vertical = 16.dp)
                 ) {
                     CustomText(
                         text = "확인했어요",
                         type = CustomTextType.body,
-                        color = Color.Black
+                        color = Color.White
                     )
                 }
 
