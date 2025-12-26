@@ -21,6 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.apptive.japkor.R
+import com.apptive.japkor.ui.localization.AppLocalizer
+import com.apptive.japkor.ui.localization.LocalAppLanguage
 
 /**
  * Google 브랜드 가이드라인에 맞춘 UI-only 버튼.
@@ -32,6 +34,8 @@ fun GoogleSignUpButton(
     text: String = "Google로 계속",
     onClick: () -> Unit = {}
 ) {
+    val appLanguage = LocalAppLanguage.current
+    val localizedText = AppLocalizer.translate(text, appLanguage)
     Button(
         onClick = onClick,
         modifier = modifier
@@ -59,14 +63,14 @@ fun GoogleSignUpButton(
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_google),
-                contentDescription = "Google 로그인",
+                contentDescription = AppLocalizer.translate("Google 로그인", appLanguage),
                 tint = Color.Unspecified,
                 modifier = Modifier
                     .padding(end = 12.dp)
                     .size(18.dp)
             )
             Text(
-                text = text,
+                text = localizedText,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color(0xFF3C4043)

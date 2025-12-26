@@ -45,6 +45,8 @@ import com.apptive.japkor.ui.components.LoadingDialog
 import com.apptive.japkor.ui.components.LocalToastManager
 import com.apptive.japkor.ui.components.StepIndicator
 import com.apptive.japkor.ui.components.ToastType
+import com.apptive.japkor.ui.localization.AppLocalizer
+import com.apptive.japkor.ui.localization.LocalAppLanguage
 import com.apptive.japkor.ui.requiredinfo.steps.Step1Content
 import com.apptive.japkor.ui.requiredinfo.steps.Step2Content
 import com.apptive.japkor.ui.requiredinfo.steps.Step3Content
@@ -61,6 +63,7 @@ fun RequiredInfoScreen(
 ) {
     val requiredInfoViewModel: RequiredInfoViewModel = viewModel()
     val toastManager = LocalToastManager.current
+    val appLanguage = LocalAppLanguage.current
 
     val selectedOption = remember { mutableStateOf("한국 남성") }
     val currentStep = remember { mutableStateOf(initialStep) }
@@ -221,7 +224,7 @@ fun RequiredInfoScreen(
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.ic_back),
-                            contentDescription = "뒤로가기",
+                            contentDescription = AppLocalizer.translate("뒤로가기", appLanguage),
                         )
                     }
                 }

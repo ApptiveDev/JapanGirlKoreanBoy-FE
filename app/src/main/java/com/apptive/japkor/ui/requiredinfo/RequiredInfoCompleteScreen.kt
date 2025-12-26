@@ -36,11 +36,14 @@ import com.apptive.japkor.data.model.UserStatus
 import com.apptive.japkor.navigation.Screen
 import com.apptive.japkor.ui.components.CustomText
 import com.apptive.japkor.ui.components.CustomTextType
+import com.apptive.japkor.ui.localization.AppLocalizer
+import com.apptive.japkor.ui.localization.LocalAppLanguage
 import com.apptive.japkor.ui.theme.CustomColor
 
 @Composable
 fun RequiredInfoCompleteScreen(navController: NavController) {
     val context = LocalContext.current
+    val appLanguage = LocalAppLanguage.current
     val dataStore = remember { DataStoreManager(context) }
     val statusValue by dataStore.getUserStatus().collectAsState(initial = "")
     val userStatus = runCatching { UserStatus.valueOf(statusValue) }.getOrNull()
@@ -82,7 +85,7 @@ fun RequiredInfoCompleteScreen(navController: NavController) {
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Check,
-                        contentDescription = "완료",
+                        contentDescription = AppLocalizer.translate("완료", appLanguage),
                         tint = CustomColor.white,
                         modifier = Modifier.size(40.dp)
                     )
