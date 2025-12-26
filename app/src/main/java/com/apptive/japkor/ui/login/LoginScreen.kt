@@ -23,9 +23,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,8 +60,17 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
     val toastManager = LocalToastManager.current
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var rememberEmail by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
     val context = LocalContext.current
+    val savedEmail by viewModel.rememberedEmail.collectAsState(initial = "")
+
+    LaunchedEffect(savedEmail) {
+        if (savedEmail.isNotBlank()) {
+            email = savedEmail
+            rememberEmail = true
+        }
+    }
 
     // 키보드 높이 감지
     LocalDensity.current
@@ -159,9 +171,36 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
                         isPassword = true
                     )
 
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = rememberEmail,
+                            onCheckedChange = { checked ->
+                                rememberEmail = checked
+                                if (!checked) {
+                                    viewModel.updateRememberedEmail(false, email)
+                                } else if (email.isNotBlank()) {
+                                    viewModel.updateRememberedEmail(true, email)
+                                }
+                            },
+                            colors = CheckboxDefaults.colors(
+                                checkedColor = CustomColor.primary600,
+                                uncheckedColor = CustomColor.gray300,
+                                checkmarkColor = Color.White
+                            )
+                        )
+                        CustomText(
+                            text = "아이디 기억하기",
+                            type = CustomTextType.body,
+                            color = CustomColor.gray400,
+                        )
+                    }
+
                     Button(
                         onClick = {
-
+                            viewModel.updateRememberedEmail(rememberEmail, email)
 
                             viewModel.signIn(email, password) { success, status ->
                                 if (success) {

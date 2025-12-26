@@ -22,6 +22,7 @@ class LoginScreenViewModel(
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
+    val rememberedEmail = dataStore.getRememberedEmail()
 
     init {
         // 앱 재시작 시 저장된 토큰을 메모리에 올려둔다.
@@ -65,6 +66,16 @@ class LoginScreenViewModel(
                 onResult(false, null)
             } finally {
                 _isLoading.value = false
+            }
+        }
+    }
+
+    fun updateRememberedEmail(remember: Boolean, email: String) {
+        viewModelScope.launch {
+            if (remember && email.isNotBlank()) {
+                dataStore.saveRememberedEmail(email)
+            } else {
+                dataStore.clearRememberedEmail()
             }
         }
     }
