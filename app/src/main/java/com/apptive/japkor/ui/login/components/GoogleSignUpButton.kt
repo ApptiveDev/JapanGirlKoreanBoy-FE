@@ -1,19 +1,16 @@
 package com.apptive.japkor.ui.login.components
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -21,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.apptive.japkor.R
+import com.apptive.japkor.ui.theme.CustomColor
 
 /**
  * Google 브랜드 가이드라인에 맞춘 UI-only 버튼.
@@ -28,49 +26,31 @@ import com.apptive.japkor.R
  */
 @Composable
 fun GoogleSignUpButton(
-    modifier: Modifier = Modifier,
-    text: String = "Google로 계속",
-    onClick: () -> Unit = {}
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Button(
+    OutlinedButton(
         onClick = onClick,
         modifier = modifier
-            .fillMaxWidth()
-            .height(48.dp),
-        shape = RoundedCornerShape(4.dp),
-        colors = ButtonDefaults.buttonColors(
+            .height(44.dp),
+        shape = RoundedCornerShape(24.dp),
+        border = BorderStroke(1.dp, CustomColor.black),
+        colors = ButtonDefaults.outlinedButtonColors(
             containerColor = Color.White,
-            contentColor = Color(0xFF3C4043)
-        ),
-        border = BorderStroke(1.dp, Color(0xFFDADCE0)),
-        elevation = ButtonDefaults.buttonElevation(
-            defaultElevation = 0.dp,
-            pressedElevation = 0.dp,
-            focusedElevation = 0.dp,
-            hoveredElevation = 0.dp,
-            disabledElevation = 0.dp
-        ),
-        contentPadding = ButtonDefaults.ContentPadding
+            contentColor = Color.Black
+        )
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_google),
-                contentDescription = "Google 로그인",
-                tint = Color.Unspecified,
-                modifier = Modifier
-                    .padding(end = 12.dp)
-                    .size(18.dp)
-            )
-            Text(
-                text = text,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color(0xFF3C4043)
-            )
-        }
+        Icon(
+            painter = painterResource(R.drawable.ic_google),
+            contentDescription = null,
+            tint = Color.Unspecified,
+            modifier = Modifier.size(18.dp)
+        )
+        Spacer(Modifier.width(10.dp))
+        Text(
+            text = "Sign in with Google",
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium
+        )
     }
 }

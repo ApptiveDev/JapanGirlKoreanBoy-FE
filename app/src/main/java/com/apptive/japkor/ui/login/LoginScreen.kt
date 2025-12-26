@@ -52,7 +52,6 @@ import com.apptive.japkor.ui.components.LoadingDialog
 import com.apptive.japkor.ui.components.LocalToastManager
 import com.apptive.japkor.ui.login.components.GoogleSignUpButton
 import com.apptive.japkor.ui.theme.CustomColor
-import androidx.core.net.toUri
 
 @Composable
 fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = viewModel()) {
@@ -282,7 +281,7 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 16.dp),
+                    .padding(top = 16.dp, bottom = 90.dp),
                 horizontalArrangement = Arrangement.Center,
 
                 ) {
