@@ -56,13 +56,15 @@ fun MainScreen(startDestination: String) {
     val appLanguage = AppLanguage.fromCode(languageCode)
 
     ToastProvider(manager = toastManager) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            AppNavHost(
-                navController = navController,
-                isSignedIn = signedIn,
-                startDestination = startDestination
-            )
-            CustomToastContainer(manager = toastManager)
+        CompositionLocalProvider(LocalAppLanguage provides appLanguage) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                AppNavHost(
+                    navController = navController,
+                    isSignedIn = signedIn,
+                    startDestination = startDestination
+                )
+                CustomToastContainer(manager = toastManager)
+            }
         }
     }
 }
