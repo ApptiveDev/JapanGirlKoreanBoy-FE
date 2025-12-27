@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,7 +48,6 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
 
-        requestNotificationPermission()
         ensureDefaultNotificationChannel(this)
 
         val dataStoreManager = DataStoreManager(this)
@@ -72,7 +72,10 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             JapKorTheme {
-                MainScreen(startDestination = startDestination)
+                MainScreen(
+                    startDestination = startDestination,
+                    onRequestNotificationPermission = ::requestNotificationPermission
+                )
             }
         }
     }
@@ -94,7 +97,10 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(startDestination: String) {
+fun MainScreen(
+    startDestination: String,
+    onRequestNotificationPermission: () -> Unit
+) {
     var signedIn by remember { mutableStateOf(false) }
     val navController = rememberNavController()
     val toastManager = remember { ToastManager() }
@@ -102,6 +108,10 @@ fun MainScreen(startDestination: String) {
     val dataStore = remember { DataStoreManager(context) }
     val languageCode by dataStore.getLanguage().collectAsState(initial = AppLanguage.Korean.code)
     val appLanguage = AppLanguage.fromCode(languageCode)
+
+    LaunchedEffect(Unit) {
+        onRequestNotificationPermission()
+    }
 
     ToastProvider(manager = toastManager) {
         CompositionLocalProvider(LocalAppLanguage provides appLanguage) {
