@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.apptive.japkor.data.local.DataStoreManager
 import com.apptive.japkor.navigation.AppNavHost
@@ -27,6 +28,7 @@ import com.apptive.japkor.ui.components.ToastProvider
 import com.apptive.japkor.ui.localization.AppLanguage
 import com.apptive.japkor.ui.localization.LocalAppLanguage
 import com.google.firebase.messaging.FirebaseMessaging
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,6 +36,7 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
 
+        val dataStoreManager = DataStoreManager(this)
         FirebaseMessaging.getInstance().token
             .addOnCompleteListener { task ->
                 if (!task.isSuccessful) {
@@ -43,6 +46,9 @@ class MainActivity : ComponentActivity() {
 
                 val token = task.result
                 Log.d(TAG, "FCM token: $token")
+                lifecycleScope.launch {
+                    dataStoreManager.saveFcmToken(token)
+                }
             }
 
         val startDestinationFromIntent =

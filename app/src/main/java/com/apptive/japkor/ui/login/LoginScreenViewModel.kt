@@ -42,7 +42,8 @@ class LoginScreenViewModel(
             Log.d("LoginVM", "signIn 호출: email=$email, password=$password")
 
             try {
-                val result = repository.signIn(email, password)
+                val fcmToken = dataStore.getFcmToken().first()
+                val result = repository.signIn(email, password, fcmToken)
                 if (result != null) {
                     Log.d("LoginVM", "로그인 성공! token=${result.token}")
                     TokenProvider.setToken(result.token)
