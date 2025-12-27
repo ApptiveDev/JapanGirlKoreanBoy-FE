@@ -1,6 +1,7 @@
 package com.apptive.japkor
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -25,12 +26,24 @@ import com.apptive.japkor.ui.components.ToastManager
 import com.apptive.japkor.ui.components.ToastProvider
 import com.apptive.japkor.ui.localization.AppLanguage
 import com.apptive.japkor.ui.localization.LocalAppLanguage
+import com.google.firebase.messaging.FirebaseMessaging
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         enableEdgeToEdge()
+
+        FirebaseMessaging.getInstance().token
+            .addOnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    Log.w(TAG, "Fetching FCM registration token failed", task.exception)
+                    return@addOnCompleteListener
+                }
+
+                val token = task.result
+                Log.d(TAG, "FCM token: $token")
+            }
 
         val startDestinationFromIntent =
             intent.getStringExtra(EXTRA_START_DESTINATION)
@@ -42,6 +55,10 @@ class MainActivity : ComponentActivity() {
                 MainScreen(startDestination = startDestination)
             }
         }
+    }
+
+    companion object {
+        private const val TAG = "MainActivity"
     }
 }
 
