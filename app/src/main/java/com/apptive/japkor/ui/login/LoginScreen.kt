@@ -332,22 +332,22 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
 //                )
 //            }
 
-//            Row(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(top = 16.dp, bottom = 90.dp),
-//                horizontalArrangement = Arrangement.Center,
-//
-//                ) {
-//                GoogleSignUpButton(
-//                    onClick = {
-//                        val url = "https://masil-main.duckdns.org/oauth2/authorization/google"
-//                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-//                        context.startActivity(intent)
-//                    }
-//                )
-//
-//            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp, bottom = 90.dp),
+                horizontalArrangement = Arrangement.Center,
+
+                ) {
+                GoogleSignUpButton(
+                    onClick = {
+                        val url = "https://masil-main.duckdns.org/oauth2/authorization/google"
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                        context.startActivity(intent)
+                    }
+                )
+
+            }
 
 
 //            Row(
