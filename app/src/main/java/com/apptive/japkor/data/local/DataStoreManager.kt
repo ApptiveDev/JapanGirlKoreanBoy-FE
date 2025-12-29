@@ -18,6 +18,7 @@ class DataStoreManager(private val context: Context) {
         val KEY_STATUS = stringPreferencesKey("status")
         val KEY_REMEMBERED_EMAIL = stringPreferencesKey("remembered_email")
         val KEY_LANGUAGE = stringPreferencesKey("app_language")
+        val KEY_FCM_TOKEN = stringPreferencesKey("fcm_token")
     }
 
     suspend fun saveUserInfo(memberId: Int, name: String, token: String, status: String) {
@@ -41,6 +42,14 @@ class DataStoreManager(private val context: Context) {
             "status" to (it[KEY_STATUS] ?: "")
         )
     }
+
+    suspend fun saveFcmToken(token: String) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_FCM_TOKEN] = token
+        }
+    }
+
+    fun getFcmToken() = context.dataStore.data.map { it[KEY_FCM_TOKEN] ?: "" }
 
     suspend fun saveRememberedEmail(email: String) {
         context.dataStore.edit { prefs ->
