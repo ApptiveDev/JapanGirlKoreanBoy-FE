@@ -42,8 +42,8 @@ class AuthRepository(
         return response.isSuccessful
     }
 
-    suspend fun signIn(email:String,password:String) : SignInResponse?{
-        val response = api.signIn(SignInDTO(email,password)).awaitResponse()
+    suspend fun signIn(email: String, password: String, fcmToken: String) : SignInResponse?{
+        val response = api.signIn(SignInDTO(email, password, fcmToken)).awaitResponse()
         Log.d("AuthRepository", "signIn success=${response.isSuccessful} code=${response.code()}")
 
         return if (response.isSuccessful) {
