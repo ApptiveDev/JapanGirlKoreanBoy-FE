@@ -31,7 +31,6 @@ enum class UserStatus(val displayLabel: String) {
 
 // 회원가입 요청 데이터 모델
 data class SignUpDTO(
-    val name: String,
     val email: String,
     val password: String
 )
