@@ -2,6 +2,7 @@ package com.apptive.japkor.data.model
 
 // 전체필수정보 DTO
 data class RequiredInfoDTO(
+    val name: String,
     val gender: String,
     val height: Int,
     val weight: Int,

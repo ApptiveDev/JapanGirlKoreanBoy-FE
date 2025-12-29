@@ -53,6 +53,10 @@ class RequiredInfoViewModel(
     val gender: StateFlow<String?> = _gender
     fun setGender(label: String) { _gender.value = RequiredInfoMapper.gender(label) }
 
+    private val _name = MutableStateFlow("")
+    val name: StateFlow<String> = _name
+    fun setName(value: String) { _name.value = value }
+
     private val _height = MutableStateFlow<Int?>(null)
     val height: StateFlow<Int?> = _height
     fun setHeight(value: Int?) { _height.value = value }
@@ -209,15 +213,16 @@ class RequiredInfoViewModel(
 
     @Suppress("UNCHECKED_CAST")
     val step2Valid: StateFlow<Boolean> = combine(
-        height, weight, region, smoking, drinking, religion
+        name, height, weight, region, smoking, drinking, religion
     ) { values ->
-        val h = values[0] as Int?
-        val w = values[1] as Int?
-        val r = values[2] as String
-        val s = values[3] as String?
-        val d = values[4] as String?
-        val rel = values[5] as String?
-        h != null && w != null && r.isNotBlank() && s != null && d != null && rel != null
+        val n = values[0] as String
+        val h = values[1] as Int?
+        val w = values[2] as Int?
+        val r = values[3] as String
+        val s = values[4] as String?
+        val d = values[5] as String?
+        val rel = values[6] as String?
+        n.isNotBlank() && h != null && w != null && r.isNotBlank() && s != null && d != null && rel != null
     }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     val step3Valid: StateFlow<Boolean> = combine(
@@ -304,6 +309,8 @@ class RequiredInfoViewModel(
         val profileImageUrls = uploadedImages.mapNotNull { it.uploadedUrl }
         val thumbnailImageUrl = profileImageUrls.firstOrNull()
 
+        val name = _name.value.trim()
+        if (name.isEmpty()) return setError("이름을 입력해주세요.")
         val gender = _gender.value ?: return setError("성별을 선택해주세요.")
         val height = _height.value ?: return setError("키를 입력해주세요.")
         val weight = _weight.value ?: return setError("몸무게를 입력해주세요.")
@@ -370,6 +377,7 @@ class RequiredInfoViewModel(
         if (priorities.toSet().size != 3) return setError("우선순위는 중복될 수 없습니다.")
 
         val dto = RequiredInfoDTO(
+            name = name,
             gender = gender,
             height = height,
             weight = weight,
