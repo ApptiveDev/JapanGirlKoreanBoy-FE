@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.apptive.japkor.R
-import com.apptive.japkor.ui.components.CustomOutlinedTextField
 import com.apptive.japkor.ui.components.CustomText
 import com.apptive.japkor.ui.components.CustomTextType
 import com.apptive.japkor.ui.theme.CustomColor
@@ -69,8 +68,6 @@ import com.apptive.japkor.ui.localization.LocalAppLanguage
 fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = viewModel()) {
     val toastManager = LocalToastManager.current
     val appLanguage = LocalAppLanguage.current
-
-    var name by remember { mutableStateOf("") }
 
     var emailLocal by remember { mutableStateOf("") }   // @ 앞
     var emailDomain by remember { mutableStateOf("") }  // @ 뒤
@@ -194,20 +191,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = view
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            CustomText(
-                text = "이름",
-                type = CustomTextType.body,
-                color = CustomColor.black,
-                size = 15.sp
-            )
-            CustomOutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                placeholder = "이름"
-            )
-
             // 이메일
-            Spacer(modifier = Modifier.height(16.dp))
             EmailWithAuthSection(
                 emailLocal = emailLocal,
                 onEmailLocalChange = { emailLocal = it },
@@ -251,13 +235,11 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = view
                 onClick = {
                     val email = "$emailLocal@$emailDomain"
                     viewModel.signUp(
-                        name = name,
                         email = email,
                         password = password
                     )
                 },
-                enabled = name.isNotBlank()
-                        && emailLocal.isNotBlank()
+                enabled = emailLocal.isNotBlank()
                         && emailDomain.isNotBlank()
                         && authCode.isNotBlank()
                         && password.isNotBlank()
