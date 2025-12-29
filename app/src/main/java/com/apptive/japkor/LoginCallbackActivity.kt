@@ -2,6 +2,7 @@ package com.apptive.japkor
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import com.apptive.japkor.data.local.TokenProvider
@@ -9,6 +10,7 @@ import com.apptive.japkor.navigation.Screen
 import java.net.URLDecoder
 
 const val EXTRA_START_DESTINATION = "EXTRA_START_DESTINATION"
+private const val TAG = "LoginCallback"
 
 class LoginCallbackActivity : ComponentActivity() {
 
@@ -19,6 +21,18 @@ class LoginCallbackActivity : ComponentActivity() {
             toast("딥링크 URI가 없습니다.")
             finish()
             return
+        }
+
+        val rawParams = uri.queryParameterNames
+            .associateWith { key -> uri.getQueryParameter(key).orEmpty() }
+        val decodedDataJson = uri.getQueryParameter("data")?.let {
+            URLDecoder.decode(it, "UTF-8")
+        }
+
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "OAuth callback rawUri=$uri")
+            Log.d(TAG, "OAuth callback rawParams=$rawParams")
+            Log.d(TAG, "OAuth callback decodedData=$decodedDataJson")
         }
 
         val success = uri.getQueryParameter("success")?.toBoolean() ?: false
@@ -37,9 +51,7 @@ class LoginCallbackActivity : ComponentActivity() {
         }
 
         val memberId = uri.getQueryParameter("memberId")
-        val dataJson = uri.getQueryParameter("data")?.let {
-            URLDecoder.decode(it, "UTF-8")
-        }
+        val dataJson = decodedDataJson
 
         // ✅ 신규/기존 상관없이 success면 토큰 저장이 최우선
         if (accessToken.isNullOrBlank()) {
