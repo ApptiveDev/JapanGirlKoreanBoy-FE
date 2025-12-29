@@ -8,10 +8,14 @@ import com.apptive.japkor.data.local.DataStoreManager
 import com.apptive.japkor.data.local.TokenProvider
 import com.apptive.japkor.data.model.UserStatus
 import com.apptive.japkor.data.repository.AuthRepository
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 class LoginScreenViewModel(
     application: Application,
@@ -42,7 +46,12 @@ class LoginScreenViewModel(
             Log.d("LoginVM", "signIn 호출: email=$email, password=$password")
 
             try {
-                val fcmToken = dataStore.getFcmToken().first()
+                val fcmToken = getOrFetchFcmToken()
+                if (fcmToken.isBlank()) {
+                    Log.e("LoginVM", "FCM token missing; aborting signIn")
+                    onResult(false, null)
+                    return@launch
+                }
                 val result = repository.signIn(email, password, fcmToken)
                 if (result != null) {
                     Log.d("LoginVM", "로그인 성공! token=${result.token}")
@@ -69,6 +78,36 @@ class LoginScreenViewModel(
                 _isLoading.value = false
             }
         }
+    }
+
+    private suspend fun getOrFetchFcmToken(): String {
+        val cachedToken = dataStore.getFcmToken().first()
+        if (cachedToken.isNotBlank()) return cachedToken
+
+        return try {
+            val token = fetchFcmToken()
+            if (token.isNotBlank()) {
+                dataStore.saveFcmToken(token)
+            }
+            token
+        } catch (e: Exception) {
+            Log.w("LoginVM", "FCM token fetch failed", e)
+            ""
+        }
+    }
+
+    private suspend fun fetchFcmToken(): String = suspendCancellableCoroutine { cont ->
+        FirebaseMessaging.getInstance().token
+            .addOnCompleteListener { task ->
+                if (!cont.isActive) return@addOnCompleteListener
+                if (task.isSuccessful) {
+                    cont.resume(task.result.orEmpty())
+                } else {
+                    cont.resumeWithException(
+                        task.exception ?: IllegalStateException("FCM token fetch failed")
+                    )
+                }
+            }
     }
 
     fun updateRememberedEmail(remember: Boolean, email: String) {
