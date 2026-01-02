@@ -282,7 +282,15 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
                                 navController.navigate(Screen.SignUp.route)
                             }
                         )
+
                     }
+                    GoogleSignUpButton(
+                        onClick = {
+                            val url = "https://masil-main.duckdns.org/oauth2/authorization/google"
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                            context.startActivity(intent)
+                        }
+                    )
                 }
             }
 
@@ -291,19 +299,19 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
         }
 
         // 하단 고정 버튼 영역
-        Column(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .background(Color.White)
-                .padding(horizontal = 24.dp)
-                .padding(
-                    bottom = WindowInsets.navigationBars.asPaddingValues()
-                        .calculateBottomPadding() + 16.dp
-                ),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
+//        Column(
+//            modifier = Modifier
+//                .align(Alignment.BottomCenter)
+//                .fillMaxWidth()
+//                .background(Color.White)
+//                .padding(horizontal = 24.dp)
+//                .padding(
+//                    bottom = WindowInsets.navigationBars.asPaddingValues()
+//                        .calculateBottomPadding() + 16.dp
+//                ),
+//            horizontalAlignment = Alignment.CenterHorizontally,
+//            verticalArrangement = Arrangement.spacedBy(16.dp)
+//        ) {
 //            Row(
 //                modifier = Modifier.fillMaxWidth(),
 //                horizontalArrangement = Arrangement.Center
@@ -332,22 +340,7 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
 //                )
 //            }
 
-//            Row(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(top = 16.dp, bottom = 90.dp),
-//                horizontalArrangement = Arrangement.Center,
-//
-//                ) {
-//                GoogleSignUpButton(
-//                    onClick = {
-//                        val url = "https://masil-main.duckdns.org/oauth2/authorization/google"
-//                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-//                        context.startActivity(intent)
-//                    }
-//                )
-//
-//            }
+
 
 
 //            Row(
@@ -377,4 +370,3 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
 
         }
     }
-}
