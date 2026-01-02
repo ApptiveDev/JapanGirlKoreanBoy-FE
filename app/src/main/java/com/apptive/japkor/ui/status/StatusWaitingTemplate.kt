@@ -4,8 +4,6 @@ import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -13,8 +11,16 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
+
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
+import com.apptive.japkor.R
+import com.apptive.japkor.ui.components.CustomText
+import com.apptive.japkor.ui.components.CustomTextType
+import com.apptive.japkor.ui.theme.CustomColor
 
 @Composable
 fun StatusWaitingTemplate(
@@ -22,51 +28,74 @@ fun StatusWaitingTemplate(
     title: String,
     subtitle: String,
     @DrawableRes logoRes: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    logoSize: Dp = 520.dp,
+    logoOffsetX: Dp = 70.dp,
+    logoOffsetY: Dp = 100.dp,
+    logoAlpha: Float = 0.8f
 ) {
     Box(
         modifier = modifier
             .fillMaxSize()
             .background(Color(0xFFF7F7F7))
     ) {
-        // 배경 로고
         Image(
             painter = painterResource(id = logoRes),
             contentDescription = null,
             contentScale = ContentScale.Fit,
             modifier = Modifier
-                .size(520.dp)
+                .size(logoSize)
                 .align(Alignment.Center)
-                .offset(x = 70.dp, y = (-40).dp)
-                .alpha(0.8f)
+                .offset(x = logoOffsetX, y = logoOffsetY)
+                .alpha(logoAlpha)
         )
 
-        // 중앙 텍스트
         Column(
             modifier = Modifier
                 .align(Alignment.Center)
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
+            CustomText(
+                /* TODO: FontWeight.Bold 추가해야 할까...... */
                 text = "$name 님,",
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.SemiBold
-                )
+                type = CustomTextType.title,
+                size = 24.sp,
+                textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(6.dp))
-            Text(
+            CustomText(
                 text = title,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold
-                )
+                type = CustomTextType.title,
+                size = 24.sp,
+                textAlign = TextAlign.Center
             )
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
+            Spacer(modifier = Modifier.height(100.dp))
+            /* TODO: ". . ." 애니메이션 필요 */
+            CustomText(
                 text = subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f)
+                type = CustomTextType.body,
+                color = CustomColor.gray400,
+                textAlign = TextAlign.Center
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PendingPreview() {
+    PendingApprovalScreen(
+        name = "최영준",
+        logoRes = R.drawable.ampersand_bg
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ConnectingPreview() {
+    ConnectingScreen(
+        name = "최영준",
+        logoRes = R.drawable.ampersand_bg
+    )
 }
