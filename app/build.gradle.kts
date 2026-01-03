@@ -52,6 +52,9 @@ android {
         buildConfig = true
         compose = true
     }
+    androidResources {
+        noCompress += "mp4"
+    }
 }
 
 dependencies {
