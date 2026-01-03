@@ -6,8 +6,10 @@ import android.provider.OpenableColumns
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.apptive.japkor.data.local.DataStoreManager
 import com.apptive.japkor.data.model.PresignedUrlRequest
 import com.apptive.japkor.data.model.RequiredInfoDTO
+import com.apptive.japkor.data.model.UserStatus
 import com.apptive.japkor.data.repository.ApiResult
 import com.apptive.japkor.data.repository.RequiredInfoRepository
 import com.apptive.japkor.ui.components.ToastType
@@ -46,6 +48,7 @@ sealed class RequiredInfoEvent {
 }
 
 class RequiredInfoViewModel(
+    private val dataStore: DataStoreManager,
     private val repository: RequiredInfoRepository = RequiredInfoRepository()
 ) : ViewModel() {
 
@@ -418,6 +421,8 @@ class RequiredInfoViewModel(
 
             if (result.success && result.code in 200..299) {
                 _submitState.value = SubmitState.Success
+                dataStore.saveUserName(name)
+                dataStore.saveUserStatus(UserStatus.PENDING_APPROVAL.name)
                 _events.emit(RequiredInfoEvent.NavigateToComplete)
             } else {
                 val message = result.errorMessage ?: "알 수 없는 오류가 발생했습니다."

@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ConnectingScreen(
+fun PendingConnectingScreen(
     name: String,
     @DrawableRes logoRes: Int
 ) {

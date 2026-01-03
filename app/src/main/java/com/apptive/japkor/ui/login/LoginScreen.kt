@@ -210,18 +210,10 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
                             viewModel.signIn(email, password) { success, status ->
                                 if (success) {
                                     toastManager.success("로그인 성공! 환영합니다.")
-                                    when (status) {
-                                        UserStatus.INCOMPLETE_PROFILE -> {
-                                            navController.navigate(Screen.RequiredInfo.route)
-                                        }
-                                        UserStatus.PENDING_APPROVAL,
-                                        UserStatus.APPROVED,
-                                        UserStatus.CONNECTING,
-                                        UserStatus.CONNECTED,
-                                        UserStatus.BLACKLISTED -> {
-                                            navController.navigate(Screen.RequiredInfoComplete.route)
-                                        }
-                                        null -> navController.navigate(Screen.RequiredInfo.route)
+
+                                    navController.navigate(Screen.Router.route) {
+                                        popUpTo(Screen.Login.route) { inclusive = true }
+                                        launchSingleTop = true
                                     }
                                 } else {
                                     toastManager.error("로그인 실패! 이메일과 비밀번호를 확인해주세요.")

@@ -43,6 +43,20 @@ class DataStoreManager(private val context: Context) {
         )
     }
 
+    fun getUserName() = context.dataStore.data.map { it[KEY_NAME] ?: "" }
+
+    suspend fun saveUserName(name: String) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_NAME] = name
+        }
+    }
+
+    suspend fun saveUserStatus(status: String) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_STATUS] = status
+        }
+    }
+
     suspend fun saveFcmToken(token: String) {
         context.dataStore.edit { prefs ->
             prefs[KEY_FCM_TOKEN] = token

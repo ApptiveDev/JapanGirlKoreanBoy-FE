@@ -133,8 +133,9 @@ fun RequiredInfoCompleteScreen(navController: NavController) {
 
                 Button(
                     onClick = {
-                        navController.navigate(Screen.Language.route) {
-                            popUpTo(Screen.Language.route) { inclusive = false }
+                        navController.navigate(Screen.PendingApproval.route) {
+                            popUpTo(Screen.RequiredInfoComplete.route) { inclusive = true }
+                            launchSingleTop = true
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),

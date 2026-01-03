@@ -8,16 +8,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Dp
-
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
-import com.apptive.japkor.R
 import com.apptive.japkor.ui.components.CustomText
 import com.apptive.japkor.ui.components.CustomTextType
 import com.apptive.japkor.ui.theme.CustomColor
@@ -32,12 +28,12 @@ fun StatusWaitingTemplate(
     logoSize: Dp = 520.dp,
     logoOffsetX: Dp = 70.dp,
     logoOffsetY: Dp = 100.dp,
-    logoAlpha: Float = 0.8f
+    logoAlpha: Float = 0.45f
 ) {
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF7F7F7))
+            .background(CustomColor.primary100)
     ) {
         Image(
             painter = painterResource(id = logoRes),
@@ -80,22 +76,4 @@ fun StatusWaitingTemplate(
             )
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun PendingPreview() {
-    PendingApprovalScreen(
-        name = "최영준",
-        logoRes = R.drawable.ampersand_bg
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun ConnectingPreview() {
-    ConnectingScreen(
-        name = "최영준",
-        logoRes = R.drawable.ampersand_bg
-    )
 }
