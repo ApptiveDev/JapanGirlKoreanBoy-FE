@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.apptive.japkor.ui.home.HomeScreen
 import com.apptive.japkor.ui.language.LanguageScreen
 import com.apptive.japkor.ui.login.LoginScreen
 import com.apptive.japkor.ui.requiredinfo.RequiredInfoCompleteScreen
@@ -14,6 +15,8 @@ sealed class Screen(val route: String) {
     object Login : Screen("login")
 
     object Language : Screen("language")
+
+    object Home : Screen("home")
 
     object RequiredInfo : Screen("requiredinfo")
 
@@ -37,6 +40,9 @@ fun AppNavHost(
         }
         composable(Screen.Login.route) {
             LoginScreen(navController)
+        }
+        composable(Screen.Home.route) {
+            HomeScreen(navController)
         }
         composable(Screen.RequiredInfo.route) {
             RequiredInfoScreen(navController)

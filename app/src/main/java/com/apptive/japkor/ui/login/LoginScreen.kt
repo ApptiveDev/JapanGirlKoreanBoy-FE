@@ -214,9 +214,11 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
                                         UserStatus.INCOMPLETE_PROFILE -> {
                                             navController.navigate(Screen.RequiredInfo.route)
                                         }
+                                        UserStatus.CONNECTING -> {
+                                            navController.navigate(Screen.Home.route)
+                                        }
                                         UserStatus.PENDING_APPROVAL,
                                         UserStatus.APPROVED,
-                                        UserStatus.CONNECTING,
                                         UserStatus.CONNECTED,
                                         UserStatus.BLACKLISTED -> {
                                             navController.navigate(Screen.RequiredInfoComplete.route)
