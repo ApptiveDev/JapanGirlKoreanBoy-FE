@@ -32,12 +32,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.apptive.japkor.R
+import com.apptive.japkor.data.local.DataStoreManager
 import com.apptive.japkor.navigation.Screen
 import com.apptive.japkor.ui.components.CustomText
 import com.apptive.japkor.ui.components.CustomTextType
@@ -61,7 +65,17 @@ fun RequiredInfoScreen(
     onSubmit: (name: String, email: String) -> Unit = { _, _ -> },
     initialStep: Int = 1
 ) {
-    val requiredInfoViewModel: RequiredInfoViewModel = viewModel()
+    val context = LocalContext.current
+
+    val requiredInfoViewModel: RequiredInfoViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return RequiredInfoViewModel(
+                    dataStore = DataStoreManager(context.applicationContext)
+                ) as T
+            }
+        }
+    )
     val toastManager = LocalToastManager.current
     val appLanguage = LocalAppLanguage.current
 
