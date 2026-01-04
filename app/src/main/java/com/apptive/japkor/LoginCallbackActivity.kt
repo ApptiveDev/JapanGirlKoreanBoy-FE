@@ -81,9 +81,9 @@ class LoginCallbackActivity : ComponentActivity() {
 
         val startRoute = when (userStatus) {
             UserStatus.INCOMPLETE_PROFILE -> Screen.RequiredInfo.route
+            UserStatus.CONNECTING -> Screen.Home.route
             UserStatus.PENDING_APPROVAL,
             UserStatus.APPROVED,
-            UserStatus.CONNECTING,
             UserStatus.CONNECTED,
             UserStatus.BLACKLISTED -> Screen.RequiredInfoComplete.route
             null -> when (needsProfileCompletion) {

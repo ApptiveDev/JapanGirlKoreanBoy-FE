@@ -42,7 +42,7 @@ object RequiredInfoMapper {
         "불교" -> "BUDDHISM"
         "기독교" -> "CHRISTIANITY"
         "천주교" -> "CATHOLICISM"
-        "신토" -> "SHINTO"
+        "신토" -> "TOISM"
         "기타" -> "OTHER"
         else -> null
     }
