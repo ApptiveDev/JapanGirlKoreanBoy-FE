@@ -56,7 +56,8 @@ import kotlinx.coroutines.launch
 private data class HomeTab(
     val route: String,
     val label: String,
-    val iconResId: Int
+    val iconResId: Int,
+    val selectedIconResId: Int
 )
 
 private object HomeRoute {
@@ -79,9 +80,24 @@ fun MainRouteScreen(
     val isSettingScreen = currentRoute == HomeRoute.Setting
     val showBottomBar = currentRoute in setOf(HomeRoute.Chat, HomeRoute.Main, HomeRoute.MyPage)
     val tabs = listOf(
-        HomeTab(route = HomeRoute.Chat, label = "채팅", iconResId = R.drawable.ic_chat),
-        HomeTab(route = HomeRoute.Main, label = "홈", iconResId = R.drawable.ic_n),
-        HomeTab(route = HomeRoute.MyPage, label = "내정보", iconResId = R.drawable.ic_user)
+        HomeTab(
+            route = HomeRoute.Chat,
+            label = "채팅",
+            iconResId = R.drawable.ic_chat,
+            selectedIconResId = R.drawable.ic_chat_filled
+        ),
+        HomeTab(
+            route = HomeRoute.Main,
+            label = "홈",
+            iconResId = R.drawable.ic_n,
+            selectedIconResId = R.drawable.ic_n
+        ),
+        HomeTab(
+            route = HomeRoute.MyPage,
+            label = "내정보",
+            iconResId = R.drawable.ic_user,
+            selectedIconResId = R.drawable.ic_user_filled
+        )
     )
 
     var showLogoutDialog by remember { mutableStateOf(false) }
@@ -168,8 +184,9 @@ fun MainRouteScreen(
                     containerColor = CustomColor.white
                 ) {
                     tabs.forEach { tab ->
+                        val isSelected = currentRoute == tab.route
                         NavigationBarItem(
-                            selected = currentRoute == tab.route,
+                            selected = isSelected,
                             onClick = {
                                 homeNavController.navigate(tab.route) {
                                     popUpTo(homeNavController.graph.findStartDestination().id) {
@@ -181,14 +198,10 @@ fun MainRouteScreen(
                             },
                             icon = {
                                 Icon(
-                                    painter = painterResource(tab.iconResId),
+                                    painter = painterResource(
+                                        if (isSelected) tab.selectedIconResId else tab.iconResId
+                                    ),
                                     contentDescription = tab.label
-                                )
-                            },
-                            label = {
-                                CustomText(
-                                    text = tab.label,
-                                    type = CustomTextType.label
                                 )
                             },
                             colors = NavigationBarItemDefaults.colors(
