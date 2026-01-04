@@ -73,7 +73,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             JapKorTheme {
                 MainScreen(
-                    startDestination = startDestination,
                     onRequestNotificationPermission = ::requestNotificationPermission
                 )
             }
@@ -98,15 +97,17 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainScreen(
-    startDestination: String,
     onRequestNotificationPermission: () -> Unit
 ) {
-    var signedIn by remember { mutableStateOf(false) }
     val navController = rememberNavController()
     val toastManager = remember { ToastManager() }
     val context = LocalContext.current
     val dataStore = remember { DataStoreManager(context) }
-    val languageCode by dataStore.getLanguage().collectAsState(initial = AppLanguage.Korean.code)
+
+    val languageCode by dataStore
+        .getLanguage()
+        .collectAsState(initial = AppLanguage.Korean.code)
+
     val appLanguage = AppLanguage.fromCode(languageCode)
 
     LaunchedEffect(Unit) {
@@ -117,12 +118,11 @@ fun MainScreen(
         CompositionLocalProvider(LocalAppLanguage provides appLanguage) {
             Box(modifier = Modifier.fillMaxSize()) {
                 AppNavHost(
-                    navController = navController,
-                    isSignedIn = signedIn,
-                    startDestination = startDestination
+                    navController = navController
                 )
                 CustomToastContainer(manager = toastManager)
             }
         }
     }
 }
+
