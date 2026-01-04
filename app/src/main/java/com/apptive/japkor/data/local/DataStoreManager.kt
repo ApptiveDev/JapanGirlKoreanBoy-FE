@@ -73,6 +73,15 @@ class DataStoreManager(private val context: Context) {
         }
     }
 
+    suspend fun clearUserInfo() {
+        context.dataStore.edit { prefs ->
+            prefs.remove(KEY_MEMBER_ID)
+            prefs.remove(KEY_NAME)
+            prefs.remove(KEY_TOKEN)
+            prefs.remove(KEY_STATUS)
+        }
+    }
+
     suspend fun clear() {
         context.dataStore.edit { it.clear() }
     }

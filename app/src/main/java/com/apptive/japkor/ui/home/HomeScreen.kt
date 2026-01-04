@@ -21,6 +21,7 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -32,6 +33,7 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -39,12 +41,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -52,7 +57,10 @@ import androidx.compose.ui.util.lerp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.apptive.japkor.R
+import com.apptive.japkor.data.local.DataStoreManager
+import com.apptive.japkor.data.local.TokenProvider
 import com.apptive.japkor.data.model.MatchingResponse
+import com.apptive.japkor.navigation.Screen
 import com.apptive.japkor.ui.components.CustomText
 import com.apptive.japkor.ui.components.CustomTextType
 import com.apptive.japkor.ui.components.LoadingDialog
@@ -61,6 +69,7 @@ import com.apptive.japkor.ui.components.ToastType
 import com.apptive.japkor.ui.theme.CustomColor
 import kotlin.math.absoluteValue
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 private data class HomeTab(
     val label: String,
@@ -79,11 +88,15 @@ fun HomeScreen(
         HomeTab("홈", R.drawable.ic_n),
         HomeTab("내정보", R.drawable.ic_user)
     )
+    var showLogoutDialog by remember { mutableStateOf(false) }
     val toastManager = LocalToastManager.current
     val uiState by viewModel.uiState.collectAsState()
     val matchings = uiState.matchings
     val selectedMatching = uiState.selectedMatching
     val pagerState = rememberPagerState(pageCount = { matchings.size })
+    val context = LocalContext.current
+    val dataStoreManager = remember { DataStoreManager(context) }
+    val coroutineScope = rememberCoroutineScope()
 
     BackHandler(enabled = selectedMatching != null) {
         viewModel.hideDetails()
@@ -118,8 +131,18 @@ fun HomeScreen(
         topBar = {
             TopAppBar(
                 title = {},
+                navigationIcon = {
+                    if (selectedMatching != null) {
+                        IconButton(onClick = { viewModel.hideDetails() }) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_back),
+                                contentDescription = "뒤로가기"
+                            )
+                        }
+                    }
+                },
                 actions = {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = { showLogoutDialog = true }) {
                         Icon(
                             painter = painterResource(R.drawable.ic_settings),
                             contentDescription = "설정"
@@ -188,6 +211,56 @@ fun HomeScreen(
                 }
             }
         }
+    }
+
+    if (showLogoutDialog) {
+        AlertDialog(
+            onDismissRequest = { showLogoutDialog = false },
+            title = {
+                CustomText(
+                    text = "로그아웃",
+                    type = CustomTextType.title,
+                    color = CustomColor.black
+                )
+            },
+            text = {
+                CustomText(
+                    text = "정말 로그아웃 하시겠어요?",
+                    type = CustomTextType.body,
+                    color = CustomColor.gray400
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showLogoutDialog = false
+                        TokenProvider.clearToken()
+                        coroutineScope.launch {
+                            dataStoreManager.clearUserInfo()
+                        }
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    }
+                ) {
+                    CustomText(
+                        text = "로그아웃",
+                        type = CustomTextType.body,
+                        color = CustomColor.primary600
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLogoutDialog = false }) {
+                    CustomText(
+                        text = "취소",
+                        type = CustomTextType.body,
+                        color = CustomColor.gray400
+                    )
+                }
+            }
+        )
     }
 }
 
