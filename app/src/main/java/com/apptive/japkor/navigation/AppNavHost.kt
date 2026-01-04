@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.apptive.japkor.ui.home.HomeScreen
+import com.apptive.japkor.ui.main.MainRouteScreen
 import com.apptive.japkor.ui.language.LanguageScreen
 import com.apptive.japkor.ui.login.LoginScreen
 import com.apptive.japkor.ui.requiredinfo.RequiredInfoCompleteScreen
@@ -42,7 +42,7 @@ fun AppNavHost(
             LoginScreen(navController)
         }
         composable(Screen.Home.route) {
-            HomeScreen(navController)
+            MainRouteScreen(navController)
         }
         composable(Screen.RequiredInfo.route) {
             RequiredInfoScreen(navController)

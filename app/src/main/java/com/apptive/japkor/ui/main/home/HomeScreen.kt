@@ -1,4 +1,4 @@
-package com.apptive.japkor.ui.home.components
+package com.apptive.japkor.ui.main.home
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -37,12 +37,11 @@ import com.apptive.japkor.R
 import com.apptive.japkor.data.model.MatchingResponse
 import com.apptive.japkor.ui.components.CustomText
 import com.apptive.japkor.ui.components.CustomTextType
-import com.apptive.japkor.ui.home.HomeUiState
 import com.apptive.japkor.ui.theme.CustomColor
 import kotlin.math.absoluteValue
 
 @Composable
-fun HomeMainContent(
+fun HomeScreen(
     uiState: HomeUiState,
     pagerState: PagerState,
     onShowDetails: (MatchingResponse) -> Unit,

@@ -1,4 +1,4 @@
-package com.apptive.japkor.ui.home.setting
+package com.apptive.japkor.ui.main.setting
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

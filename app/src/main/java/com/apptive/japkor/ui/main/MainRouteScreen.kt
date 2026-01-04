@@ -1,4 +1,4 @@
-package com.apptive.japkor.ui.home
+package com.apptive.japkor.ui.main
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -43,10 +43,12 @@ import com.apptive.japkor.ui.components.CustomTextType
 import com.apptive.japkor.ui.components.LoadingDialog
 import com.apptive.japkor.ui.components.LocalToastManager
 import com.apptive.japkor.ui.components.ToastType
-import com.apptive.japkor.ui.home.chat.ChattingScreen
-import com.apptive.japkor.ui.home.components.HomeMainContent
-import com.apptive.japkor.ui.home.mypage.MypageScreen
-import com.apptive.japkor.ui.home.setting.SettingScreen
+import com.apptive.japkor.ui.main.chat.ChattingScreen
+import com.apptive.japkor.ui.main.home.HomeScreen
+import com.apptive.japkor.ui.main.home.HomeUiEvent
+import com.apptive.japkor.ui.main.home.HomeViewModel
+import com.apptive.japkor.ui.main.mypage.MypageScreen
+import com.apptive.japkor.ui.main.setting.SettingScreen
 import com.apptive.japkor.ui.theme.CustomColor
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -66,7 +68,7 @@ private object HomeRoute {
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
-fun HomeScreen(
+fun MainRouteScreen(
     navController: NavController,
     viewModel: HomeViewModel = viewModel()
 ) {
@@ -213,7 +215,7 @@ fun HomeScreen(
                 ChattingScreen()
             }
             composable(HomeRoute.Main) {
-                HomeMainContent(
+                HomeScreen(
                     uiState = uiState,
                     pagerState = pagerState,
                     onShowDetails = { viewModel.showDetails(it) },

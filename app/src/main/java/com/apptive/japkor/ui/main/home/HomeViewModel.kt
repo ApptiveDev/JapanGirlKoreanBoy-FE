@@ -1,4 +1,4 @@
-package com.apptive.japkor.ui.home
+package com.apptive.japkor.ui.main.home
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

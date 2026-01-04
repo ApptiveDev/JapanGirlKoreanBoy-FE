@@ -1,4 +1,4 @@
-package com.apptive.japkor.ui.home.chat
+package com.apptive.japkor.ui.main.mypage
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,13 +10,13 @@ import com.apptive.japkor.ui.components.CustomTextType
 import com.apptive.japkor.ui.theme.CustomColor
 
 @Composable
-fun ChattingScreen(modifier: Modifier = Modifier) {
+fun MypageScreen(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         CustomText(
-            text = "매칭을 기다려주세요..",
+            text = "내정보 페이지입니다.",
             type = CustomTextType.body,
             color = CustomColor.gray400
         )
