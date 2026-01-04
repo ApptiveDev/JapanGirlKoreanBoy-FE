@@ -6,5 +6,9 @@
     <style name="Theme.JapKor.Splash" parent="Theme.JapKor">
         <item name="android:windowBackground">@android:color/black</item>
         <item name="android:windowFullscreen">true</item>
+        <item name="android:windowSplashScreenBackground">@android:color/black</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@null</item>
+        <item name="android:windowSplashScreenBrandingImage">@null</item>
+        <item name="android:windowSplashScreenAnimationDuration">0</item>
     </style>
 </resources>
