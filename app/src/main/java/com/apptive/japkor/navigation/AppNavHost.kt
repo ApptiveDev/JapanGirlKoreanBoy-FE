@@ -10,6 +10,7 @@ import com.apptive.japkor.ui.login.LoginScreen
 import com.apptive.japkor.ui.requiredinfo.RequiredInfoCompleteScreen
 import com.apptive.japkor.ui.requiredinfo.RequiredInfoScreen
 import com.apptive.japkor.ui.signup.SignUpScreen
+import com.apptive.japkor.ui.status.BlacklistedRouteScreen
 import com.apptive.japkor.ui.status.PendingApprovalRouteScreen
 import com.apptive.japkor.ui.status.PendingConnectingRouteScreen
 
@@ -54,7 +55,7 @@ fun AppNavHost(
         composable(Screen.PendingApproval.route) { PendingApprovalRouteScreen() }
         composable(Screen.PendingConnecting.route) { PendingConnectingRouteScreen() }
 
-        //composable(Screen.Connected.route) { ConnectedPlaceholderScreen(navController) }
-        //composable(Screen.Blacklisted.route) { BlacklistedPlaceholderScreen(navController) }
+        composable(Screen.Connected.route) { MainRouteScreen(navController) }
+        composable(Screen.Blacklisted.route) { BlacklistedRouteScreen() }
     }
 }
