@@ -61,7 +61,33 @@ private val parentAssetOptions = listOf(
     "노후 관리만 되어 있으면 돼요",
     "상관없어요"
 )
-private val jobOptions = listOf("의사", "교사", "엔지니어", "프리랜서", "무직")
+private val jobOptions = listOf(
+    "의사",
+    "약사",
+    "간호사",
+    "교사",
+    "교수",
+    "변호사",
+    "회계사",
+    "엔지니어",
+    "개발자",
+    "디자이너",
+    "공무원",
+    "경찰",
+    "소방관",
+    "군인",
+    "사업가",
+    "경영인",
+    "금융인",
+    "연구원",
+    "예술가",
+    "운동선수",
+    "프리랜서",
+    "학생",
+    "무직",
+    "상관없음",
+    "기타"
+)
 private val priorityOptions = listOf("직업", "학력", "키", "외모", "부모 자산", "본인 자산", "종교", "성격")
 private val missingIndicatorColor = Color(0xFFE53935)
 

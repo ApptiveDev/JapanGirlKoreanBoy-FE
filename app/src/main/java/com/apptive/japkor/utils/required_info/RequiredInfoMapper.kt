@@ -147,10 +147,31 @@ object RequiredInfoMapper {
     // -------------------------------
     fun job(koreanLabel: String): String? = when (koreanLabel) {
         "의사" -> "DOCTOR"
+        "약사" -> "PHARMACIST"
+        "간호사" -> "NURSE"
         "교사" -> "TEACHER"
+        "교수" -> "PROFESSOR"
+        "변호사" -> "LAWYER"
+        "회계사" -> "ACCOUNTANT"
         "엔지니어" -> "ENGINEER"
+        "개발자" -> "DEVELOPER"
+        "디자이너" -> "DESIGNER"
+        "공무원" -> "CIVIL_SERVANT"
+        "경찰" -> "POLICE"
+        "소방관" -> "FIREFIGHTER"
+        "군인" -> "MILITARY"
+        "사업가" -> "ENTREPRENEUR"
+        "경영인" -> "CEO"
+        "금융인" -> "FINANCE"
+        "연구원" -> "RESEARCHER"
+        "예술가" -> "ARTIST"
+        "운동선수" -> "ATHLETE"
         "프리랜서" -> "FREELANCER"
+        "학생" -> "STUDENT"
         "무직" -> "UNEMPLOYED"
+        "상관없음" -> "ANY"
+        "상관 없음" -> "ANY"
+        "기타" -> "OTHER"
         else -> null
     }
 }
