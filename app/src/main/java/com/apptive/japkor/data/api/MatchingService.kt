@@ -11,5 +11,5 @@ interface MatchingService {
     fun getFemaleMatchings(): Call<List<MatchingResponse>>
 
     @POST("members/matchings/{matchingId}/select")
-    fun selectMatching(@Path("matchingId") matchingId: Long): Call<Void>
+    fun femaleSelectMatching(@Path("matchingId") matchingId: Long): Call<Void>
 }

@@ -44,6 +44,7 @@ import kotlin.math.absoluteValue
 fun HomeScreen(
     uiState: HomeUiState,
     pagerState: PagerState,
+    canSelectMatching: Boolean,
     onShowDetails: (MatchingResponse) -> Unit,
     onNoMatch: () -> Unit,
     onConfirm: (Long) -> Unit,
@@ -59,7 +60,12 @@ fun HomeScreen(
             selectedMatching != null -> {
                 MatchingDetailContent(
                     matching = selectedMatching,
-                    onConfirm = { onConfirm(selectedMatching.matchingId) }
+                    canSelectMatching = canSelectMatching,
+                    onConfirm = {
+                        if (canSelectMatching) {
+                            onConfirm(selectedMatching.matchingId)
+                        }
+                    }
                 )
             }
             uiState.isWaiting || matchings.isEmpty() -> {
@@ -254,6 +260,7 @@ private fun PagerIndicator(total: Int, current: Int) {
 @Composable
 private fun MatchingDetailContent(
     matching: MatchingResponse,
+    canSelectMatching: Boolean,
     onConfirm: () -> Unit
 ) {
     Column(
@@ -275,11 +282,13 @@ private fun MatchingDetailContent(
         }
         Button(
             onClick = onConfirm,
+            enabled = canSelectMatching,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = CustomColor.primary600
+                containerColor = CustomColor.primary600,
+                disabledContainerColor = CustomColor.primary300
             ),
             shape = RoundedCornerShape(16.dp)
         ) {

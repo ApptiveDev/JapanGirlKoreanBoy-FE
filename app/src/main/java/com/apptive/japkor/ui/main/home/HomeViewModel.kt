@@ -82,9 +82,9 @@ class HomeViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             runCatching {
-                matchingService.selectMatching(matchingId).awaitResponse()
+                matchingService.femaleSelectMatching(matchingId).awaitResponse()
             }.onSuccess { response ->
-                Log.d(TAG, "selectMatching success=${response.isSuccessful} code=${response.code()}")
+                Log.d(TAG, "femaleSelectMatching success=${response.isSuccessful} code=${response.code()}")
                 if (response.isSuccessful) {
                     _uiState.value = HomeUiState(isWaiting = true)
                 } else {
@@ -92,7 +92,7 @@ class HomeViewModel(
                     _events.tryEmit(HomeUiEvent.ShowToast("매칭 선택에 실패했습니다."))
                 }
             }.onFailure { throwable ->
-                Log.e(TAG, "selectMatching failed", throwable)
+                Log.e(TAG, "femaleSelectMatching failed", throwable)
                 _uiState.update { it.copy(isLoading = false) }
                 _events.tryEmit(HomeUiEvent.ShowToast("네트워크 오류로 매칭을 선택할 수 없습니다."))
             }

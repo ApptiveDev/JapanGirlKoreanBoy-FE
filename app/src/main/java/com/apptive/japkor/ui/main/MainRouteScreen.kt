@@ -67,6 +67,8 @@ private object HomeRoute {
     const val Setting = "home_setting"
 }
 
+private const val FEMALE_GENDER = "JAPANESE_FEMALE"
+
 @Composable
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 fun MainRouteScreen(
@@ -109,6 +111,8 @@ fun MainRouteScreen(
     val context = LocalContext.current
     val dataStoreManager = remember { DataStoreManager(context) }
     val coroutineScope = rememberCoroutineScope()
+    val gender by dataStoreManager.getUserGender().collectAsState(initial = "")
+    val canSelectMatching = gender == FEMALE_GENDER
 
     BackHandler(enabled = isMainScreen && selectedMatching != null) {
         viewModel.hideDetails()
@@ -231,6 +235,7 @@ fun MainRouteScreen(
                 HomeScreen(
                     uiState = uiState,
                     pagerState = pagerState,
+                    canSelectMatching = canSelectMatching,
                     onShowDetails = { viewModel.showDetails(it) },
                     onNoMatch = { viewModel.noMatchSelected() },
                     onConfirm = { viewModel.selectMatching(it) },
