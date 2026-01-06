@@ -25,7 +25,10 @@ data class HomeUiState(
     val isLoading: Boolean = false,
     val matchings: List<MatchingResponse> = emptyList(),
     val selectedMatching: MatchingResponse? = null,
-    val isWaiting: Boolean = false
+    val isWaiting: Boolean = false,
+    val aiSummary: String? = null,
+    val isAiSummaryLoading: Boolean = false,
+    val aiSummaryError: String? = null
 )
 
 class HomeViewModel(
@@ -40,6 +43,7 @@ class HomeViewModel(
 
     init {
         fetchFemaleMatchings()
+        fetchAiSummary()
     }
 
     fun fetchFemaleMatchings() {
@@ -54,17 +58,45 @@ class HomeViewModel(
                 if (response.isSuccessful) {
                     val data = response.body().orEmpty()
                     if (data.isEmpty()) {
-                        _uiState.value = HomeUiState(isWaiting = true)
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                matchings = emptyList(),
+                                selectedMatching = null,
+                                isWaiting = true
+                            )
+                        }
                     } else {
-                        _uiState.value = HomeUiState(matchings = data)
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                matchings = data,
+                                selectedMatching = null,
+                                isWaiting = false
+                            )
+                        }
                     }
                 } else {
-                    _uiState.value = HomeUiState(isWaiting = true)
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            matchings = emptyList(),
+                            selectedMatching = null,
+                            isWaiting = true
+                        )
+                    }
                     _events.tryEmit(HomeUiEvent.ShowToast("매칭 목록을 불러오지 못했습니다."))
                 }
             }.onFailure { throwable ->
                 Log.e(TAG, "getFemaleMatchings failed", throwable)
-                _uiState.value = HomeUiState(isWaiting = true)
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        matchings = emptyList(),
+                        selectedMatching = null,
+                        isWaiting = true
+                    )
+                }
                 _events.tryEmit(HomeUiEvent.ShowToast("네트워크 오류로 매칭을 불러올 수 없습니다."))
             }
         }
@@ -86,7 +118,14 @@ class HomeViewModel(
             }.onSuccess { response ->
                 Log.d(TAG, "femaleSelectMatching success=${response.isSuccessful} code=${response.code()}")
                 if (response.isSuccessful) {
-                    _uiState.value = HomeUiState(isWaiting = true)
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            matchings = emptyList(),
+                            selectedMatching = null,
+                            isWaiting = true
+                        )
+                    }
                 } else {
                     _uiState.update { it.copy(isLoading = false) }
                     _events.tryEmit(HomeUiEvent.ShowToast("매칭 선택에 실패했습니다."))
@@ -100,7 +139,60 @@ class HomeViewModel(
     }
 
     fun noMatchSelected() {
-        _uiState.value = HomeUiState(isWaiting = true)
+        _uiState.update {
+            it.copy(
+                isLoading = false,
+                matchings = emptyList(),
+                selectedMatching = null,
+                isWaiting = true
+            )
+        }
+    }
+
+    private fun fetchAiSummary() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isAiSummaryLoading = true, aiSummaryError = null) }
+            runCatching {
+                matchingService.getMyAiSummary().awaitResponse()
+            }.onSuccess { response ->
+                Log.d(TAG, "getMyAiSummary success=${response.isSuccessful} code=${response.code()}")
+                if (response.isSuccessful) {
+                    val summary = response.body()?.aiSummary?.trim()
+                        ?.takeIf { it.isNotBlank() }
+                    if (summary != null) {
+                        _uiState.update {
+                            it.copy(
+                                aiSummary = summary,
+                                isAiSummaryLoading = false,
+                                aiSummaryError = null
+                            )
+                        }
+                    } else {
+                        _uiState.update {
+                            it.copy(
+                                isAiSummaryLoading = false,
+                                aiSummaryError = "AI 요약본을 불러오지 못했습니다."
+                            )
+                        }
+                    }
+                } else {
+                    _uiState.update {
+                        it.copy(
+                            isAiSummaryLoading = false,
+                            aiSummaryError = "AI 요약본을 불러오지 못했습니다."
+                        )
+                    }
+                }
+            }.onFailure { throwable ->
+                Log.e(TAG, "getMyAiSummary failed", throwable)
+                _uiState.update {
+                    it.copy(
+                        isAiSummaryLoading = false,
+                        aiSummaryError = "AI 요약본을 불러오지 못했습니다."
+                    )
+                }
+            }
+        }
     }
 
     companion object {

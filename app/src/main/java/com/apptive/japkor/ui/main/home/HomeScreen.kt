@@ -69,7 +69,12 @@ fun HomeScreen(
                 )
             }
             uiState.isWaiting || matchings.isEmpty() -> {
-                WaitingContent(modifier = Modifier.fillMaxSize())
+                WaitingContent(
+                    modifier = Modifier.fillMaxSize(),
+                    aiSummary = uiState.aiSummary,
+                    isAiSummaryLoading = uiState.isAiSummaryLoading,
+                    aiSummaryError = uiState.aiSummaryError
+                )
             }
             else -> {
                 MatchingCarouselContent(
@@ -84,18 +89,68 @@ fun HomeScreen(
 }
 
 @Composable
-private fun WaitingContent(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center
+private fun WaitingContent(
+    modifier: Modifier = Modifier,
+    aiSummary: String?,
+    isAiSummaryLoading: Boolean,
+    aiSummaryError: String?
+) {
+    Column(
+        modifier = modifier
+            .padding(horizontal = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         CustomText(
             text = "매칭 진행 중입니다..",
             type = CustomTextType.body,
             color = CustomColor.gray400
         )
+        Spacer(modifier = Modifier.height(16.dp))
+        if (!aiSummary.isNullOrBlank()) {
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = CustomColor.gray100),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CustomText(
+                        text = "내 AI 요약본",
+                        type = CustomTextType.label,
+                        color = CustomColor.gray400
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    CustomText(
+                        text = aiSummary,
+                        type = CustomTextType.body,
+                        color = CustomColor.black,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        } else if (isAiSummaryLoading) {
+            CustomText(
+                text = "AI 요약본을 불러오는 중입니다.",
+                type = CustomTextType.body,
+                color = CustomColor.gray400,
+                textAlign = TextAlign.Center
+            )
+        } else if (!aiSummaryError.isNullOrBlank()) {
+            CustomText(
+                text = aiSummaryError,
+                type = CustomTextType.body,
+                color = CustomColor.gray400,
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }
+
 
 @Composable
 @OptIn(ExperimentalFoundationApi::class)
