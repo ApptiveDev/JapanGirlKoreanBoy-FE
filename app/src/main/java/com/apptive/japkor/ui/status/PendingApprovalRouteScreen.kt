@@ -27,7 +27,7 @@ fun PendingApprovalRouteScreen(navController: NavHostController) {
                     status == UserStatus.CONNECTING ||
                     status == UserStatus.CONNECTED
         },
-        pollMs = 5000L,
+        //pollMs = 5000L,
         debugTag = "ADV_APPROVAL"
     )
 
