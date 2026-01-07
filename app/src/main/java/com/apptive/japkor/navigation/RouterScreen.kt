@@ -27,6 +27,7 @@ fun RouterScreen(
         if (token.isBlank()) {
             navController.navigate(Screen.Language.route) {
                 popUpTo(Screen.Router.route) { inclusive = true }
+                launchSingleTop = true
             }
             return@LaunchedEffect
         }
@@ -34,33 +35,38 @@ fun RouterScreen(
         // 토큰 있으면 메모리에 세팅
         TokenProvider.setToken(token)
 
-        // 여기서 서버 status 재조회, 저장
-        val res = ServiceFactory.matchingService.getMyStatus()
+        // 서버에서 현재 status 확인
+        val status = runCatching {
+            val res = ServiceFactory.matchingService.getMyStatus()
 
-        dataStore.saveUserName(res.name)
-        dataStore.saveUserStatus(res.status.name)
+            dataStore.saveUserName(res.name)
+            dataStore.saveUserStatus(res.status.name)
+            res.status
+        }.getOrElse { e ->
+            // 서버 호출 실패 시 fallback: DataStore 값
+            Log.e("ROUTER_DEBUG", "server status fetch failed, fallback datastore", e)
+            val statusStr = dataStore.getUserStatus().first()
+            runCatching { UserStatus.valueOf(statusStr) }.getOrNull()
+                ?: UserStatus.PENDING_APPROVAL // fallback 기본값(원하면 Login 등으로)
+        }
 
-        // status -> 목적지 결정
-        val targetRoute = when (res.status) {
+        // status에 따른 화면 이동
+        val targetRoute = when (status) {
             UserStatus.INCOMPLETE_PROFILE -> Screen.RequiredInfo.route
-
             UserStatus.PENDING_APPROVAL -> Screen.PendingApproval.route
 
             UserStatus.APPROVED -> Screen.PendingConnecting.route
 
-            UserStatus.CONNECTING, // -> 요기에 홈화면에서 대기하는 거 넣으면 되는 거겠지요...
+            UserStatus.CONNECTING,
             UserStatus.CONNECTED -> Screen.Connected.route
-
             UserStatus.BLACKLISTED -> Screen.Blacklisted.route
         }
 
-        // Router 제거 + 이동
+        Log.d("ROUTER_DEBUG", "status=$status -> target=$targetRoute")
+
         navController.navigate(targetRoute) {
             popUpTo(Screen.Router.route) { inclusive = true }
             launchSingleTop = true
         }
     }
-
-    // 사용자에게 보이는 UI (간단한 로딩/스플래시)
-    // SplashLoadingScreen()
 }
