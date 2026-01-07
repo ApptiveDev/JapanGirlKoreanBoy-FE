@@ -52,7 +52,7 @@ fun AppNavHost(
         composable(Screen.RequiredInfo.route) { RequiredInfoScreen(navController) }
         composable(Screen.RequiredInfoComplete.route) { RequiredInfoCompleteScreen(navController) }
 
-        composable(Screen.PendingApproval.route) { PendingApprovalRouteScreen() }
+        composable(Screen.PendingApproval.route) { PendingApprovalRouteScreen(navController) }
         composable(Screen.PendingConnecting.route) { PendingConnectingRouteScreen() }
 
         composable(Screen.Connected.route) { MainRouteScreen(navController) }
