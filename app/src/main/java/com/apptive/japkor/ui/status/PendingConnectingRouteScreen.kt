@@ -22,7 +22,7 @@ fun PendingConnectingRouteScreen(navController: NavHostController) {
         navController = navController,
         nextRoute = Screen.Connected.route,
         popUpFromRoute = Screen.PendingConnecting.route,
-        shouldAdvance = { status -> status == UserStatus.CONNECTED },
+        shouldAdvance = { status -> status == UserStatus.CONNECTING },
         pollMs = 3000L,
         debugTag = "ADV_CONNECTING"
     )
