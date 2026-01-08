@@ -11,6 +11,7 @@ import com.apptive.japkor.data.local.DataStoreManager
 import com.apptive.japkor.data.local.TokenProvider
 import com.apptive.japkor.data.model.UserStatus
 import kotlinx.coroutines.flow.first
+import retrofit2.awaitResponse
 
 @Composable
 fun RouterScreen(
@@ -37,14 +38,17 @@ fun RouterScreen(
 
         // 서버에서 현재 status 확인
         val status = runCatching {
-            val res = ServiceFactory.matchingService.getMyStatus()
+            val response = ServiceFactory.memberService.getMemberInfo().awaitResponse()
+            if (!response.isSuccessful) {
+                throw IllegalStateException("member info fetch failed: code=${response.code()}")
+            }
 
-            dataStore.saveUserName(res.name)
-            dataStore.saveUserStatus(res.status.name)
-            res.status
+            val body = response.body() ?: throw IllegalStateException("member info is empty")
+            dataStore.saveMemberInfo(body)
+            body.status
         }.getOrElse { e ->
             // 서버 호출 실패 시 fallback: DataStore 값
-            Log.e("ROUTER_DEBUG", "server status fetch failed, fallback datastore", e)
+            Log.e("ROUTER_DEBUG", "member info fetch failed, fallback datastore", e)
             val statusStr = dataStore.getUserStatus().first()
             runCatching { UserStatus.valueOf(statusStr) }.getOrNull()
                 ?: UserStatus.PENDING_APPROVAL // fallback 기본값(원하면 Login 등으로)

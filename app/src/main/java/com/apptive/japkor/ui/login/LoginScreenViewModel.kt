@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptive.japkor.data.local.DataStoreManager
 import com.apptive.japkor.data.local.TokenProvider
+import com.apptive.japkor.data.api.ServiceFactory
 import com.apptive.japkor.data.model.UserStatus
 import com.apptive.japkor.data.repository.AuthRepository
 import com.google.firebase.messaging.FirebaseMessaging
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import retrofit2.awaitResponse
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -64,6 +66,8 @@ class LoginScreenViewModel(
                         status = result.status.name // enum → string 저장
                     )
 
+                    refreshMemberInfo()
+
                     val info = dataStore.getUserInfo().first()
                     Log.d("LoginVM", "저장된 UserInfo: $info")
                     onResult(true, result.status)
@@ -108,6 +112,25 @@ class LoginScreenViewModel(
                     )
                 }
             }
+    }
+
+    private suspend fun refreshMemberInfo() {
+        runCatching {
+            ServiceFactory.memberService.getMemberInfo().awaitResponse()
+        }.onSuccess { response ->
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null) {
+                    dataStore.saveMemberInfo(body)
+                } else {
+                    Log.w("LoginVM", "member info response is empty")
+                }
+            } else {
+                Log.w("LoginVM", "member info fetch failed: code=${response.code()}")
+            }
+        }.onFailure { e ->
+            Log.w("LoginVM", "member info fetch failed", e)
+        }
     }
 
     fun updateRememberedEmail(remember: Boolean, email: String) {
