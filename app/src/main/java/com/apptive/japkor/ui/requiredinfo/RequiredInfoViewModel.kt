@@ -422,6 +422,7 @@ class RequiredInfoViewModel(
             if (result.success && result.code in 200..299) {
                 _submitState.value = SubmitState.Success
                 dataStore.saveUserName(name)
+                dataStore.saveUserGender(gender)
                 dataStore.saveUserStatus(UserStatus.PENDING_APPROVAL.name)
                 _events.emit(RequiredInfoEvent.NavigateToComplete)
             } else {

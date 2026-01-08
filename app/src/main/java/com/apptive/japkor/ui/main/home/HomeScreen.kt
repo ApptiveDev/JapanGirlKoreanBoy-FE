@@ -44,6 +44,7 @@ import kotlin.math.absoluteValue
 fun HomeScreen(
     uiState: HomeUiState,
     pagerState: PagerState,
+    canSelectMatching: Boolean,
     onShowDetails: (MatchingResponse) -> Unit,
     onNoMatch: () -> Unit,
     onConfirm: (Long) -> Unit,
@@ -59,11 +60,22 @@ fun HomeScreen(
             selectedMatching != null -> {
                 MatchingDetailContent(
                     matching = selectedMatching,
-                    onConfirm = { onConfirm(selectedMatching.matchingId) }
+                    canSelectMatching = canSelectMatching,
+                    onConfirm = {
+                        if (canSelectMatching) {
+                            onConfirm(selectedMatching.matchingId)
+                        }
+                    }
                 )
             }
             uiState.isWaiting || matchings.isEmpty() -> {
-                WaitingContent(modifier = Modifier.fillMaxSize())
+                WaitingContent(
+                    modifier = Modifier.fillMaxSize(),
+                    aiSummaryKo = uiState.aiSummaryKo,
+                    aiSummaryJa = uiState.aiSummaryJa,
+                    isAiSummaryLoading = uiState.isAiSummaryLoading,
+                    aiSummaryError = uiState.aiSummaryError
+                )
             }
             else -> {
                 MatchingCarouselContent(
@@ -78,18 +90,96 @@ fun HomeScreen(
 }
 
 @Composable
-private fun WaitingContent(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center
+private fun WaitingContent(
+    modifier: Modifier = Modifier,
+    aiSummaryKo: String?,
+    aiSummaryJa: String?,
+    isAiSummaryLoading: Boolean,
+    aiSummaryError: String?
+) {
+    val summaryKo = aiSummaryKo?.takeIf { it.isNotBlank() }
+    val summaryJa = aiSummaryJa?.takeIf { it.isNotBlank() }
+    Column(
+        modifier = modifier
+            .padding(horizontal = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         CustomText(
             text = "매칭 진행 중입니다..",
             type = CustomTextType.body,
             color = CustomColor.gray400
         )
+        Spacer(modifier = Modifier.height(16.dp))
+        if (summaryKo != null || summaryJa != null) {
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = CustomColor.gray100),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CustomText(
+                        text = "내 AI 요약본",
+                        type = CustomTextType.label,
+                        color = CustomColor.gray400
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    if (summaryKo != null) {
+                        CustomText(
+                            text = "한국어",
+                            type = CustomTextType.label,
+                            color = CustomColor.gray400
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        CustomText(
+                            text = summaryKo,
+                            type = CustomTextType.body,
+                            color = CustomColor.black,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    if (summaryKo != null && summaryJa != null) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
+                    if (summaryJa != null) {
+                        CustomText(
+                            text = "일본어",
+                            type = CustomTextType.label,
+                            color = CustomColor.gray400
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        CustomText(
+                            text = summaryJa,
+                            type = CustomTextType.body,
+                            color = CustomColor.black,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
+        } else if (isAiSummaryLoading) {
+            CustomText(
+                text = "AI 요약본을 불러오는 중입니다.",
+                type = CustomTextType.body,
+                color = CustomColor.gray400,
+                textAlign = TextAlign.Center
+            )
+        } else if (!aiSummaryError.isNullOrBlank()) {
+            CustomText(
+                text = aiSummaryError,
+                type = CustomTextType.body,
+                color = CustomColor.gray400,
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }
+
 
 @Composable
 @OptIn(ExperimentalFoundationApi::class)
@@ -254,6 +344,7 @@ private fun PagerIndicator(total: Int, current: Int) {
 @Composable
 private fun MatchingDetailContent(
     matching: MatchingResponse,
+    canSelectMatching: Boolean,
     onConfirm: () -> Unit
 ) {
     Column(
@@ -275,11 +366,13 @@ private fun MatchingDetailContent(
         }
         Button(
             onClick = onConfirm,
+            enabled = canSelectMatching,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = CustomColor.primary600
+                containerColor = CustomColor.primary600,
+                disabledContainerColor = CustomColor.primary300
             ),
             shape = RoundedCornerShape(16.dp)
         ) {

@@ -16,6 +16,7 @@ class DataStoreManager(private val context: Context) {
         val KEY_NAME = stringPreferencesKey("name")
         val KEY_TOKEN = stringPreferencesKey("token")
         val KEY_STATUS = stringPreferencesKey("status")
+        val KEY_GENDER = stringPreferencesKey("gender")
         val KEY_REMEMBERED_EMAIL = stringPreferencesKey("remembered_email")
         val KEY_LANGUAGE = stringPreferencesKey("app_language")
         val KEY_FCM_TOKEN = stringPreferencesKey("fcm_token")
@@ -39,7 +40,8 @@ class DataStoreManager(private val context: Context) {
             "memberId" to (it[KEY_MEMBER_ID] ?: -1),
             "name" to (it[KEY_NAME] ?: ""),
             "token" to (it[KEY_TOKEN] ?: ""),
-            "status" to (it[KEY_STATUS] ?: "")
+            "status" to (it[KEY_STATUS] ?: ""),
+            "gender" to (it[KEY_GENDER] ?: "")
         )
     }
 
@@ -56,6 +58,14 @@ class DataStoreManager(private val context: Context) {
             prefs[KEY_STATUS] = status
         }
     }
+
+    suspend fun saveUserGender(gender: String) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_GENDER] = gender
+        }
+    }
+
+    fun getUserGender() = context.dataStore.data.map { it[KEY_GENDER] ?: "" }
 
     suspend fun saveFcmToken(token: String) {
         context.dataStore.edit { prefs ->
@@ -93,6 +103,7 @@ class DataStoreManager(private val context: Context) {
             prefs.remove(KEY_NAME)
             prefs.remove(KEY_TOKEN)
             prefs.remove(KEY_STATUS)
+            prefs.remove(KEY_GENDER)
         }
     }
 
