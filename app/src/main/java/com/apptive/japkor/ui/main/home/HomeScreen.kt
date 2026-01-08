@@ -47,6 +47,8 @@ fun HomeScreen(
     onShowDetails: (HomeMatching) -> Unit,
     onNoMatch: () -> Unit,
     onConfirm: (Long) -> Unit,
+    onAccept: (Long) -> Unit,
+    onReject: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val matchings = uiState.matchings
@@ -65,6 +67,16 @@ fun HomeScreen(
                     onConfirm = {
                         if (canSelectMatching) {
                             onConfirm(selectedMatching.matchingId)
+                        }
+                    },
+                    onAccept = {
+                        if (!canSelectMatching) {
+                            onAccept(selectedMatching.matchingId)
+                        }
+                    },
+                    onReject = {
+                        if (!canSelectMatching) {
+                            onReject(selectedMatching.matchingId)
                         }
                     }
                 )
@@ -352,7 +364,9 @@ private fun PagerIndicator(total: Int, current: Int) {
 private fun MatchingDetailContent(
     matching: HomeMatching,
     canSelectMatching: Boolean,
-    onConfirm: () -> Unit
+    onConfirm: () -> Unit,
+    onAccept: () -> Unit,
+    onReject: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -390,6 +404,41 @@ private fun MatchingDetailContent(
                     text = "마음에 들어요 매칭해주세요",
                     type = CustomTextType.body,
                     color = Color.White
+                )
+            }
+        } else {
+            Button(
+                onClick = onAccept,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = CustomColor.primary600,
+                    disabledContainerColor = CustomColor.primary300
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                CustomText(
+                    text = "수락할래요",
+                    type = CustomTextType.body,
+                    color = Color.White
+                )
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Button(
+                onClick = onReject,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = CustomColor.gray100
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                CustomText(
+                    text = "거절할래요",
+                    type = CustomTextType.body,
+                    color = CustomColor.black
                 )
             }
         }

@@ -20,4 +20,10 @@ interface MatchingService {
 
     @POST("members/matchings/{matchingId}/select")
     fun femaleSelectMatching(@Path("matchingId") matchingId: Long): Call<Void>
+
+    @POST("members/matchings/{matchingId}/accept")
+    fun maleAcceptMatching(@Path("matchingId") matchingId: Long): Call<Void>
+
+    @POST("members/matchings/{matchingId}/reject")
+    fun maleRejectMatching(@Path("matchingId") matchingId: Long): Call<Void>
 }

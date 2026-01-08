@@ -204,6 +204,48 @@ class HomeViewModel(
         }
     }
 
+    fun acceptMatching(matchingId: Long) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            runCatching {
+                matchingService.maleAcceptMatching(matchingId).awaitResponse()
+            }.onSuccess { response ->
+                Log.d(TAG, "maleAcceptMatching success=${response.isSuccessful} code=${response.code()}")
+                if (response.isSuccessful) {
+                    updateAfterMaleAction(matchingId)
+                } else {
+                    _uiState.update { it.copy(isLoading = false) }
+                    _events.tryEmit(HomeUiEvent.ShowToast("매칭 수락에 실패했습니다."))
+                }
+            }.onFailure { throwable ->
+                Log.e(TAG, "maleAcceptMatching failed", throwable)
+                _uiState.update { it.copy(isLoading = false) }
+                _events.tryEmit(HomeUiEvent.ShowToast("네트워크 오류로 매칭을 수락할 수 없습니다."))
+            }
+        }
+    }
+
+    fun rejectMatching(matchingId: Long) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            runCatching {
+                matchingService.maleRejectMatching(matchingId).awaitResponse()
+            }.onSuccess { response ->
+                Log.d(TAG, "maleRejectMatching success=${response.isSuccessful} code=${response.code()}")
+                if (response.isSuccessful) {
+                    updateAfterMaleAction(matchingId)
+                } else {
+                    _uiState.update { it.copy(isLoading = false) }
+                    _events.tryEmit(HomeUiEvent.ShowToast("매칭 거절에 실패했습니다."))
+                }
+            }.onFailure { throwable ->
+                Log.e(TAG, "maleRejectMatching failed", throwable)
+                _uiState.update { it.copy(isLoading = false) }
+                _events.tryEmit(HomeUiEvent.ShowToast("네트워크 오류로 매칭을 거절할 수 없습니다."))
+            }
+        }
+    }
+
     fun noMatchSelected() {
         _uiState.update {
             it.copy(
@@ -211,6 +253,18 @@ class HomeViewModel(
                 matchings = emptyList(),
                 selectedMatching = null,
                 isWaiting = true
+            )
+        }
+    }
+
+    private fun updateAfterMaleAction(matchingId: Long) {
+        _uiState.update { current ->
+            val remaining = current.matchings.filterNot { it.matchingId == matchingId }
+            current.copy(
+                isLoading = false,
+                matchings = remaining,
+                selectedMatching = null,
+                isWaiting = remaining.isEmpty()
             )
         }
     }

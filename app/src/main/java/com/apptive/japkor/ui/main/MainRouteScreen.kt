@@ -243,6 +243,8 @@ fun MainRouteScreen(
                     onShowDetails = { viewModel.showDetails(it) },
                     onNoMatch = { viewModel.noMatchSelected() },
                     onConfirm = { viewModel.selectMatching(it) },
+                    onAccept = { viewModel.acceptMatching(it) },
+                    onReject = { viewModel.rejectMatching(it) },
                     modifier = Modifier.fillMaxSize()
                 )
             }
