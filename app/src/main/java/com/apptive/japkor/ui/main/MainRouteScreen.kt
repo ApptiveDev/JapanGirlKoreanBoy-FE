@@ -132,6 +132,10 @@ fun MainRouteScreen(
         }
     }
 
+    LaunchedEffect(gender) {
+        viewModel.fetchMatchingsForGender(gender)
+    }
+
     LaunchedEffect(matchings.size) {
         if (matchings.isNotEmpty() && pagerState.currentPage >= matchings.size) {
             pagerState.scrollToPage(0)
@@ -239,6 +243,8 @@ fun MainRouteScreen(
                     onShowDetails = { viewModel.showDetails(it) },
                     onNoMatch = { viewModel.noMatchSelected() },
                     onConfirm = { viewModel.selectMatching(it) },
+                    onAccept = { viewModel.acceptMatching(it) },
+                    onReject = { viewModel.rejectMatching(it) },
                     modifier = Modifier.fillMaxSize()
                 )
             }
