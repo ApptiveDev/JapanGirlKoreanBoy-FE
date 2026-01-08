@@ -7,12 +7,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -20,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -110,6 +113,7 @@ private fun AiSummaryStack(
     summaryJa: String?
 ) {
     val content = listOfNotNull(summaryKo, summaryJa).joinToString("\n\n")
+    val cardShape = RoundedCornerShape(8.dp)
 
     // 스샷처럼 뒤 카드가 살짝 삐져나오도록 2장의 카드로 표현
     Column(
@@ -120,21 +124,21 @@ private fun AiSummaryStack(
             modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
-            Card(
-                shape = RoundedCornerShape(8.dp),
-                colors = CardDefaults.cardColors(containerColor = CustomColor.primary100),
+            Box(
                 modifier = Modifier
                     .size(width = 250.dp, height = 300.dp)
                     .offset(x = 14.dp, y = 10.dp)
+                    .background(CustomColor.primary100, cardShape)
                     .border(
                         width = 1.dp,
                         color = CustomColor.primary200,
-                        shape = RoundedCornerShape(8.dp)
+                        shape = cardShape
                     )
-            ) {}
+                    .rotate(10f)
+            )
 
             Card(
-                shape = RoundedCornerShape(8.dp),
+                shape = cardShape,
                 colors = CardDefaults.cardColors(containerColor = CustomColor.primary100),
 
                 modifier = Modifier
@@ -142,36 +146,58 @@ private fun AiSummaryStack(
                     .border(
                         width = 1.dp,
                         color = CustomColor.primary200,
-                        shape = RoundedCornerShape(8.dp)
+                        shape = cardShape
                     )
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 10.dp, bottom = 14.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Spacer(modifier = Modifier.height(30.dp))
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp, bottom = 14.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(30.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CustomText(
+                                text = "縁",
+                                type = CustomTextType.STFangSong,
+                                color = CustomColor.primary600,
+                                size = 22.sp
+                            )
+                        }
 
-                    // 본문 카드 영역
+                        // 본문 카드 영역
+                        Box(
+                            modifier = Modifier
+                                .padding(horizontal = 12.dp)
+                                .clip(cardShape)
+                                .background(CustomColor.white)
+                                .fillMaxWidth()
+                                .height(250.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CustomText(
+                                text = content,
+                                type = CustomTextType.mainRegular,
+                                color = CustomColor.gray400,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(horizontal = 42.dp),
+                                size= 18.sp
+                            )
+                        }
+                    }
+
                     Box(
                         modifier = Modifier
-                            .padding(horizontal = 12.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(CustomColor.white)
-                            .fillMaxWidth()
-                            .height(250.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CustomText(
-                            text = content,
-                            type = CustomTextType.mainRegular,
-                            color = CustomColor.gray400,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(horizontal = 42.dp),
-                            size= 18.sp
-                        )
-                    }
+                            .align(Alignment.TopStart)
+                            .padding(top = 8.dp, start = 8.dp)
+                            .size(16.dp)
+                            .background(CustomColor.white, CircleShape)
+                    )
                 }
             }
         }
