@@ -26,12 +26,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
+import coil.compose.AsyncImage
 import com.apptive.japkor.R
 import com.apptive.japkor.data.model.HomeMatching
 import com.apptive.japkor.ui.components.CustomText
@@ -156,15 +159,26 @@ private fun MatchingCard(
             Box(
                 modifier = Modifier
                     .size(160.dp)
+                    .clip(CircleShape)
                     .background(CustomColor.primary100, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_user),
-                    contentDescription = "프로필 이미지",
-                    tint = CustomColor.primary600,
-                    modifier = Modifier.size(72.dp)
-                )
+                val thumbnailUrl = matching.thumbnailImageUrl
+                if (!thumbnailUrl.isNullOrBlank()) {
+                    AsyncImage(
+                        model = thumbnailUrl,
+                        contentDescription = "프로필 이미지",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_user),
+                        contentDescription = "프로필 이미지",
+                        tint = CustomColor.primary600,
+                        modifier = Modifier.size(72.dp)
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(24.dp))
             CustomText(

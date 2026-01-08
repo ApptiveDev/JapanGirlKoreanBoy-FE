@@ -10,6 +10,7 @@ data class MatchingResponse(
     val height: Int?,
     val weight: Int?,
     val residenceArea: String?,
+    val thumbnailImageUrl: String?,
     val matchingOrder: Int,
     val status: String
 )
@@ -35,6 +36,7 @@ data class HomeMatching(
     val memberId: Long,
     val name: String,
     val email: String,
+    val thumbnailImageUrl: String?,
     val height: Int?,
     val weight: Int?,
     val residenceArea: String?,
