@@ -286,7 +286,7 @@ fun MainRouteScreen(
                             dataStoreManager.clearUserInfo()
                         }
                         navController.navigate(Screen.Login.route) {
-                            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                            popUpTo(Screen.Connected.route) { inclusive = true }
                             launchSingleTop = true
                         }
                     }
