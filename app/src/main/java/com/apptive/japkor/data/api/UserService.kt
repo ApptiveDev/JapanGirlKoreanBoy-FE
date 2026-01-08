@@ -9,6 +9,6 @@ interface UserService {
     @GET("members/ai-summary")
     fun getMyAiSummary(): Call<AiSummaryResponse>
 
-    @GET("members/info")
+    @GET("user/info")
     fun getUserInfo(): Call<UserInfoResponse>
 }

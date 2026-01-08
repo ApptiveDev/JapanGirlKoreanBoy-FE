@@ -13,16 +13,16 @@ interface MatchingService {
     @GET("members/matchings/female")
     fun getFemaleMatchings(): Call<List<MatchingResponse>>
 
-    @POST("members/matchings/{matchingId}/select")
+    @POST("members/matchings/female/{matchingId}/select")
     fun femaleSelectMatching(@Path("matchingId") matchingId: Long): Call<Void>
 
     // 남자 전용
     @GET("members/matchings/male/pendingMatching")
     fun getMalePendingMatchings(): Call<List<MalePendingMatchingResponse>>
 
-    @POST("members/matchings/{matchingId}/accept")
+    @POST("members/matchings/male/{matchingId}/accept")
     fun maleAcceptMatching(@Path("matchingId") matchingId: Long): Call<Void>
 
-    @POST("members/matchings/{matchingId}/reject")
+    @POST("members/matchings/male/{matchingId}/reject")
     fun maleRejectMatching(@Path("matchingId") matchingId: Long): Call<Void>
 }
