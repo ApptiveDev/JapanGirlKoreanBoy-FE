@@ -23,9 +23,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.apptive.japkor.R
 import com.apptive.japkor.data.model.HomeMatching
 import com.apptive.japkor.ui.components.CustomText
@@ -55,8 +58,7 @@ internal fun MatchingDetailContent(
             }
             item {
                 DetailCard(
-                    matching = matching,
-                    counterpartLabel = if (canSelectMatching) "남성" else "여성"
+                    matching = matching
                 )
             }
         }
@@ -154,8 +156,7 @@ private fun ProfileHeader(matching: HomeMatching) {
 
 @Composable
 private fun DetailCard(
-    matching: HomeMatching,
-    counterpartLabel: String
+    matching: HomeMatching
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -173,17 +174,13 @@ private fun DetailCard(
                 type = CustomTextType.title,
                 color = CustomColor.black
             )
-            DetailItem(label = "매칭 ID", value = matching.matchingId.toString())
-            DetailItem(label = "${counterpartLabel} 회원 ID", value = matching.memberId.toString())
             DetailItem(label = "이름", value = matching.name)
             DetailItem(label = "이메일", value = matching.email)
             DetailItem(label = "키", value = formatHeight(matching.height))
             DetailItem(label = "몸무게", value = formatWeight(matching.weight))
             DetailItem(label = "거주지역", value = formatText(matching.residenceArea))
-            matching.matchingOrder?.let {
-                DetailItem(label = "매칭 순서", value = it.toString())
-            }
-            DetailItem(label = "상태", value = matching.status)
+            DetailImageItem(label = "thumbnailImageUrl", imageUrl = matching.thumbnailImageUrl)
+            DetailImageItem(label = "profileImageUrl", imageUrl = matching.profileImageUrl)
         }
     }
 }
@@ -201,6 +198,35 @@ private fun DetailItem(label: String, value: String) {
             type = CustomTextType.body,
             color = CustomColor.black
         )
+    }
+}
+
+@Composable
+private fun DetailImageItem(label: String, imageUrl: String?) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        CustomText(
+            text = label,
+            type = CustomTextType.label,
+            color = CustomColor.gray400
+        )
+        if (!imageUrl.isNullOrBlank()) {
+            AsyncImage(
+                model = imageUrl,
+                contentDescription = label,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(180.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(CustomColor.gray100),
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            CustomText(
+                text = "미입력",
+                type = CustomTextType.body,
+                color = CustomColor.gray400
+            )
+        }
     }
 }
 

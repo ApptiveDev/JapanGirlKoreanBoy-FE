@@ -37,6 +37,7 @@ data class HomeMatching(
     val name: String,
     val email: String,
     val thumbnailImageUrl: String?,
+    val profileImageUrl: String?,
     val height: Int?,
     val weight: Int?,
     val residenceArea: String?,
