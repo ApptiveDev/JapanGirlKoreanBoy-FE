@@ -2,11 +2,13 @@ package com.apptive.japkor.ui.main.home.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -14,11 +16,18 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,6 +35,8 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.apptive.japkor.ui.components.CustomText
 import com.apptive.japkor.ui.components.CustomTextType
 import com.apptive.japkor.ui.theme.CustomColor
@@ -113,7 +124,16 @@ private fun AiSummaryStack(
     summaryJa: String?
 ) {
     val content = listOfNotNull(summaryKo, summaryJa).joinToString("\n\n")
+    val hasContent = content.isNotBlank()
     val cardShape = RoundedCornerShape(8.dp)
+    var showFullSummary by remember { mutableStateOf(false) }
+
+    if (showFullSummary && hasContent) {
+        AiSummaryFullDialog(
+            content = content,
+            onDismiss = { showFullSummary = false }
+        )
+    }
 
     // 스샷처럼 뒤 카드가 살짝 삐져나오도록 2장의 카드로 표현
     Column(
@@ -171,23 +191,49 @@ private fun AiSummaryStack(
                         }
 
                         // 본문 카드 영역
-                        Box(
+                        Column(
                             modifier = Modifier
                                 .padding(horizontal = 12.dp)
                                 .clip(cardShape)
                                 .background(CustomColor.white)
                                 .fillMaxWidth()
-                                .height(250.dp),
-                            contentAlignment = Alignment.Center
+                                .height(250.dp)
+                                .padding(horizontal = 18.dp, vertical = 12.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            CustomText(
-                                text = content,
-                                type = CustomTextType.mainRegular,
-                                color = CustomColor.gray400,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.padding(horizontal = 42.dp),
-                                size= 18.sp
-                            )
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CustomText(
+                                    text = content,
+                                    type = CustomTextType.mainRegular,
+                                    color = CustomColor.gray400,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.padding(horizontal = 24.dp),
+                                    size= 18.sp
+                                )
+                            }
+
+                            if (hasContent) {
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .clickable { showFullSummary = true }
+                                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CustomText(
+                                        text = "전체보기",
+                                        type = CustomTextType.label,
+                                        color = CustomColor.primary600,
+                                        underline = true
+                                    )
+                                }
+                            }
                         }
                     }
 
@@ -213,5 +259,83 @@ private fun AiSummaryStack(
             modifier = Modifier.padding(horizontal = 42.dp),
             size= 16.sp
         )
+    }
+}
+
+@Composable
+private fun AiSummaryFullDialog(
+    content: String,
+    onDismiss: () -> Unit
+) {
+    val dialogShape = RoundedCornerShape(16.dp)
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.75f)
+                    .clip(dialogShape)
+                    .background(CustomColor.white)
+                    .border(
+                        width = 1.dp,
+                        color = CustomColor.primary200,
+                        shape = dialogShape
+                    )
+                    .padding(horizontal = 20.dp, vertical = 16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    CustomText(
+                        text = "요약 전체보기",
+                        type = CustomTextType.title,
+                        color = CustomColor.black
+                    )
+                    TextButton(onClick = onDismiss) {
+                        CustomText(
+                            text = "닫기",
+                            type = CustomTextType.body,
+                            color = CustomColor.primary600
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(CustomColor.primary100)
+                        .padding(28.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        CustomText(
+                            text = content,
+                            type = CustomTextType.mainRegular,
+                            color = CustomColor.gray400,
+                            textAlign = TextAlign.Start,
+                            size=20.sp
+                        )
+                    }
+                }
+            }
+        }
     }
 }
