@@ -26,7 +26,8 @@ data class HomeUiState(
     val matchings: List<MatchingResponse> = emptyList(),
     val selectedMatching: MatchingResponse? = null,
     val isWaiting: Boolean = false,
-    val aiSummary: String? = null,
+    val aiSummaryKo: String? = null,
+    val aiSummaryJa: String? = null,
     val isAiSummaryLoading: Boolean = false,
     val aiSummaryError: String? = null
 )
@@ -157,12 +158,19 @@ class HomeViewModel(
             }.onSuccess { response ->
                 Log.d(TAG, "getMyAiSummary success=${response.isSuccessful} code=${response.code()}")
                 if (response.isSuccessful) {
-                    val summary = response.body()?.aiSummary?.trim()
-                        ?.takeIf { it.isNotBlank() }
-                    if (summary != null) {
+                    val body = response.body()
+                    Log.d(
+                        TAG,
+                        "getMyAiSummary body memberId=${body?.memberId} name=${body?.name} " +
+                            "aiSummaryKo=${body?.aiSummaryKo} aiSummaryJa=${body?.aiSummaryJa}"
+                    )
+                    val summaryKo = body?.aiSummaryKo?.trim()?.takeIf { it.isNotBlank() }
+                    val summaryJa = body?.aiSummaryJa?.trim()?.takeIf { it.isNotBlank() }
+                    if (summaryKo != null || summaryJa != null) {
                         _uiState.update {
                             it.copy(
-                                aiSummary = summary,
+                                aiSummaryKo = summaryKo,
+                                aiSummaryJa = summaryJa,
                                 isAiSummaryLoading = false,
                                 aiSummaryError = null
                             )
@@ -170,6 +178,8 @@ class HomeViewModel(
                     } else {
                         _uiState.update {
                             it.copy(
+                                aiSummaryKo = null,
+                                aiSummaryJa = null,
                                 isAiSummaryLoading = false,
                                 aiSummaryError = "AI 요약본을 불러오지 못했습니다."
                             )
@@ -178,6 +188,8 @@ class HomeViewModel(
                 } else {
                     _uiState.update {
                         it.copy(
+                            aiSummaryKo = null,
+                            aiSummaryJa = null,
                             isAiSummaryLoading = false,
                             aiSummaryError = "AI 요약본을 불러오지 못했습니다."
                         )
@@ -187,6 +199,8 @@ class HomeViewModel(
                 Log.e(TAG, "getMyAiSummary failed", throwable)
                 _uiState.update {
                     it.copy(
+                        aiSummaryKo = null,
+                        aiSummaryJa = null,
                         isAiSummaryLoading = false,
                         aiSummaryError = "AI 요약본을 불러오지 못했습니다."
                     )

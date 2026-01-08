@@ -71,7 +71,8 @@ fun HomeScreen(
             uiState.isWaiting || matchings.isEmpty() -> {
                 WaitingContent(
                     modifier = Modifier.fillMaxSize(),
-                    aiSummary = uiState.aiSummary,
+                    aiSummaryKo = uiState.aiSummaryKo,
+                    aiSummaryJa = uiState.aiSummaryJa,
                     isAiSummaryLoading = uiState.isAiSummaryLoading,
                     aiSummaryError = uiState.aiSummaryError
                 )
@@ -91,10 +92,13 @@ fun HomeScreen(
 @Composable
 private fun WaitingContent(
     modifier: Modifier = Modifier,
-    aiSummary: String?,
+    aiSummaryKo: String?,
+    aiSummaryJa: String?,
     isAiSummaryLoading: Boolean,
     aiSummaryError: String?
 ) {
+    val summaryKo = aiSummaryKo?.takeIf { it.isNotBlank() }
+    val summaryJa = aiSummaryJa?.takeIf { it.isNotBlank() }
     Column(
         modifier = modifier
             .padding(horizontal = 24.dp),
@@ -107,7 +111,7 @@ private fun WaitingContent(
             color = CustomColor.gray400
         )
         Spacer(modifier = Modifier.height(16.dp))
-        if (!aiSummary.isNullOrBlank()) {
+        if (summaryKo != null || summaryJa != null) {
             Card(
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = CustomColor.gray100),
@@ -125,12 +129,37 @@ private fun WaitingContent(
                         color = CustomColor.gray400
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    CustomText(
-                        text = aiSummary,
-                        type = CustomTextType.body,
-                        color = CustomColor.black,
-                        textAlign = TextAlign.Center
-                    )
+                    if (summaryKo != null) {
+                        CustomText(
+                            text = "한국어",
+                            type = CustomTextType.label,
+                            color = CustomColor.gray400
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        CustomText(
+                            text = summaryKo,
+                            type = CustomTextType.body,
+                            color = CustomColor.black,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    if (summaryKo != null && summaryJa != null) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
+                    if (summaryJa != null) {
+                        CustomText(
+                            text = "일본어",
+                            type = CustomTextType.label,
+                            color = CustomColor.gray400
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        CustomText(
+                            text = summaryJa,
+                            type = CustomTextType.body,
+                            color = CustomColor.black,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
             }
         } else if (isAiSummaryLoading) {

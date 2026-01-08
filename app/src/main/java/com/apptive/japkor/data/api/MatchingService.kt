@@ -8,7 +8,7 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface MatchingService {
-    @GET("members/me/ai-summary")
+    @GET("members/ai-summary")
     fun getMyAiSummary(): Call<AiSummaryResponse>
 
     @GET("members/matchings/female")

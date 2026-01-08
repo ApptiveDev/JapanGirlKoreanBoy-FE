@@ -7,6 +7,8 @@ data class AiSummaryResponse(
     val memberId: Long,
     @SerializedName(value = "name")
     val name: String,
-    @SerializedName(value = "aiSummary", alternate = ["ai_summary"])
-    val aiSummary: String
+    @SerializedName(value = "aiSummaryKo", alternate = ["ai_summary_ko", "aiSummary", "ai_summary"])
+    val aiSummaryKo: String?,
+    @SerializedName(value = "aiSummaryJa", alternate = ["ai_summary_ja"])
+    val aiSummaryJa: String?
 )
