@@ -116,7 +116,7 @@ class LoginScreenViewModel(
 
     private suspend fun refreshMemberInfo() {
         runCatching {
-            ServiceFactory.memberService.getMemberInfo().awaitResponse()
+            ServiceFactory.memberService.getUserInfo().awaitResponse()
         }.onSuccess { response ->
             if (response.isSuccessful) {
                 val body = response.body()

@@ -38,7 +38,7 @@ fun StatusAdvanceEffect(
         lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             while (true) {
                 runCatching {
-                    val response = ServiceFactory.memberService.getMemberInfo().awaitResponse()
+                    val response = ServiceFactory.memberService.getUserInfo().awaitResponse()
                     if (!response.isSuccessful) {
                         throw IllegalStateException("member info fetch failed: code=${response.code()}")
                     }

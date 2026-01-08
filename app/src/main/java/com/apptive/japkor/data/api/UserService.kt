@@ -4,7 +4,7 @@ import com.apptive.japkor.data.model.MemberInfoResponse
 import retrofit2.Call
 import retrofit2.http.GET
 
-interface MemberService {
+interface UserService {
     @GET("members/info")
-    fun getMemberInfo(): Call<MemberInfoResponse>
+    fun getUserInfo(): Call<MemberInfoResponse>
 }
