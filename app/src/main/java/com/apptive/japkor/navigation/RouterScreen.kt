@@ -38,7 +38,7 @@ fun RouterScreen(
 
         // 서버에서 현재 status 확인
         val status = runCatching {
-            val response = ServiceFactory.memberService.getMemberInfo().awaitResponse()
+            val response = ServiceFactory.memberService.getUserInfo().awaitResponse()
             if (!response.isSuccessful) {
                 throw IllegalStateException("member info fetch failed: code=${response.code()}")
             }

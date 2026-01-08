@@ -7,7 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.apptive.japkor.data.model.MemberInfoResponse
+import com.apptive.japkor.data.model.UserInfoResponse
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.map
 
@@ -54,7 +54,7 @@ class DataStoreManager(private val context: Context) {
         }
     }
 
-    suspend fun saveMemberInfo(info: MemberInfoResponse) {
+    suspend fun saveMemberInfo(info: UserInfoResponse) {
         context.dataStore.edit { prefs ->
             prefs[KEY_MEMBER_ID] = info.memberId.toInt()
             prefs[KEY_PROVIDER] = info.provider
