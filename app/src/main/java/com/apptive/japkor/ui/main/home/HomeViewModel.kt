@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.apptive.japkor.data.api.MatchingService
 import com.apptive.japkor.data.api.ServiceFactory
 import com.apptive.japkor.data.api.UserService
+import com.apptive.japkor.data.model.HomeMatching
 import com.apptive.japkor.data.model.MalePendingMatchingResponse
 import com.apptive.japkor.data.model.MatchingResponse
 import com.apptive.japkor.ui.components.ToastType
