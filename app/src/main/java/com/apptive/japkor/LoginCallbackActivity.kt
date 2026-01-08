@@ -6,11 +6,13 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
+import com.apptive.japkor.data.api.ServiceFactory
 import com.apptive.japkor.data.local.DataStoreManager
 import com.apptive.japkor.data.local.TokenProvider
 import com.apptive.japkor.data.model.UserStatus
 import com.apptive.japkor.navigation.Screen
 import kotlinx.coroutines.launch
+import retrofit2.awaitResponse
 import java.net.URLDecoder
 import org.json.JSONObject
 
@@ -114,7 +116,27 @@ class LoginCallbackActivity : ComponentActivity() {
                 status = statusValueToSave
             )
             startActivity(i)
+            refreshMemberInfo(dataStore)
             finish()
+        }
+    }
+
+    private suspend fun refreshMemberInfo(dataStore: DataStoreManager) {
+        runCatching {
+            ServiceFactory.memberService.getMemberInfo().awaitResponse()
+        }.onSuccess { response ->
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null) {
+                    dataStore.saveMemberInfo(body)
+                } else {
+                    Log.w(TAG, "member info response is empty")
+                }
+            } else {
+                Log.w(TAG, "member info fetch failed: code=${response.code()}")
+            }
+        }.onFailure { e ->
+            Log.w(TAG, "member info fetch failed", e)
         }
     }
 

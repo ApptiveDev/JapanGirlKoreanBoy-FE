@@ -1,15 +1,20 @@
 package com.apptive.japkor.data.local
 
 import android.content.Context
+import androidx.datastore.preferences.core.MutablePreferences
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.apptive.japkor.data.model.MemberInfoResponse
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.map
 
 private val Context.dataStore by preferencesDataStore(name = "user_prefs")
 
 class DataStoreManager(private val context: Context) {
+    private val gson = Gson()
 
     companion object {
         val KEY_MEMBER_ID = intPreferencesKey("member_id")      // Int → intPreferencesKey
@@ -17,6 +22,24 @@ class DataStoreManager(private val context: Context) {
         val KEY_TOKEN = stringPreferencesKey("token")
         val KEY_STATUS = stringPreferencesKey("status")
         val KEY_GENDER = stringPreferencesKey("gender")
+        val KEY_PROVIDER = stringPreferencesKey("provider")
+        val KEY_PROVIDER_ID = stringPreferencesKey("provider_id")
+        val KEY_EMAIL = stringPreferencesKey("email")
+        val KEY_HEIGHT = intPreferencesKey("height")
+        val KEY_WEIGHT = intPreferencesKey("weight")
+        val KEY_RESIDENCE_AREA = stringPreferencesKey("residence_area")
+        val KEY_SMOKING_STATUS = stringPreferencesKey("smoking_status")
+        val KEY_DRINKING_FREQUENCY = stringPreferencesKey("drinking_frequency")
+        val KEY_RELIGION = stringPreferencesKey("religion")
+        val KEY_EDUCATION = stringPreferencesKey("education")
+        val KEY_ASSET = stringPreferencesKey("asset")
+        val KEY_OTHER_INFO = stringPreferencesKey("other_info")
+        val KEY_THUMBNAIL_IMAGE_URL = stringPreferencesKey("thumbnail_image_url")
+        val KEY_PROFILE_IMAGE_URLS = stringPreferencesKey("profile_image_urls")
+        val KEY_AI_SUMMARY = stringPreferencesKey("ai_summary")
+        val KEY_AI_SUMMARY_JP = stringPreferencesKey("ai_summary_jp")
+        val KEY_CREATED_AT = stringPreferencesKey("created_at")
+        val KEY_UPDATED_AT = stringPreferencesKey("updated_at")
         val KEY_REMEMBERED_EMAIL = stringPreferencesKey("remembered_email")
         val KEY_LANGUAGE = stringPreferencesKey("app_language")
         val KEY_FCM_TOKEN = stringPreferencesKey("fcm_token")
@@ -31,6 +54,38 @@ class DataStoreManager(private val context: Context) {
         }
     }
 
+    suspend fun saveMemberInfo(info: MemberInfoResponse) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_MEMBER_ID] = info.memberId.toInt()
+            prefs[KEY_PROVIDER] = info.provider
+            prefs[KEY_EMAIL] = info.email
+            prefs[KEY_STATUS] = info.status.name
+            prefs[KEY_GENDER] = info.gender
+            prefs[KEY_CREATED_AT] = info.createdAt
+            prefs[KEY_UPDATED_AT] = info.updatedAt
+
+            setOptionalString(prefs, KEY_PROVIDER_ID, info.providerId)
+            setOptionalString(prefs, KEY_NAME, info.name)
+            setOptionalInt(prefs, KEY_HEIGHT, info.height)
+            setOptionalInt(prefs, KEY_WEIGHT, info.weight)
+            setOptionalString(prefs, KEY_RESIDENCE_AREA, info.residenceArea)
+            setOptionalString(prefs, KEY_SMOKING_STATUS, info.smokingStatus)
+            setOptionalString(prefs, KEY_DRINKING_FREQUENCY, info.drinkingFrequency)
+            setOptionalString(prefs, KEY_RELIGION, info.religion)
+            setOptionalString(prefs, KEY_EDUCATION, info.education)
+            setOptionalString(prefs, KEY_ASSET, info.asset)
+            setOptionalString(prefs, KEY_OTHER_INFO, info.otherInfo)
+            setOptionalString(prefs, KEY_THUMBNAIL_IMAGE_URL, info.thumbnailImageUrl)
+            setOptionalString(prefs, KEY_AI_SUMMARY, info.aiSummary)
+            setOptionalString(prefs, KEY_AI_SUMMARY_JP, info.aiSummaryJp)
+
+            val profileUrlsJson = info.profileImageUrls
+                ?.takeIf { it.isNotEmpty() }
+                ?.let { gson.toJson(it) }
+            setOptionalString(prefs, KEY_PROFILE_IMAGE_URLS, profileUrlsJson)
+        }
+    }
+
     fun getUserToken() = context.dataStore.data.map { it[KEY_TOKEN] ?: "" }
 
     fun getUserStatus() = context.dataStore.data.map { it[KEY_STATUS] ?: "" }
@@ -41,7 +96,25 @@ class DataStoreManager(private val context: Context) {
             "name" to (it[KEY_NAME] ?: ""),
             "token" to (it[KEY_TOKEN] ?: ""),
             "status" to (it[KEY_STATUS] ?: ""),
-            "gender" to (it[KEY_GENDER] ?: "")
+            "gender" to (it[KEY_GENDER] ?: ""),
+            "provider" to (it[KEY_PROVIDER] ?: ""),
+            "providerId" to (it[KEY_PROVIDER_ID] ?: ""),
+            "email" to (it[KEY_EMAIL] ?: ""),
+            "height" to (it[KEY_HEIGHT] ?: -1),
+            "weight" to (it[KEY_WEIGHT] ?: -1),
+            "residenceArea" to (it[KEY_RESIDENCE_AREA] ?: ""),
+            "smokingStatus" to (it[KEY_SMOKING_STATUS] ?: ""),
+            "drinkingFrequency" to (it[KEY_DRINKING_FREQUENCY] ?: ""),
+            "religion" to (it[KEY_RELIGION] ?: ""),
+            "education" to (it[KEY_EDUCATION] ?: ""),
+            "asset" to (it[KEY_ASSET] ?: ""),
+            "otherInfo" to (it[KEY_OTHER_INFO] ?: ""),
+            "thumbnailImageUrl" to (it[KEY_THUMBNAIL_IMAGE_URL] ?: ""),
+            "profileImageUrls" to (it[KEY_PROFILE_IMAGE_URLS] ?: ""),
+            "aiSummary" to (it[KEY_AI_SUMMARY] ?: ""),
+            "aiSummaryJp" to (it[KEY_AI_SUMMARY_JP] ?: ""),
+            "createdAt" to (it[KEY_CREATED_AT] ?: ""),
+            "updatedAt" to (it[KEY_UPDATED_AT] ?: "")
         )
     }
 
@@ -104,10 +177,52 @@ class DataStoreManager(private val context: Context) {
             prefs.remove(KEY_TOKEN)
             prefs.remove(KEY_STATUS)
             prefs.remove(KEY_GENDER)
+            prefs.remove(KEY_PROVIDER)
+            prefs.remove(KEY_PROVIDER_ID)
+            prefs.remove(KEY_EMAIL)
+            prefs.remove(KEY_HEIGHT)
+            prefs.remove(KEY_WEIGHT)
+            prefs.remove(KEY_RESIDENCE_AREA)
+            prefs.remove(KEY_SMOKING_STATUS)
+            prefs.remove(KEY_DRINKING_FREQUENCY)
+            prefs.remove(KEY_RELIGION)
+            prefs.remove(KEY_EDUCATION)
+            prefs.remove(KEY_ASSET)
+            prefs.remove(KEY_OTHER_INFO)
+            prefs.remove(KEY_THUMBNAIL_IMAGE_URL)
+            prefs.remove(KEY_PROFILE_IMAGE_URLS)
+            prefs.remove(KEY_AI_SUMMARY)
+            prefs.remove(KEY_AI_SUMMARY_JP)
+            prefs.remove(KEY_CREATED_AT)
+            prefs.remove(KEY_UPDATED_AT)
         }
     }
 
     suspend fun clear() {
         context.dataStore.edit { it.clear() }
+    }
+
+    private fun setOptionalString(
+        prefs: MutablePreferences,
+        key: Preferences.Key<String>,
+        value: String?
+    ) {
+        if (value == null) {
+            prefs.remove(key)
+        } else {
+            prefs[key] = value
+        }
+    }
+
+    private fun setOptionalInt(
+        prefs: MutablePreferences,
+        key: Preferences.Key<Int>,
+        value: Int?
+    ) {
+        if (value == null) {
+            prefs.remove(key)
+        } else {
+            prefs[key] = value
+        }
     }
 }

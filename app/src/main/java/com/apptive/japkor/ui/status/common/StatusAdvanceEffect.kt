@@ -13,6 +13,7 @@ import com.apptive.japkor.data.api.ServiceFactory
 import com.apptive.japkor.data.local.DataStoreManager
 import com.apptive.japkor.data.model.UserStatus
 import kotlinx.coroutines.delay
+import retrofit2.awaitResponse
 
 /**
  * 단방향 전이(이전 단계로 돌아가지 않음) 앱용:
@@ -37,15 +38,17 @@ fun StatusAdvanceEffect(
         lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             while (true) {
                 runCatching {
-                    val res = ServiceFactory.matchingService.getMyStatus()
+                    val response = ServiceFactory.memberService.getMemberInfo().awaitResponse()
+                    if (!response.isSuccessful) {
+                        throw IllegalStateException("member info fetch failed: code=${response.code()}")
+                    }
 
-                    // ✅ 서버 값 그대로 캐시
-                    dataStore.saveUserName(res.name)
-                    dataStore.saveUserStatus(res.status.name)
+                    val body = response.body() ?: throw IllegalStateException("member info is empty")
+                    dataStore.saveMemberInfo(body)
 
-                    Log.d(debugTag, "status=${res.status}")
+                    Log.d(debugTag, "status=${body.status}")
 
-                    if (shouldAdvance(res.status)) {
+                    if (shouldAdvance(body.status)) {
                         Log.d(debugTag, "advance -> $nextRoute (popUpFrom=$popUpFromRoute)")
                         navController.navigate(nextRoute) {
                             popUpTo(popUpFromRoute) { inclusive = true } // ✅ 이전 단계 제거
