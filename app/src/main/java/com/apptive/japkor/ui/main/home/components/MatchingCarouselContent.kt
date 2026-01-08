@@ -11,28 +11,28 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import coil.compose.AsyncImage
 import com.apptive.japkor.R
@@ -96,9 +96,23 @@ internal fun MatchingCarouselContent(
             total = matchings.size,
             current = pagerState.currentPage
         )
+        Spacer(modifier = Modifier.height(12.dp))
+        CustomText(
+            text = "매칭 제안이 도착했어요!\n마음에 드는 상대를 선택해주세요.",
+            type = CustomTextType.body,
+            color = CustomColor.gray300,
+            textAlign = TextAlign.Center
+        )
 
         Spacer(modifier = Modifier.weight(1f))
 
+        CustomText(
+            text = "마음에 드는 경우, 남성의 프로필도 확인해보세요!",
+            type = CustomTextType.body,
+            color = CustomColor.gray300,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
         Button(
             onClick = { currentMatching?.let { onShowDetails(it) } },
             enabled = currentMatching != null,
@@ -144,11 +158,6 @@ private fun MatchingCard(
     matching: HomeMatching,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = CustomColor.gray100)
-    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -156,11 +165,19 @@ private fun MatchingCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            if (matching.name.isNotBlank()) {
+                NameBubble(
+                    name = matching.name,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(bottom = 10.dp)
+                )
+            }
             Box(
                 modifier = Modifier
                     .size(160.dp)
-                    .clip(CircleShape)
-                    .background(CustomColor.primary100, CircleShape),
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(CustomColor.primary100, RoundedCornerShape(16.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 val thumbnailUrl = matching.thumbnailImageUrl
@@ -168,7 +185,9 @@ private fun MatchingCard(
                     AsyncImage(
                         model = thumbnailUrl,
                         contentDescription = "프로필 이미지",
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(16.dp)),
                         contentScale = ContentScale.Crop
                     )
                 } else {
@@ -180,20 +199,39 @@ private fun MatchingCard(
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(24.dp))
+
+        }
+}
+
+@Composable
+private fun NameBubble(
+    name: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .background(CustomColor.primary100, RoundedCornerShape(14.dp))
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+
+        ) {
             CustomText(
-                text = matching.name,
-                type = CustomTextType.headline,
+                text = name,
+                type = CustomTextType.label,
                 color = CustomColor.black,
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            CustomText(
-                text = "프로필을 확인해보세요",
-                type = CustomTextType.body,
-                color = CustomColor.gray400
+                size = 14.sp
             )
         }
+        Box(
+            modifier = Modifier
+                .size(10.dp)
+                .offset(y = (-5).dp)
+                .rotate(45f)
+                .background(CustomColor.primary100, RoundedCornerShape(2.dp))
+        )
     }
 }
 
@@ -207,8 +245,9 @@ private fun PagerIndicator(total: Int, current: Int) {
             val color = if (index == current) CustomColor.primary600 else CustomColor.gray200
             Box(
                 modifier = Modifier
-                    .size(8.dp)
-                    .background(color, CircleShape)
+                    .width(50.dp)
+                    .height(6.dp)
+                    .background(color, RoundedCornerShape(3.dp))
             )
             if (index != total - 1) {
                 Spacer(modifier = Modifier.width(6.dp))
