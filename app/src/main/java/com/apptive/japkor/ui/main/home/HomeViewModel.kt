@@ -28,6 +28,7 @@ data class HomeUiState(
     val isLoading: Boolean = false,
     val matchings: List<HomeMatching> = emptyList(),
     val selectedMatching: HomeMatching? = null,
+    val userName: String? = null,
     val isWaiting: Boolean = false,
     val aiSummaryKo: String? = null,
     val aiSummaryJa: String? = null,
@@ -286,11 +287,13 @@ class HomeViewModel(
                         "getMyAiSummary body memberId=${body?.memberId} name=${body?.name} " +
                             "aiSummaryKo=${body?.aiSummaryKo} aiSummaryJa=${body?.aiSummaryJa}"
                     )
+                    val userName = body?.name?.trim()?.takeIf { it.isNotBlank() }
                     val summaryKo = body?.aiSummaryKo?.trim()?.takeIf { it.isNotBlank() }
                     val summaryJa = body?.aiSummaryJa?.trim()?.takeIf { it.isNotBlank() }
                     if (summaryKo != null || summaryJa != null) {
                         _uiState.update {
                             it.copy(
+                                userName = userName,
                                 aiSummaryKo = summaryKo,
                                 aiSummaryJa = summaryJa,
                                 isAiSummaryLoading = false,
@@ -300,6 +303,7 @@ class HomeViewModel(
                     } else {
                         _uiState.update {
                             it.copy(
+                                userName = userName,
                                 aiSummaryKo = null,
                                 aiSummaryJa = null,
                                 isAiSummaryLoading = false,

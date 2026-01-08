@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.unit.sp
 import com.apptive.japkor.ui.components.CustomText
 import com.apptive.japkor.ui.components.CustomTextType
 import com.apptive.japkor.ui.theme.CustomColor
@@ -21,11 +22,13 @@ import com.apptive.japkor.ui.theme.CustomColor
 @Composable
 internal fun WaitingContent(
     modifier: Modifier = Modifier,
+    userName: String?,
     aiSummaryKo: String?,
     aiSummaryJa: String?,
     isAiSummaryLoading: Boolean,
     aiSummaryError: String?
 ) {
+    val displayName = userName?.takeIf { it.isNotBlank() } ?: "회원"
     val summaryKo = aiSummaryKo?.takeIf { it.isNotBlank() }
     val summaryJa = aiSummaryJa?.takeIf { it.isNotBlank() }
     Column(
@@ -35,11 +38,13 @@ internal fun WaitingContent(
         verticalArrangement = Arrangement.Center
     ) {
         CustomText(
-            text = "매칭 진행 중입니다..",
-            type = CustomTextType.body,
-            color = CustomColor.gray400
+            text = "${displayName}님,\n다른 매칭상대를 찾고있어요!",
+            type = CustomTextType.title,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+            size = 24.sp
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(60.dp))
         if (summaryKo != null || summaryJa != null) {
             Card(
                 shape = RoundedCornerShape(16.dp),

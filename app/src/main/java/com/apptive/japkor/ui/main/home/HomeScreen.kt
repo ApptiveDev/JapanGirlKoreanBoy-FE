@@ -52,9 +52,11 @@ fun HomeScreen(
                     }
                 )
             }
+
             uiState.isWaiting || matchings.isEmpty() -> {
                 WaitingContent(
                     modifier = Modifier.fillMaxSize(),
+                    userName = uiState.userName,
                     aiSummaryKo = uiState.aiSummaryKo,
                     aiSummaryJa = uiState.aiSummaryJa,
                     isAiSummaryLoading = uiState.isAiSummaryLoading,
