@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptive.japkor.data.api.MatchingService
 import com.apptive.japkor.data.api.ServiceFactory
+import com.apptive.japkor.data.api.UserService
 import com.apptive.japkor.data.model.MalePendingMatchingResponse
 import com.apptive.japkor.data.model.MatchingResponse
 import com.apptive.japkor.ui.components.ToastType
@@ -34,7 +35,8 @@ data class HomeUiState(
 )
 
 class HomeViewModel(
-    private val matchingService: MatchingService = ServiceFactory.matchingService
+    private val matchingService: MatchingService = ServiceFactory.matchingService,
+    private val userService: UserService = ServiceFactory.memberService
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -273,7 +275,7 @@ class HomeViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isAiSummaryLoading = true, aiSummaryError = null) }
             runCatching {
-                matchingService.getMyAiSummary().awaitResponse()
+                userService.getMyAiSummary().awaitResponse()
             }.onSuccess { response ->
                 Log.d(TAG, "getMyAiSummary success=${response.isSuccessful} code=${response.code()}")
                 if (response.isSuccessful) {
