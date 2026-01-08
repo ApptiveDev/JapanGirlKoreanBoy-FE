@@ -57,6 +57,7 @@ fun HomeScreen(
                 WaitingContent(
                     modifier = Modifier.fillMaxSize(),
                     userName = uiState.userName,
+                    isFemaleUser = canSelectMatching,
                     aiSummaryKo = uiState.aiSummaryKo,
                     aiSummaryJa = uiState.aiSummaryJa,
                     isAiSummaryLoading = uiState.isAiSummaryLoading,
