@@ -86,7 +86,6 @@ class HomeViewModel(
                             isWaiting = true
                         )
                     }
-                    _events.tryEmit(HomeUiEvent.ShowToast("매칭 목록을 불러오지 못했습니다."))
                 }
             }.onFailure { throwable ->
                 Log.e(TAG, "getFemaleMatchings failed", throwable)
@@ -98,7 +97,6 @@ class HomeViewModel(
                         isWaiting = true
                     )
                 }
-                _events.tryEmit(HomeUiEvent.ShowToast("네트워크 오류로 매칭을 불러올 수 없습니다."))
             }
         }
     }
