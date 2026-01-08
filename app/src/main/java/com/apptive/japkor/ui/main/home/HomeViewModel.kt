@@ -122,7 +122,9 @@ class HomeViewModel(
                     "getMalePendingMatchings success=${response.isSuccessful} code=${response.code()}"
                 )
                 if (response.isSuccessful) {
-                    val data = response.body().orEmpty().map { it.toHomeMatching() }
+                    val body = response.body().orEmpty()
+                    Log.d(TAG, "getMalePendingMatchings body=$body")
+                    val data = body.map { it.toHomeMatching() }
                     if (data.isEmpty()) {
                         _uiState.update {
                             it.copy(
