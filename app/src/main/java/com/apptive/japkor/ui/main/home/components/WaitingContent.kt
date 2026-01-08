@@ -2,10 +2,12 @@ package com.apptive.japkor.ui.main.home.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
@@ -37,14 +39,28 @@ internal fun WaitingContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        Row{
+            CustomText(
+                text = "${displayName}",
+                type= CustomTextType.title,
+                size=24.sp
+            )
+            Spacer(Modifier.width(8.dp))
+            CustomText(
+                text = "님,",
+                type= CustomTextType.label,
+                size=24.sp
+            )
+        }
+
         CustomText(
-            text = "${displayName}님,\n다른 매칭상대를 찾고있어요!",
-            type = CustomTextType.title,
+            text = "다른 매칭상대를 찾고있어요!",
+            type= CustomTextType.label,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth(),
             size = 24.sp
         )
-        Spacer(modifier = Modifier.height(60.dp))
+        Spacer(modifier = Modifier.height(40.dp))
         if (summaryKo != null || summaryJa != null) {
             Card(
                 shape = RoundedCornerShape(16.dp),
