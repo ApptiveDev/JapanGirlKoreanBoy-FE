@@ -17,7 +17,7 @@ object CustomColor {
     val gray400 = Color(0xFF6B7280)
 
     val white = Color(0xFFFFFFFF)
-    val black = Color(0xFF000000)
+    val black = Color(0xFF3C3C3C)
 
 }
 
