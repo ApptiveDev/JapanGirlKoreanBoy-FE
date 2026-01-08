@@ -10,6 +10,9 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.apptive.japkor.data.model.UserInfoResponse
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import com.apptive.japkor.utils.required_info.RequiredInfoReverseMapper
 
 private val Context.dataStore by preferencesDataStore(name = "user_prefs")
 
@@ -223,6 +226,49 @@ class DataStoreManager(private val context: Context) {
             prefs.remove(key)
         } else {
             prefs[key] = value
+        }
+    }
+
+    // My Profile UI Model and Flow
+    data class MyProfileUiModel(
+        val name: String,
+        val residenceArea: String,
+        val smokingStatus: String,
+        val drinkingFrequency: String,
+        val education: String,
+        val religion: String,
+        val thumbnailImageUrl: String,
+    )
+
+    fun getMyProfileUiModel(): Flow<MyProfileUiModel> {
+        val nameFlow = getUserName()
+        val residenceFlow = context.dataStore.data.map { it[KEY_RESIDENCE_AREA] ?: "" }
+        val smokingFlow = context.dataStore.data.map { it[KEY_SMOKING_STATUS] ?: "" }
+        val drinkingFlow = context.dataStore.data.map { it[KEY_DRINKING_FREQUENCY] ?: "" }
+        val educationFlow = context.dataStore.data.map { it[KEY_EDUCATION] ?: "" }
+        val religionFlow = context.dataStore.data.map { it[KEY_RELIGION] ?: "" }
+        val thumbFlow = context.dataStore.data.map { it[KEY_THUMBNAIL_IMAGE_URL] ?: "" }
+
+        return combine(
+            nameFlow, residenceFlow, smokingFlow, drinkingFlow, educationFlow, religionFlow, thumbFlow
+        ) { values: Array<String> ->
+            val name = values[0]
+            val residence = values[1]
+            val smokingCode = values[2]
+            val drinkingCode = values[3]
+            val educationCode = values[4]
+            val religionCode = values[5]
+            val thumb = values[6]
+
+            MyProfileUiModel(
+                name = name,
+                residenceArea = residence,
+                smokingStatus = RequiredInfoReverseMapper.smoking(smokingCode),
+                drinkingFrequency = RequiredInfoReverseMapper.drinking(drinkingCode),
+                education = RequiredInfoReverseMapper.education(educationCode),
+                religion = RequiredInfoReverseMapper.religion(religionCode),
+                thumbnailImageUrl = thumb
+            )
         }
     }
 }
