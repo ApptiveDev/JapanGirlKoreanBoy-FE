@@ -132,6 +132,10 @@ fun MainRouteScreen(
         }
     }
 
+    LaunchedEffect(gender) {
+        viewModel.fetchMatchingsForGender(gender)
+    }
+
     LaunchedEffect(matchings.size) {
         if (matchings.isNotEmpty() && pagerState.currentPage >= matchings.size) {
             pagerState.scrollToPage(0)

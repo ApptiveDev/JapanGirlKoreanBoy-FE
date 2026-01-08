@@ -34,7 +34,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import com.apptive.japkor.R
-import com.apptive.japkor.data.model.MatchingResponse
 import com.apptive.japkor.ui.components.CustomText
 import com.apptive.japkor.ui.components.CustomTextType
 import com.apptive.japkor.ui.theme.CustomColor
@@ -45,13 +44,15 @@ fun HomeScreen(
     uiState: HomeUiState,
     pagerState: PagerState,
     canSelectMatching: Boolean,
-    onShowDetails: (MatchingResponse) -> Unit,
+    onShowDetails: (HomeMatching) -> Unit,
     onNoMatch: () -> Unit,
     onConfirm: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val matchings = uiState.matchings
     val selectedMatching = uiState.selectedMatching
+    val counterpartLabel = if (canSelectMatching) "남성" else "여성"
+    val matchingTitle = "매칭된 $counterpartLabel"
 
     Box(
         modifier = modifier
@@ -82,7 +83,9 @@ fun HomeScreen(
                     matchings = matchings,
                     pagerState = pagerState,
                     onShowDetails = onShowDetails,
-                    onNoMatch = onNoMatch
+                    onNoMatch = onNoMatch,
+                    title = matchingTitle,
+                    showNoMatchButton = canSelectMatching
                 )
             }
         }
@@ -184,10 +187,12 @@ private fun WaitingContent(
 @Composable
 @OptIn(ExperimentalFoundationApi::class)
 private fun MatchingCarouselContent(
-    matchings: List<MatchingResponse>,
+    matchings: List<HomeMatching>,
     pagerState: PagerState,
-    onShowDetails: (MatchingResponse) -> Unit,
-    onNoMatch: () -> Unit
+    onShowDetails: (HomeMatching) -> Unit,
+    onNoMatch: () -> Unit,
+    title: String,
+    showNoMatchButton: Boolean
 ) {
     val currentMatching = matchings.getOrNull(pagerState.currentPage)
 
@@ -198,7 +203,7 @@ private fun MatchingCarouselContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         CustomText(
-            text = "매칭된 남성",
+            text = title,
             type = CustomTextType.title,
             color = CustomColor.black
         )
@@ -254,29 +259,31 @@ private fun MatchingCarouselContent(
                 color = Color.White
             )
         }
-        Spacer(modifier = Modifier.height(12.dp))
-        Button(
-            onClick = onNoMatch,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = CustomColor.gray100
-            ),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            CustomText(
-                text = "마음에 드는 상대가 없어요",
-                type = CustomTextType.body,
-                color = CustomColor.black
-            )
+        if (showNoMatchButton) {
+            Spacer(modifier = Modifier.height(12.dp))
+            Button(
+                onClick = onNoMatch,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = CustomColor.gray100
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                CustomText(
+                    text = "마음에 드는 상대가 없어요",
+                    type = CustomTextType.body,
+                    color = CustomColor.black
+                )
+            }
         }
     }
 }
 
 @Composable
 private fun MatchingCard(
-    matching: MatchingResponse,
+    matching: HomeMatching,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -306,7 +313,7 @@ private fun MatchingCard(
             }
             Spacer(modifier = Modifier.height(24.dp))
             CustomText(
-                text = matching.maleName,
+                text = matching.name,
                 type = CustomTextType.headline,
                 color = CustomColor.black,
                 textAlign = TextAlign.Center
@@ -343,7 +350,7 @@ private fun PagerIndicator(total: Int, current: Int) {
 
 @Composable
 private fun MatchingDetailContent(
-    matching: MatchingResponse,
+    matching: HomeMatching,
     canSelectMatching: Boolean,
     onConfirm: () -> Unit
 ) {
@@ -361,32 +368,36 @@ private fun MatchingDetailContent(
                 ProfileHeader(matching = matching)
             }
             item {
-                DetailCard(matching = matching)
+                DetailCard(
+                    matching = matching,
+                    counterpartLabel = if (canSelectMatching) "남성" else "여성"
+                )
             }
         }
-        Button(
-            onClick = onConfirm,
-            enabled = canSelectMatching,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = CustomColor.primary600,
-                disabledContainerColor = CustomColor.primary300
-            ),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            CustomText(
-                text = "마음에 들어요 매칭해주세요",
-                type = CustomTextType.body,
-                color = Color.White
-            )
+        if (canSelectMatching) {
+            Button(
+                onClick = onConfirm,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = CustomColor.primary600,
+                    disabledContainerColor = CustomColor.primary300
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                CustomText(
+                    text = "마음에 들어요 매칭해주세요",
+                    type = CustomTextType.body,
+                    color = Color.White
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun ProfileHeader(matching: MatchingResponse) {
+private fun ProfileHeader(matching: HomeMatching) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -407,12 +418,12 @@ private fun ProfileHeader(matching: MatchingResponse) {
         Spacer(modifier = Modifier.width(16.dp))
         Column {
             CustomText(
-                text = matching.maleName,
+                text = matching.name,
                 type = CustomTextType.headline,
                 color = CustomColor.black
             )
             CustomText(
-                text = matching.maleEmail,
+                text = matching.email,
                 type = CustomTextType.body,
                 color = CustomColor.gray400
             )
@@ -421,7 +432,10 @@ private fun ProfileHeader(matching: MatchingResponse) {
 }
 
 @Composable
-private fun DetailCard(matching: MatchingResponse) {
+private fun DetailCard(
+    matching: HomeMatching,
+    counterpartLabel: String
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
@@ -439,13 +453,15 @@ private fun DetailCard(matching: MatchingResponse) {
                 color = CustomColor.black
             )
             DetailItem(label = "매칭 ID", value = matching.matchingId.toString())
-            DetailItem(label = "남성 회원 ID", value = matching.maleMemberId.toString())
-            DetailItem(label = "이름", value = matching.maleName)
-            DetailItem(label = "이메일", value = matching.maleEmail)
+            DetailItem(label = "${counterpartLabel} 회원 ID", value = matching.memberId.toString())
+            DetailItem(label = "이름", value = matching.name)
+            DetailItem(label = "이메일", value = matching.email)
             DetailItem(label = "키", value = formatHeight(matching.height))
             DetailItem(label = "몸무게", value = formatWeight(matching.weight))
             DetailItem(label = "거주지역", value = formatText(matching.residenceArea))
-            DetailItem(label = "매칭 순서", value = matching.matchingOrder.toString())
+            matching.matchingOrder?.let {
+                DetailItem(label = "매칭 순서", value = it.toString())
+            }
             DetailItem(label = "상태", value = matching.status)
         }
     }

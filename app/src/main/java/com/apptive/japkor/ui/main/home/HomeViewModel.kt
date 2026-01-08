@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apptive.japkor.data.api.MatchingService
 import com.apptive.japkor.data.api.ServiceFactory
+import com.apptive.japkor.data.model.MalePendingMatchingResponse
 import com.apptive.japkor.data.model.MatchingResponse
 import com.apptive.japkor.ui.components.ToastType
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -23,8 +24,8 @@ sealed class HomeUiEvent {
 
 data class HomeUiState(
     val isLoading: Boolean = false,
-    val matchings: List<MatchingResponse> = emptyList(),
-    val selectedMatching: MatchingResponse? = null,
+    val matchings: List<HomeMatching> = emptyList(),
+    val selectedMatching: HomeMatching? = null,
     val isWaiting: Boolean = false,
     val aiSummaryKo: String? = null,
     val aiSummaryJa: String? = null,
@@ -43,11 +44,18 @@ class HomeViewModel(
     val events: SharedFlow<HomeUiEvent> = _events.asSharedFlow()
 
     init {
-        fetchFemaleMatchings()
         fetchAiSummary()
     }
 
-    fun fetchFemaleMatchings() {
+    fun fetchMatchingsForGender(gender: String) {
+        when {
+            gender.isBlank() -> return
+            gender == FEMALE_GENDER -> fetchFemaleMatchings()
+            gender == MALE_GENDER -> fetchMalePendingMatchings()
+        }
+    }
+
+    private fun fetchFemaleMatchings() {
         if (_uiState.value.isWaiting) return
 
         viewModelScope.launch {
@@ -57,7 +65,7 @@ class HomeViewModel(
             }.onSuccess { response ->
                 Log.d(TAG, "getFemaleMatchings success=${response.isSuccessful} code=${response.code()}")
                 if (response.isSuccessful) {
-                    val data = response.body().orEmpty()
+                    val data = response.body().orEmpty().map { it.toHomeMatching() }
                     if (data.isEmpty()) {
                         _uiState.update {
                             it.copy(
@@ -101,7 +109,64 @@ class HomeViewModel(
         }
     }
 
-    fun showDetails(matching: MatchingResponse) {
+    private fun fetchMalePendingMatchings() {
+        if (_uiState.value.isWaiting) return
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            runCatching {
+                matchingService.getMalePendingMatchings().awaitResponse()
+            }.onSuccess { response ->
+                Log.d(
+                    TAG,
+                    "getMalePendingMatchings success=${response.isSuccessful} code=${response.code()}"
+                )
+                if (response.isSuccessful) {
+                    val data = response.body().orEmpty().map { it.toHomeMatching() }
+                    if (data.isEmpty()) {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                matchings = emptyList(),
+                                selectedMatching = null,
+                                isWaiting = true
+                            )
+                        }
+                    } else {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                matchings = data,
+                                selectedMatching = null,
+                                isWaiting = false
+                            )
+                        }
+                    }
+                } else {
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            matchings = emptyList(),
+                            selectedMatching = null,
+                            isWaiting = true
+                        )
+                    }
+                }
+            }.onFailure { throwable ->
+                Log.e(TAG, "getMalePendingMatchings failed", throwable)
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        matchings = emptyList(),
+                        selectedMatching = null,
+                        isWaiting = true
+                    )
+                }
+            }
+        }
+    }
+
+    fun showDetails(matching: HomeMatching) {
         _uiState.update { it.copy(selectedMatching = matching) }
     }
 
@@ -209,5 +274,35 @@ class HomeViewModel(
 
     companion object {
         private const val TAG = "HomeViewModel"
+        private const val FEMALE_GENDER = "JAPANESE_FEMALE"
+        private const val MALE_GENDER = "KOREAN_MALE"
     }
+}
+
+private fun MatchingResponse.toHomeMatching(): HomeMatching {
+    return HomeMatching(
+        matchingId = matchingId,
+        memberId = maleMemberId,
+        name = maleName,
+        email = maleEmail,
+        height = height,
+        weight = weight,
+        residenceArea = residenceArea,
+        matchingOrder = matchingOrder,
+        status = status
+    )
+}
+
+private fun MalePendingMatchingResponse.toHomeMatching(): HomeMatching {
+    return HomeMatching(
+        matchingId = matchingId,
+        memberId = femaleMemberId,
+        name = femaleName,
+        email = femaleEmail,
+        height = height,
+        weight = weight,
+        residenceArea = residenceArea,
+        matchingOrder = null,
+        status = status
+    )
 }
