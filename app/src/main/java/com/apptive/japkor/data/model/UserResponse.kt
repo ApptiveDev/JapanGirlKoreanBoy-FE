@@ -13,7 +13,7 @@ data class AiSummaryResponse(
     val aiSummaryJa: String?
 )
 
-data class MemberInfoResponse(
+data class UserInfoResponse(
     val memberId: Long,
     val provider: String,
     val providerId: String?,
