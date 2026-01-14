@@ -22,13 +22,26 @@ fun OptionChip(
     text: String,
     selected: Boolean,
     onClick: () -> Unit,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     val shape = RoundedCornerShape(12.dp)
 
-    val background = if (selected) CustomColor.primary600 else CustomColor.white
-    val textColor = if (selected) CustomColor.white else CustomColor.gray300
-    val borderColor = if (selected) CustomColor.gray300 else CustomColor.gray200
+    val background = when {
+        !enabled -> CustomColor.gray100
+        selected -> CustomColor.primary600
+        else -> CustomColor.white
+    }
+    val textColor = when {
+        !enabled -> CustomColor.gray300
+        selected -> CustomColor.white
+        else -> CustomColor.gray300
+    }
+    val borderColor = when {
+        !enabled -> CustomColor.gray200
+        selected -> CustomColor.gray300
+        else -> CustomColor.gray200
+    }
 
     Surface(
         modifier = modifier
@@ -40,6 +53,7 @@ fun OptionChip(
             )
             .clip(shape)
             .clickable(
+                enabled = enabled,
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() },
                 onClick = onClick

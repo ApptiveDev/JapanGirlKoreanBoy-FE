@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,11 +35,12 @@ fun LoadingDialog() {
         )
     ) {
         Box(
-            modifier = Modifier.padding(horizontal = 32.dp),
+            modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
             Column(
                 modifier = Modifier
+                    .fillMaxWidth(0.8f)
                     .shadow(
                         elevation = 16.dp,
                         shape = dialogShape,
@@ -66,7 +68,8 @@ fun LoadingDialog() {
                 CustomText(
                     text = "인연의 실을\n 곱게 잇는 중이에요",
                     type = CustomTextType.mainBold,
-                    color = Color(0xFF4C3B30)
+                    color = Color(0xFF4C3B30),
+                    textAlign = TextAlign.Center
                 )
                 CustomText(
                     text = "두 마음이 예쁘게 묶이도록\n 조금만 기다려주세요",

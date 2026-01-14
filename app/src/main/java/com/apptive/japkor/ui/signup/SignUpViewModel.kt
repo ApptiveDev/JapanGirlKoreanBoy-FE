@@ -100,14 +100,12 @@ class SignUpViewModel(
     }
 
     fun signUp(
-        name: String,
         email: String,
         password: String
     ) {
         viewModelScope.launch {
             _isLoading.value = true
             val request = SignUpDTO(
-                name = name,
                 email = email,
                 password = password
             )

@@ -6,8 +6,10 @@ import android.provider.OpenableColumns
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.apptive.japkor.data.local.DataStoreManager
 import com.apptive.japkor.data.model.PresignedUrlRequest
 import com.apptive.japkor.data.model.RequiredInfoDTO
+import com.apptive.japkor.data.model.UserStatus
 import com.apptive.japkor.data.repository.ApiResult
 import com.apptive.japkor.data.repository.RequiredInfoRepository
 import com.apptive.japkor.ui.components.ToastType
@@ -46,12 +48,17 @@ sealed class RequiredInfoEvent {
 }
 
 class RequiredInfoViewModel(
+    private val dataStore: DataStoreManager,
     private val repository: RequiredInfoRepository = RequiredInfoRepository()
 ) : ViewModel() {
 
     private val _gender = MutableStateFlow<String?>(null)
     val gender: StateFlow<String?> = _gender
     fun setGender(label: String) { _gender.value = RequiredInfoMapper.gender(label) }
+
+    private val _name = MutableStateFlow("")
+    val name: StateFlow<String> = _name
+    fun setName(value: String) { _name.value = value }
 
     private val _height = MutableStateFlow<Int?>(null)
     val height: StateFlow<Int?> = _height
@@ -209,15 +216,16 @@ class RequiredInfoViewModel(
 
     @Suppress("UNCHECKED_CAST")
     val step2Valid: StateFlow<Boolean> = combine(
-        height, weight, region, smoking, drinking, religion
+        name, height, weight, region, smoking, drinking, religion
     ) { values ->
-        val h = values[0] as Int?
-        val w = values[1] as Int?
-        val r = values[2] as String
-        val s = values[3] as String?
-        val d = values[4] as String?
-        val rel = values[5] as String?
-        h != null && w != null && r.isNotBlank() && s != null && d != null && rel != null
+        val n = values[0] as String
+        val h = values[1] as Int?
+        val w = values[2] as Int?
+        val r = values[3] as String
+        val s = values[4] as String?
+        val d = values[5] as String?
+        val rel = values[6] as String?
+        n.isNotBlank() && h != null && w != null && r.isNotBlank() && s != null && d != null && rel != null
     }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     val step3Valid: StateFlow<Boolean> = combine(
@@ -304,6 +312,8 @@ class RequiredInfoViewModel(
         val profileImageUrls = uploadedImages.mapNotNull { it.uploadedUrl }
         val thumbnailImageUrl = profileImageUrls.firstOrNull()
 
+        val name = _name.value.trim()
+        if (name.isEmpty()) return setError("이름을 입력해주세요.")
         val gender = _gender.value ?: return setError("성별을 선택해주세요.")
         val height = _height.value ?: return setError("키를 입력해주세요.")
         val weight = _weight.value ?: return setError("몸무게를 입력해주세요.")
@@ -370,6 +380,7 @@ class RequiredInfoViewModel(
         if (priorities.toSet().size != 3) return setError("우선순위는 중복될 수 없습니다.")
 
         val dto = RequiredInfoDTO(
+            name = name,
             gender = gender,
             height = height,
             weight = weight,
@@ -400,6 +411,7 @@ class RequiredInfoViewModel(
             priority2 = priority2,
             priority3 = priority3
         )
+        Log.d(TAG, "submitRequiredInfo dto=$dto")
 
         viewModelScope.launch {
             _submitState.value = SubmitState.Loading
@@ -409,6 +421,9 @@ class RequiredInfoViewModel(
 
             if (result.success && result.code in 200..299) {
                 _submitState.value = SubmitState.Success
+                dataStore.saveUserName(name)
+                dataStore.saveUserGender(gender)
+                dataStore.saveUserStatus(UserStatus.PENDING_APPROVAL.name)
                 _events.emit(RequiredInfoEvent.NavigateToComplete)
             } else {
                 val message = result.errorMessage ?: "알 수 없는 오류가 발생했습니다."

@@ -20,6 +20,7 @@ import com.apptive.japkor.utils.required_info.RequiredInfoMapper
 fun Step2Content(
     viewModel: RequiredInfoViewModel
 ) {
+    val name by viewModel.name.collectAsState()
     val height by viewModel.height.collectAsState()
     val weight by viewModel.weight.collectAsState()
     val region by viewModel.region.collectAsState()
@@ -53,7 +54,7 @@ fun Step2Content(
         Spacer(modifier = Modifier.height(5.dp))
 
         // ============================
-        //  키 / 몸무게 / 거주 지역 입력
+        //  이름 / 키 / 몸무게 / 거주 지역 입력
         // ============================
         Column(
             modifier = Modifier
@@ -62,6 +63,13 @@ fun Step2Content(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+
+            // 이름 입력 (String)
+            CustomOutlinedTextField(
+                value = name,
+                onValueChange = { viewModel.setName(it) },
+                placeholder = "이름(실명)"
+            )
 
             // 키 입력 (Int?)
             CustomOutlinedTextField(
@@ -89,7 +97,7 @@ fun Step2Content(
             CustomOutlinedTextField(
                 value = region,
                 onValueChange = { viewModel.setRegion(it) },
-                placeholder = "거주 지역"
+                placeholder = "거주 지역(예: 서울특별시)"
             )
         }
 

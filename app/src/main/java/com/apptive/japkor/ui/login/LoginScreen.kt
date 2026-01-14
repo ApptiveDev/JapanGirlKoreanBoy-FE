@@ -1,5 +1,7 @@
 package com.apptive.japkor.ui.login
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,9 +25,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.apptive.japkor.R
+import com.apptive.japkor.data.model.UserStatus
 import com.apptive.japkor.navigation.Screen
 import com.apptive.japkor.ui.components.CustomOutlinedTextField
 import com.apptive.japkor.ui.components.CustomText
@@ -49,15 +55,27 @@ import com.apptive.japkor.ui.components.CustomTextType
 import com.apptive.japkor.ui.components.LoadingDialog
 import com.apptive.japkor.ui.components.LocalToastManager
 import com.apptive.japkor.ui.login.components.GoogleSignUpButton
+import com.apptive.japkor.ui.localization.AppLocalizer
+import com.apptive.japkor.ui.localization.LocalAppLanguage
 import com.apptive.japkor.ui.theme.CustomColor
 
 @Composable
 fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = viewModel()) {
     val toastManager = LocalToastManager.current
+    val appLanguage = LocalAppLanguage.current
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var rememberEmail by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
     val context = LocalContext.current
+    val savedEmail by viewModel.rememberedEmail.collectAsState(initial = "")
+
+    LaunchedEffect(savedEmail) {
+        if (savedEmail.isNotBlank()) {
+            email = savedEmail
+            rememberEmail = true
+        }
+    }
 
     // 키보드 높이 감지
     LocalDensity.current
@@ -91,7 +109,7 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.ic_back),
-                        contentDescription = "뒤로가기",
+                        contentDescription = AppLocalizer.translate("뒤로가기", appLanguage),
                         modifier = Modifier.width(20.dp)
                     )
                 }
@@ -158,16 +176,46 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
                         isPassword = true
                     )
 
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = rememberEmail,
+                            onCheckedChange = { checked ->
+                                rememberEmail = checked
+                                if (!checked) {
+                                    viewModel.updateRememberedEmail(false, email)
+                                } else if (email.isNotBlank()) {
+                                    viewModel.updateRememberedEmail(true, email)
+                                }
+                            },
+                            colors = CheckboxDefaults.colors(
+                                checkedColor = CustomColor.primary600,
+                                uncheckedColor = CustomColor.gray300,
+                                checkmarkColor = Color.White
+                            )
+                        )
+                        CustomText(
+                            text = "아이디 기억하기",
+                            type = CustomTextType.body,
+                            color = CustomColor.gray400,
+                        )
+                    }
+
                     Button(
                         onClick = {
+                            viewModel.updateRememberedEmail(rememberEmail, email)
 
-
-                            viewModel.signIn(email,password) {success ->
+                            viewModel.signIn(email, password) { success, status ->
                                 if (success) {
                                     toastManager.success("로그인 성공! 환영합니다.")
-                                    navController.navigate("requiredInfo")
-                                }
-                                else{
+
+                                    navController.navigate(Screen.Router.route) {
+                                        popUpTo(Screen.Login.route) { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                } else {
                                     toastManager.error("로그인 실패! 이메일과 비밀번호를 확인해주세요.")
                                 }
                             }
@@ -176,14 +224,14 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
                             .fillMaxWidth()
                             .height(50.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = CustomColor.gray300
+                            containerColor = CustomColor.primary600
                         ),
                         shape = RoundedCornerShape(16.dp)
                     ) {
                         CustomText(
                             text = "로그인",
                             type = CustomTextType.body,
-                            color = Color.Black
+                            color = Color.White
                         )
                     }
 
@@ -194,30 +242,30 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        CustomText(
-                            text = "아이디 찾기",
-                            type = CustomTextType.body,
-                            color = CustomColor.black,
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        CustomText(
-                            text = " | ",
-                            type = CustomTextType.body,
-                            color = CustomColor.gray300,
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        CustomText(
-                            text = "비밀번호 찾기",
-                            type = CustomTextType.body,
-                            color = CustomColor.black,
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        CustomText(
-                            text = " | ",
-                            type = CustomTextType.body,
-                            color = CustomColor.gray300,
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
+//                        CustomText(
+//                            text = "아이디 찾기",
+//                            type = CustomTextType.body,
+//                            color = CustomColor.black,
+//                        )
+//                        Spacer(modifier = Modifier.width(8.dp))
+//                        CustomText(
+//                            text = " | ",
+//                            type = CustomTextType.body,
+//                            color = CustomColor.gray300,
+//                        )
+//                        Spacer(modifier = Modifier.width(8.dp))
+//                        CustomText(
+//                            text = "비밀번호 찾기",
+//                            type = CustomTextType.body,
+//                            color = CustomColor.black,
+//                        )
+//                        Spacer(modifier = Modifier.width(8.dp))
+//                        CustomText(
+//                            text = " | ",
+//                            type = CustomTextType.body,
+//                            color = CustomColor.gray300,
+//                        )
+//                        Spacer(modifier = Modifier.width(8.dp))
                         CustomText(
                             text = "회원가입",
                             type = CustomTextType.body,
@@ -226,7 +274,15 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
                                 navController.navigate(Screen.SignUp.route)
                             }
                         )
+
                     }
+                    GoogleSignUpButton(
+                        onClick = {
+                            val url = "https://masil-main.duckdns.org/oauth2/authorization/google"
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                            context.startActivity(intent)
+                        }
+                    )
                 }
             }
 
@@ -235,89 +291,74 @@ fun LoginScreen(navController: NavController,viewModel: LoginScreenViewModel = v
         }
 
         // 하단 고정 버튼 영역
-        Column(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .background(Color.White)
-                .padding(horizontal = 24.dp)
-                .padding(
-                    bottom = WindowInsets.navigationBars.asPaddingValues()
-                        .calculateBottomPadding() + 16.dp
-                ),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                HorizontalDivider(
-                    modifier = Modifier
-                        .weight(1f)
-                        .align(Alignment.CenterVertically),
-                    color = CustomColor.gray300,
-                    thickness = 1.dp
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-                CustomText(
-                    text = "SNS 계정으로 로그인",
-                    type = CustomTextType.body,
-                    color = CustomColor.gray300,
-                    modifier = Modifier.align(Alignment.CenterVertically)
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-                HorizontalDivider(
-                    modifier = Modifier
-                        .weight(1f)
-                        .align(Alignment.CenterVertically),
-                    color = CustomColor.gray300,
-                    thickness = 1.dp
-                )
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp),
-                horizontalArrangement = Arrangement.Center,
-
-                ) {
-                GoogleSignUpButton(
-                    onClick = {
-                        // TODO: Google 로그인/연동 로직 추가
-                        toastManager.info("Google 로그인 준비 중입니다.")
-                    }
-                )
-
-            }
+//        Column(
+//            modifier = Modifier
+//                .align(Alignment.BottomCenter)
+//                .fillMaxWidth()
+//                .background(Color.White)
+//                .padding(horizontal = 24.dp)
+//                .padding(
+//                    bottom = WindowInsets.navigationBars.asPaddingValues()
+//                        .calculateBottomPadding() + 16.dp
+//                ),
+//            horizontalAlignment = Alignment.CenterHorizontally,
+//            verticalArrangement = Arrangement.spacedBy(16.dp)
+//        ) {
+//            Row(
+//                modifier = Modifier.fillMaxWidth(),
+//                horizontalArrangement = Arrangement.Center
+//            ) {
+//                HorizontalDivider(
+//                    modifier = Modifier
+//                        .weight(1f)
+//                        .align(Alignment.CenterVertically),
+//                    color = CustomColor.gray300,
+//                    thickness = 1.dp
+//                )
+//                Spacer(modifier = Modifier.width(10.dp))
+//                CustomText(
+//                    text = "SNS 계정으로 로그인",
+//                    type = CustomTextType.body,
+//                    color = CustomColor.gray300,
+//                    modifier = Modifier.align(Alignment.CenterVertically)
+//                )
+//                Spacer(modifier = Modifier.width(10.dp))
+//                HorizontalDivider(
+//                    modifier = Modifier
+//                        .weight(1f)
+//                        .align(Alignment.CenterVertically),
+//                    color = CustomColor.gray300,
+//                    thickness = 1.dp
+//                )
+//            }
 
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                CustomText(
-                    text = "이용약관",
-                    type = CustomTextType.body,
-                    color = CustomColor.black,
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                CustomText(
-                    text = " | ",
-                    type = CustomTextType.body,
-                    color = CustomColor.gray300,
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                CustomText(
-                    text = "개인정보 보호정책",
-                    type = CustomTextType.body,
-                    color = CustomColor.black,
-                )
-            }
+
+
+//            Row(
+//                modifier = Modifier.fillMaxWidth(),
+//                horizontalArrangement = Arrangement.Center,
+//                verticalAlignment = Alignment.CenterVertically
+//            ) {
+//                CustomText(
+//                    text = "이용약관",
+//                    type = CustomTextType.body,
+//                    color = CustomColor.black,
+//                )
+//                Spacer(modifier = Modifier.width(16.dp))
+//                CustomText(
+//                    text = " | ",
+//                    type = CustomTextType.body,
+//                    color = CustomColor.gray300,
+//                )
+//                Spacer(modifier = Modifier.width(16.dp))
+//                CustomText(
+//                    text = "개인정보 보호정책",
+//                    type = CustomTextType.body,
+//                    color = CustomColor.black,
+//                )
+//            }
 
 
         }
     }
-}

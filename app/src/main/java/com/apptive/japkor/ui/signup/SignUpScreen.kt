@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.apptive.japkor.R
-import com.apptive.japkor.ui.components.CustomOutlinedTextField
 import com.apptive.japkor.ui.components.CustomText
 import com.apptive.japkor.ui.components.CustomTextType
 import com.apptive.japkor.ui.theme.CustomColor
@@ -53,6 +52,8 @@ import com.apptive.japkor.ui.signup.components.EmailWithAuthSection
 import com.apptive.japkor.ui.signup.components.PasswordSection
 import com.apptive.japkor.ui.components.LocalToastManager
 import kotlinx.coroutines.flow.collectLatest
+import com.apptive.japkor.ui.localization.AppLocalizer
+import com.apptive.japkor.ui.localization.LocalAppLanguage
 
 
 /**
@@ -66,8 +67,7 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = viewModel()) {
     val toastManager = LocalToastManager.current
-
-    var name by remember { mutableStateOf("") }
+    val appLanguage = LocalAppLanguage.current
 
     var emailLocal by remember { mutableStateOf("") }   // @ 앞
     var emailDomain by remember { mutableStateOf("") }  // @ 뒤
@@ -139,7 +139,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = view
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.ic_back),
-                        contentDescription = "뒤로가기",
+                        contentDescription = AppLocalizer.translate("뒤로가기", appLanguage),
                         modifier = Modifier.width(20.dp)
                     )
                 }
@@ -191,20 +191,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = view
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            CustomText(
-                text = "이름",
-                type = CustomTextType.body,
-                color = CustomColor.black,
-                size = 15.sp
-            )
-            CustomOutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                placeholder = "이름"
-            )
-
             // 이메일
-            Spacer(modifier = Modifier.height(16.dp))
             EmailWithAuthSection(
                 emailLocal = emailLocal,
                 onEmailLocalChange = { emailLocal = it },
@@ -248,13 +235,11 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = view
                 onClick = {
                     val email = "$emailLocal@$emailDomain"
                     viewModel.signUp(
-                        name = name,
                         email = email,
                         password = password
                     )
                 },
-                enabled = name.isNotBlank()
-                        && emailLocal.isNotBlank()
+                enabled = emailLocal.isNotBlank()
                         && emailDomain.isNotBlank()
                         && authCode.isNotBlank()
                         && password.isNotBlank()
@@ -264,7 +249,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = view
                     .fillMaxWidth()
                     .height(50.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFF45C4A),
+                    containerColor = CustomColor.primary600,
                     contentColor = CustomColor.white,
                     disabledContainerColor = CustomColor.gray300,
                     disabledContentColor = CustomColor.white

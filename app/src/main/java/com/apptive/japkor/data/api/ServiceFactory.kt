@@ -8,4 +8,12 @@ object ServiceFactory {
     val requiredInfoApiService: RequiredInfoApiService by lazy {
         ApiClient.retrofit.create(RequiredInfoApiService::class.java)
     }
+
+    val matchingService: MatchingService by lazy {
+        ApiClient.retrofit.create(MatchingService::class.java)
+    }
+
+    val memberService: UserService by lazy {
+        ApiClient.retrofit.create(UserService::class.java)
+    }
 }
