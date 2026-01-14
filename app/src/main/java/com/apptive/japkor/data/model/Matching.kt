@@ -10,6 +10,7 @@ data class MatchingResponse(
     val height: Int?,
     val weight: Int?,
     val residenceArea: String?,
+    val thumbnailImageUrl: String?,
     val matchingOrder: Int,
     val status: String
 )
@@ -28,4 +29,18 @@ data class MalePendingMatchingResponse(
     val thumbnailImageUrl: String?,
     @SerializedName(value = "profileImageUrls", alternate = ["profileImageUrl"])
     val profileImageUrls: List<String>?
+)
+
+data class HomeMatching(
+    val matchingId: Long,
+    val memberId: Long,
+    val name: String,
+    val email: String,
+    val thumbnailImageUrl: String?,
+    val profileImageUrl: String?,
+    val height: Int?,
+    val weight: Int?,
+    val residenceArea: String?,
+    val matchingOrder: Int?,
+    val status: String
 )

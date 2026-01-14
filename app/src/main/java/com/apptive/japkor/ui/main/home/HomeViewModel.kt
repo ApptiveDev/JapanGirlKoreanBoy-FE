@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.apptive.japkor.data.api.MatchingService
 import com.apptive.japkor.data.api.ServiceFactory
 import com.apptive.japkor.data.api.UserService
+import com.apptive.japkor.data.model.HomeMatching
 import com.apptive.japkor.data.model.MalePendingMatchingResponse
 import com.apptive.japkor.data.model.MatchingResponse
 import com.apptive.japkor.ui.components.ToastType
@@ -27,6 +28,7 @@ data class HomeUiState(
     val isLoading: Boolean = false,
     val matchings: List<HomeMatching> = emptyList(),
     val selectedMatching: HomeMatching? = null,
+    val userName: String? = null,
     val isWaiting: Boolean = false,
     val aiSummaryKo: String? = null,
     val aiSummaryJa: String? = null,
@@ -285,11 +287,13 @@ class HomeViewModel(
                         "getMyAiSummary body memberId=${body?.memberId} name=${body?.name} " +
                             "aiSummaryKo=${body?.aiSummaryKo} aiSummaryJa=${body?.aiSummaryJa}"
                     )
+                    val userName = body?.name?.trim()?.takeIf { it.isNotBlank() }
                     val summaryKo = body?.aiSummaryKo?.trim()?.takeIf { it.isNotBlank() }
                     val summaryJa = body?.aiSummaryJa?.trim()?.takeIf { it.isNotBlank() }
                     if (summaryKo != null || summaryJa != null) {
                         _uiState.update {
                             it.copy(
+                                userName = userName,
                                 aiSummaryKo = summaryKo,
                                 aiSummaryJa = summaryJa,
                                 isAiSummaryLoading = false,
@@ -299,6 +303,7 @@ class HomeViewModel(
                     } else {
                         _uiState.update {
                             it.copy(
+                                userName = userName,
                                 aiSummaryKo = null,
                                 aiSummaryJa = null,
                                 isAiSummaryLoading = false,
@@ -343,6 +348,8 @@ private fun MatchingResponse.toHomeMatching(): HomeMatching {
         memberId = maleMemberId,
         name = maleName,
         email = maleEmail,
+        thumbnailImageUrl = thumbnailImageUrl,
+        profileImageUrl = null,
         height = height,
         weight = weight,
         residenceArea = residenceArea,
@@ -357,6 +364,8 @@ private fun MalePendingMatchingResponse.toHomeMatching(): HomeMatching {
         memberId = femaleMemberId,
         name = femaleName,
         email = femaleEmail,
+        thumbnailImageUrl = thumbnailImageUrl,
+        profileImageUrl = profileImageUrls?.firstOrNull(),
         height = height,
         weight = weight,
         residenceArea = residenceArea,
